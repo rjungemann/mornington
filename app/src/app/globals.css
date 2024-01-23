@@ -31,3 +31,11 @@ body {
     text-wrap: balance;
   }
 }
+
+.react-grid-layout {
+  border: 1px solid #333;
+}
+
+.react-grid-item {
+  border: 1px solid #333;
+}

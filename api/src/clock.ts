@@ -1,11 +1,11 @@
-import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { createDb } from './db';
+import db from './models'
 
 dotenv.config();
 
 async function main() {
-  const sequelize = createDb();
+  await db.sync({ force: true });
+  // console.log(db.models.Station)
   
   console.info('Ticker started!')
 }
