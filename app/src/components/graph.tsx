@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 
-// TODO: label
 type StationResponse = {
   id: number
   name: string
@@ -12,17 +11,27 @@ type StationResponse = {
   y: number
 }
 
-// TODO: label
 type HopResponse = {
   id: number
   label: string
+  length: number
   headId: number
   tailId: number
+}
+
+type AgentResponse = {
+  id: number
+  name: string
+  label: string
+  distance: number
+  currentStationId: number
+  currentHopId: number
 }
 
 type GameResponse = {
   stations: StationResponse[]
   hops: HopResponse[]
+  agents: AgentResponse[]
 }
 
 type StationItem = {
@@ -36,6 +45,7 @@ type StationItem = {
   }
 }
 
+// TODO: length
 type HopItem = {
   data: {
     source: string,
@@ -43,6 +53,8 @@ type HopItem = {
     label: string
   }
 }
+
+// TODO: agents
 
 type GraphItem = StationItem | HopItem
 
