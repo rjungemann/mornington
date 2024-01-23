@@ -21,8 +21,9 @@ class Station extends Model<
   declare updatedAt: CreationOptional<Date>;
 
   declare static associations: {
-    head: Association<Station, Hop>;
-    tail: Association<Station, Hop>;
+    heads: Association<Station, Hop>;
+    tails: Association<Station, Hop>;
+    agents: Association<Station, Agent>;
   };
 }
 
@@ -40,6 +41,33 @@ class Hop extends Model<
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  declare static associations: {
+    trains: Association<Station, Train>;
+    agents: Association<Station, Agent>;
+  };
+}
+
+class Train extends Model<
+  InferAttributes<Train>,
+  InferCreationAttributes<Train>
+> {
+  declare id: CreationOptional<number>;
+
+  declare name: string;
+  declare label: string;
+  declare distance: number;
+  declare speed: number;
+
+  declare stationId: ForeignKey<Station['id']>;
+  declare hopId: ForeignKey<Hop['id']>;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+
+  declare static associations: {
+    agents: Association<Station, Agent>;
+  };
 }
 
 class Agent extends Model<
@@ -50,18 +78,12 @@ class Agent extends Model<
 
   declare name: string;
   declare label: string;
-  declare distance: number;
 
-  declare currentStationId: ForeignKey<Station['id']>;
-  declare currentHopId: ForeignKey<Hop['id']>;
+  declare stationId: ForeignKey<Station['id']>;
+  declare trainId: ForeignKey<Hop['id']>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
-
-  declare static associations: {
-    currentStation: Association<Agent, Station>;
-    currentHop: Association<Agent, Hop>;
-  };
 }
 
 Station.init(
@@ -117,7 +139,7 @@ Hop.init(
   }
 );
 
-Agent.init(
+Train.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -133,7 +155,36 @@ Agent.init(
       allowNull: false
     },
     distance: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    speed: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'trains'
+  }
+);
+
+Agent.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    label: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
@@ -144,13 +195,17 @@ Agent.init(
   }
 );
 
-Station.hasMany(Hop, { as: 'head' });
-Station.hasMany(Hop, { as: 'tail' });
-Station.hasMany(Agent, { as: 'currentStation' });
+Station.hasMany(Hop, { as: 'heads', sourceKey: 'id', foreignKey: 'headId' });
+Station.hasMany(Hop, { as: 'tails', sourceKey: 'id', foreignKey: 'tailId' });
+Station.hasMany(Train, { as: 'station', sourceKey: 'id', foreignKey: 'stationId' });
+Station.hasMany(Agent, { as: 'agent', sourceKey: 'id', foreignKey: 'agentId' });
+Hop.hasMany(Train, { as: 'hop', sourceKey: 'id', foreignKey: 'hopId' });
 Hop.belongsTo(Station, { as: 'head' });
 Hop.belongsTo(Station, { as: 'tail' });
-Hop.hasMany(Agent, { as: 'currentHop' });
-Agent.belongsTo(Station, { as: 'currentStation' });
-Agent.belongsTo(Hop, { as: 'currentHop' });
+Train.hasMany(Agent, { as: 'agent', sourceKey: 'id', foreignKey: 'agentId' });
+Train.belongsTo(Station, { as: 'station' });
+Train.belongsTo(Hop, { as: 'hop' });
+Agent.belongsTo(Station, { as: 'station' });
+Agent.belongsTo(Train, { as: 'train' });
 
 export default sequelize

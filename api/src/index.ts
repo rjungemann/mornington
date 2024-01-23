@@ -29,8 +29,9 @@ async function main() {
     const gameId = req.params.id
     const stations = await db.models.Station.findAll();
     const hops = await db.models.Hop.findAll();
+    const trains = await db.models.Train.findAll();
     const agents = await db.models.Agent.findAll();
-    res.send(JSON.stringify({ gameId, stations, hops, agents }));
+    res.send(JSON.stringify({ gameId, stations, hops, trains, agents }));
   });
 
   app.listen(port, () => {
