@@ -58,6 +58,8 @@ class Train extends Model<
   declare label: string;
   declare distance: number;
   declare speed: number;
+  declare maxWaitTime: number;
+  declare currentWaitTime: number;
 
   declare stationId: ForeignKey<Station['id']>;
   declare hopId: ForeignKey<Hop['id']>;
@@ -159,6 +161,14 @@ Train.init(
       allowNull: false
     },
     speed: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    maxWaitTime: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    currentWaitTime: {
       type: DataTypes.INTEGER,
       allowNull: false
     },

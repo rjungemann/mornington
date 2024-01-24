@@ -65,16 +65,16 @@ insert into hops (label, length, "headId", "tailId", "createdAt", "updatedAt")
   where s1.name='g' and s2.name='h'
 );
 
-insert into trains (name, label, distance, speed, "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'Blue', 'Example train #1', 0, 1, s.id, null, now(), now()
+  select 'Blue', 'Example train #1', 0, 1, 3, 0, s.id, null, now(), now()
   from stations as s
   where s.name='c'
 );
 
-insert into trains (name, label, distance, speed, "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'Blue', 'Example train #1', 1, 1, s.id, h.id, now(), now()
+  select 'Red', 'Example train #2', 1, 1, 3, 0, s.id, h.id, now(), now()
   from stations as s, hops as h
   where s.name='c' and h.label = 'Hop from C to D'
 );
