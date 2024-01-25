@@ -62,10 +62,9 @@ type GraphOptions = {
 
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
-  return [
-    game!.stations.find((station) => station.id === hop.headId)!,
-    game!.stations.find((station) => station.id === hop.tailId)!
-  ]
+  const head = game!.stations.find((station) => station.id === hop.headId)!
+  const tail = game!.stations.find((station) => station.id === hop.tailId)!
+  return [head, tail]
 }
 const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percent: number): Position => {
   const [head, tail] = getGameHopHeadAndTail(game, hop)

@@ -3,12 +3,13 @@ import dotenv from 'dotenv';
 import db from './models'
 import { Sequelize } from 'sequelize'
 import cors from 'cors';
+import { findCompleteGameByName } from './services';
 
 dotenv.config();
 
 async function main() {
+  // Initialize DB
   await db.sync({ force: false });
-  // console.log(db.models.Station)
 
   const app: Express = express();
   const port = process.env.PORT || 3000;
@@ -27,15 +28,7 @@ async function main() {
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
-    const game = await db.models.Game.findOne({
-      include: [
-        { model: db.models.Station, as: 'stations' },
-        { model: db.models.Hop, as: 'hops' },
-        { model: db.models.Train, as: 'trains' },
-        { model: db.models.Agent, as: 'agents' },
-      ],
-      where: { name }
-    })
+    const game = await findCompleteGameByName(db)(name)
     res.send(JSON.stringify({ game }))
   });
 
