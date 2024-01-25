@@ -108,7 +108,7 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
 )
 
 export const Graph = (props: any) => {
-  const url = 'http://localhost:3001/games/1';
+  const url = 'http://localhost:3001/games/one';
   const options = {
     hopStroke: '#61DAFB',
     stationFill: '#61DAFB',
@@ -129,7 +129,7 @@ export const Graph = (props: any) => {
   useEffect(() => {
     fetch(url)
     .then((response) => response.json())
-    .then((data) => setGame(data));
+    .then((data) => setGame(data.game));
   }, []);
 
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`

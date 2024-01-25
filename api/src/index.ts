@@ -7,7 +7,7 @@ import cors from 'cors';
 dotenv.config();
 
 async function main() {
-  await db.sync({ force: true });
+  await db.sync({ force: false });
   // console.log(db.models.Station)
 
   const app: Express = express();
@@ -24,14 +24,19 @@ async function main() {
     res.send('OK');
   });
 
-  app.get('/games/:id', async (req: Request, res: Response<any, { db: Sequelize }>) => {
+  app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
-    const gameId = req.params.id
-    const stations = await db.models.Station.findAll();
-    const hops = await db.models.Hop.findAll();
-    const trains = await db.models.Train.findAll();
-    const agents = await db.models.Agent.findAll();
-    res.send(JSON.stringify({ gameId, stations, hops, trains, agents }));
+    const name = req.params.name
+    const game = await db.models.Game.findOne({
+      include: [
+        { model: db.models.Station, as: 'stations' },
+        { model: db.models.Hop, as: 'hops' },
+        { model: db.models.Train, as: 'trains' },
+        { model: db.models.Agent, as: 'agents' },
+      ],
+      where: { name }
+    })
+    res.send(JSON.stringify({ game }))
   });
 
   app.listen(port, () => {

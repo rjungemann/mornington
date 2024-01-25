@@ -20,6 +20,8 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
+    "db:sync": "ts-node src/sync.ts",
+    "db:seed": "psql mornington_development --file seeds.sql",
     "start:api": "ts-node src/index.ts",
     "start:clock": "ts-node src/clock.ts",
     "start:api:dev": "nodemon src/index.ts",
