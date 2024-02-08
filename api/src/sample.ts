@@ -1,4 +1,5 @@
 import db from './models'
+import { logger } from './logging'
 
 async function main() {
   await db.sync({ force: false })
@@ -12,7 +13,7 @@ async function main() {
       { model: db.models.Agent, as: 'agents' }
     ]
   })
-  console.log(s?.dataValues)
+  // logger.info(s?.dataValues, 'station with included data')
   // Query for hop with included data
   const h = await db.models.Hop.findOne({
     include: [
@@ -21,7 +22,7 @@ async function main() {
       { model: db.models.Train, as: 'trains' }
     ]
   })
-  console.log(h?.dataValues)
+  // logger.info(h?.dataValues, 'hop with included data')
   // Query for train with included data
   const t = await db.models.Train.findOne({
     include: [
@@ -30,7 +31,7 @@ async function main() {
       { model: db.models.Hop, as: 'hop' }
     ]
   })
-  console.log(h?.dataValues)
+  // logger.info(h?.dataValues, 'train with included data')
   // Query for agent with included data
   const a = await db.models.Agent.findOne({
     include: [
@@ -38,8 +39,9 @@ async function main() {
       { model: db.models.Train, as: 'train' },
     ]
   })
-  console.log(a?.dataValues)
+  // logger.info(a?.dataValues, 'agent with included data')
 
+  // Query for game with included data
   const g = await db.models.Game.findOne({
     include: [
       { model: db.models.Station, as: 'stations' },
@@ -48,7 +50,8 @@ async function main() {
       { model: db.models.Agent, as: 'agents' },
     ]
   })
-  console.log(g?.dataValues)
+  // logger.info(g?.dataValues, 'game with included data')
+  logger.info(g?.dataValues.stations[0], 'game with included data')
 
   process.exit()
 }

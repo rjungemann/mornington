@@ -2,9 +2,22 @@
 
 import { Association, DataTypes, Sequelize } from 'sequelize';
 import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import cls from 'cls-hooked'
+import { logger } from './logging'
+
+// All DB calls inside a transaction will default to adhering to that transaction.
+//
+// https://sequelize.org/docs/v6/other-topics/transactions/#automatically-pass-transactions-to-all-queries
+//
+const namespace = cls.createNamespace('default');
+Sequelize.useCLS(namespace);
 
 // TODO: Read from dotenv
-const sequelize = new Sequelize('postgres://localhost/mornington_development');
+const sequelize = new Sequelize('postgres://localhost/mornington_development', {
+  logging: (sql, timing) => {
+    logger.debug(sql, typeof timing === 'number' ? `Elapsed time: ${timing}ms` : '')
+  }
+});
 
 export class Game extends Model<
   InferAttributes<Game>,

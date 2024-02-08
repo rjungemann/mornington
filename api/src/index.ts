@@ -4,6 +4,7 @@ import db from './models'
 import { Sequelize } from 'sequelize'
 import cors from 'cors';
 import { findCompleteGameByName } from './services';
+import { logger } from './logging'
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ async function main() {
   await db.sync({ force: false });
 
   const app: Express = express();
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3001;
 
   app.use(cors())
 
@@ -33,7 +34,7 @@ async function main() {
   });
 
   app.listen(port, () => {
-    console.info(`[server]: Server is running at http://localhost:${port}`);
+    logger.info({ port }, `Server is running at http://localhost:%s`, port);
   });
 }
 
