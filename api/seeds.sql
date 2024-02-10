@@ -167,14 +167,14 @@ insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "upd
 
 insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'Blue', 'Example train #1', 0, 1, 3, 0, g.id, s.id, null, now(), now()
+  select 'blue', 'Example train #1', 0, 1, 3, 0, g.id, s.id, null, now(), now()
   from games as g, stations as s
   where g.name='one' and s.name='c'
 );
 
 insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'Red', 'Example train #2', 1, 1, 3, 0, g.id, s.id, h.id, now(), now()
+  select 'red', 'Example train #2', 1, 1, 3, 0, g.id, s.id, h.id, now(), now()
   from games as g, stations as s, hops as h
   where g.name='one' and s.name='c' and h.label = 'Hop from C to D'
 );
@@ -185,7 +185,14 @@ insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTim
 
 insert into agents (name, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
 (
-  select 'Blue', 'Example train #1', g.id, s.id, null, now(), now()
+  select 'alice', 'Started on a train', g.id, null, t.id, now(), now()
+  from games as g, trains as t
+  where g.name='one' and t.name='blue'
+);
+
+insert into agents (name, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
+(
+  select 'bob', 'Started in a station', g.id, s.id, null, now(), now()
   from games as g, stations as s
-  where g.name='one' and s.name='b'
+  where g.name='one' and s.name='i'
 );

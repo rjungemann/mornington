@@ -6,6 +6,111 @@ import { logger } from './logging'
 
 dotenv.config();
 
+async function tickHoppingTrain(
+  train: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  logger.info({ gameId, trainName: train.dataValues.name }, 'Handling hopping train "%s"', train.dataValues.name)
+  const hopId: number = train.dataValues.hopId!
+  const hop: Hop = hops.find((hop) => hop.dataValues.id === hopId)! as Hop
+  const length = hop.dataValues.length
+  const distance = train.dataValues.distance
+  const speed = train.dataValues.speed
+  const newDistance = distance + speed
+  if (newDistance >= length) {
+    const newStationId = hop.dataValues.tailId
+    const station: Station = stations.find((station) => station.dataValues.id === newStationId)! as Station
+    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
+    train.set('hopId', null)
+    train.set('stationId', newStationId)
+    train.set('currentWaitTime', 0)
+    train.set('distance', 0)
+  } else {
+    train.set('distance', newDistance)
+  }
+  await train.save()
+}
+
+async function tickStationedTrain(
+  train: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  logger.info({ gameId, trainName: train.dataValues.name }, 'Handling stationed train "%s"', train.dataValues.name)
+  const stationId: number = train.dataValues.stationId!
+  const station: Station = stations.find((station) => station.dataValues.id === stationId)! as Station
+  const currentWaitTime = train.dataValues.currentWaitTime
+  const maxWaitTime = train.dataValues.maxWaitTime
+  const newWaitTime = currentWaitTime + 1
+  if (newWaitTime >= maxWaitTime) {
+    logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
+    const hops = await listHopsByGameIdAndStationId(db)(gameId, station.dataValues.id)
+    const hop = hops.length ? hops[Math.floor(Math.random() * hops.length)] : null
+    if (hop) {
+      train.set('hopId', hop.dataValues.id)
+      train.set('stationId', null)
+      train.set('currentWaitTime', 0)
+      train.set('distance', 0)
+    }
+    else {
+      throw new Error('Could not find a hop to connect to')
+    }
+  }
+  else {
+    train.set('currentWaitTime', newWaitTime)
+  }
+  await train.save()
+}
+
+async function tickTravelingAgent(
+  agent: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  const train = trains.find((train) => train.dataValues.id === agent.dataValues.id)!
+  const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)!
+  if (train.dataValues.stationId) {
+    const mightDisembarkTrain = Math.random() < 0.5;
+    if (mightDisembarkTrain) {
+      logger.info({ gameId, agentName: agent.dataValues.name, trainName: train.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is disembarking train "%s" to station "%s"', agent.dataValues.name, train.dataValues.name, station.dataValues.name)
+      agent.set('trainId', null)
+      agent.set('stationId', station.dataValues.id)
+    }
+    else {
+      logger.info({ gameId, agentName: agent.dataValues.name, stationName: train.dataValues.name }, 'Agent "%s" is staying on stationed train "%s"', agent.dataValues.name, train.dataValues.name)
+    }
+  }
+  else {
+    logger.info({ gameId, agentName: agent.dataValues.name, stationName: train.dataValues.name }, 'Agent "%s" is traveling on train "%s"', agent.dataValues.name, train.dataValues.name)
+  }
+  agent.save()
+}
+
+async function tickStationedAgent(
+  agent: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  logger.info({ gameId, agentName: agent.dataValues.name }, 'Handling stationed agent "%s"', agent.dataValues.name)
+  const station = stations.find((station) => station.dataValues.id === agent.dataValues.id)!
+  const trainsInStation = trains.filter((train) => agent.dataValues.id === train.dataValues.stationId)
+  if (trainsInStation.length > 0) {
+    const mightBoardTrain = Math.random() < 0.5;
+    if (mightBoardTrain) {
+      const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
+      logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name, trainName: trainToBoard.dataValues.name }, 'Agent "%s" at station "%s" boarding train "%s"', agent.dataValues.name, station.dataValues.name, trainToBoard.dataValues.name)
+      agent.set('stationId', null)
+      agent.set('trainId', trainToBoard.dataValues.id)
+    } else {
+      logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is waiting at station "%s" with waiting trains', agent.dataValues.name, station.dataValues.name)
+    }
+  } else {
+    logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is waiting at station "%s"', agent.dataValues.name, station.dataValues.name)
+  }
+  await agent.save()
+}
+
 async function tickGame(gameId: number) {
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
@@ -19,53 +124,32 @@ async function tickGame(gameId: number) {
     logger.info({ gameId, trainName: train.dataValues.name }, 'Handling train "%s"', train.dataValues.name)
     // Hopping train
     if (train.dataValues.hopId) {
-      logger.info({ gameId, trainName: train.dataValues.name }, 'Handling hopping train "%s"', train.dataValues.name)
-      const hopId: number = train.dataValues.hopId!
-      const hop: Hop = hops.find((hop) => hop.dataValues.id === hopId)! as Hop
-      const length = hop.dataValues.length
-      const distance = train.dataValues.distance
-      const speed = train.dataValues.speed
-      const newDistance = distance + speed
-      if (newDistance >= length) {
-        const newStationId = hop.dataValues.tailId
-        const station: Station = stations.find((station) => station.dataValues.id === newStationId)! as Station
-        logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
-        train.set('hopId', null)
-        train.set('stationId', newStationId)
-        train.set('currentWaitTime', 0)
-        train.set('distance', 0)
-      } else {
-        train.set('distance', newDistance)
-      }
-      await train.save()
+      await tickHoppingTrain(train, { gameId, trains, hops, stations, agents })
     }
     // Stationed train
     else if (train.dataValues.stationId) {
-      logger.info({ gameId, trainName: train.dataValues.name }, 'Handling station train "%s"', train.dataValues.name)
-      const stationId: number = train.dataValues.stationId!
-      const station: Station = stations.find((station) => station.dataValues.id === stationId)! as Station
-      const currentWaitTime = train.dataValues.currentWaitTime
-      const maxWaitTime = train.dataValues.maxWaitTime
-      const newWaitTime = currentWaitTime + 1
-      if (newWaitTime >= maxWaitTime) {
-        logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
-        const hops = await listHopsByGameIdAndStationId(db)(gameId, station.dataValues.id)
-        const hop = hops.length ? hops[Math.floor(Math.random() * hops.length)] : null
-        if (hop) {
-          train.set('hopId', hop.dataValues.id)
-          train.set('stationId', null)
-          train.set('currentWaitTime', 0)
-          train.set('distance', 0)
-        } else {
-          throw new Error('Could not find a hop to connect to')
-        }
-      } else {
-        train.set('currentWaitTime', newWaitTime)
-      }
-      await train.save()
+      await tickStationedTrain(train, { gameId, trains, hops, stations, agents })
     }
+    // A train is "out-of-bounds" if not hopping or stationed.
     else {
-      logger.error({ gameId, trainName: train.dataValues.name }, 'Train "%s" in invalid state, skipping!', train.dataValues.name)
+      logger.error({ gameId, trainName: train.dataValues.name }, 'Train "%s" is out-of-bounds. Skipping!', train.dataValues.name)
+    }
+  }
+
+  // Agent phase
+  for (let agent of agents) {
+    logger.info({ gameId, agentName: agent.dataValues.name }, 'Handling agent "%s"', agent.dataValues.name)
+    // Traveling agent
+    if (agent.dataValues.trainId) {
+      await tickTravelingAgent(agent, { gameId, trains, hops, stations, agents })
+    }
+    // Stationed agent
+    else if (agent.dataValues.stationId) {
+      await tickStationedAgent(agent, { gameId, trains, hops, stations, agents })
+    }
+    // An agent is "out-of-bounds" if not traveling or stationed.
+    else {
+      logger.error({ gameId, agentName: agent.dataValues.name }, 'Agent "%s" is out-of-bounds. Skipping!', agent.dataValues.name)
     }
   }
 }
@@ -77,26 +161,25 @@ async function main() {
   await db.sync({ force: false });
 
   logger.info('Ticker started!...')
-
-  // TODO: Batch this
-  const games = await db.models.Game.findAll()
+  const games = await db.models.Game.findAll({ attributes: ['id', 'name'] })
+  // TODO: Use `await Promise.allSettled([...])` so games can be concurrently processed
   for (let game of games) {
     const gameName = game.dataValues.name
     const gameId = game.dataValues.id
     try {
       await db.transaction(async (t) => {
-        logger.info({ gameName, gameId }, `Began processing tick for game "${gameName}"...`)
+        logger.info({ gameId }, 'Began processing tick for game...')
         await tickGame(gameId)
-        logger.info({ gameName, gameId }, `Finished processing tick for game "${gameName}"!`)
+        logger.info({ gameId }, 'Finished processing tick for game!')
       });
-    
-      logger.info({ gameName, gameId }, `Transaction committed for game "${gameName}"!`)
+      logger.info({ gameId }, 'Transaction committed for game!')
     } catch (error) {
-      logger.error({ gameName, gameId, error }, `Transaction rolled back due to error for game "${gameName}"!`, gameName)
+      logger.error({ gameId, error }, 'Transaction rolled back due to error!')
     }
   }
-
+  // TODO: Cache after ticking
   logger.info('Ticker finished!')
+
   process.exit()
 }
 

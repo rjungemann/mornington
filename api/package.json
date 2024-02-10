@@ -4,16 +4,17 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@types/cls-hooked": "^4.3.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.5",
-    "@types/cls-hooked": "^4.3.8",
     "@types/pino": "^7.0.5",
-    "sequelize-cli": "^6.6.2",
     "pino-pretty": "^10.3.1",
+    "sequelize-cli": "^6.6.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.2",
     "express": "^4.18.2",
@@ -24,8 +25,11 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
+    "db:drop": "psql postgres --command='drop database mornington_development;'",
+    "db:create": "psql postgres --command='create database mornington_development;'",
     "db:sync": "ts-node src/sync.ts",
-    "db:seed": "psql mornington_development --file seeds.sql",
+    "db:seed": "psql mornington_development --variable=ON_ERROR_STOP=on --file=seeds.sql",
+    "db:all": "yarn db:drop; yarn db:create && yarn db:sync && yarn db:seed",
     "start:api": "ts-node src/index.ts",
     "start:clock": "ts-node src/clock.ts",
     "start:api:dev": "nodemon src/index.ts",
