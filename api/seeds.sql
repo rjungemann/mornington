@@ -12,70 +12,70 @@ insert into games (name, label, "createdAt", "updatedAt") values ('one', 'Game #
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'a', 'Greedon Way', 'A', 50, 150, g.id, now(), now()
+  select 'a', 'Greedon Way', 'A', 10, 175, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'b', 'Wofford Moor', 'B', 90, 150, g.id, now(), now()
+  select 'b', 'Wofford Moor', 'B', 70, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'c', 'Grunham Vale', 'C', 130, 50, g.id, now(), now()
+  select 'c', 'Grunham Vale', 'C', 110, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'd', 'Diplo East', 'D', 170, 50, g.id, now(), now()
+  select 'd', 'Diplo East', 'D', 190, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'e', 'Minstowe North', 'E', 130, 250, g.id, now(), now()
+  select 'e', 'Minstowe North', 'E', 110, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'f', 'Badgers Mere', 'F', 170, 250, g.id, now(), now()
+  select 'f', 'Badgers Mere', 'F', 190, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'g', 'Cowstone East', 'G', 210, 150, g.id, now(), now()
+  select 'g', 'Cowstone East', 'G', 230, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'h', 'Lefting Cross', 'H', 250, 150, g.id, now(), now()
+  select 'h', 'Lefting Cross', 'H', 290, 175, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'i', 'Fayre Holt', 'I', 210, 350, g.id, now(), now()
+  select 'i', 'Fayre Holt', 'I', 230, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'j', 'Rivermouth Mount', 'J', 90, 350, g.id, now(), now()
+  select 'j', 'Rivermouth Mount', 'J', 70, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );

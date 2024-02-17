@@ -21,9 +21,21 @@ const Hop = ({ game, hop, options }: { game: GameResponse, hop: HopResponse, opt
   )
 }
 
-const Station = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => (
-  <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill}/>
-)
+const Station = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+  const width = 200
+  const height = 100
+  const offsetY = 24
+  return (
+    <>
+      <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill}/>
+      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
+        <rect x="0" y="0" width={width} height={height} fill="none"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
+      </svg>
+    </>
+  )
+}
+  
 
 const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
   const hop = game.hops.find((hop) => hop.id === train.hopId)!
