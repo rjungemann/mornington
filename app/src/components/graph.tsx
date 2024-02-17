@@ -1,71 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-type StationResponse = {
-  id: number
-  name: string
-  label: string
-  x: number
-  y: number
-}
-
-type HopResponse = {
-  id: number
-  label: string
-  length: number
-  headId: number
-  tailId: number
-}
-
-type TrainResponse = {
-  id: number
-  name: string
-  label: string
-  distance: number
-  speed: number
-  maxWaitTime: number,
-  currentWaitTime: number,
-  stationId: number
-  hopId: number
-}
-
-type AgentResponse = {
-  id: number
-  name: string
-  label: string
-  stationId: number
-  trainId: number
-}
-
-type GameResponse = {
-  stations: StationResponse[]
-  hops: HopResponse[]
-  trains: TrainResponse[]
-  agents: AgentResponse[]
-}
-
-type Position = {
-  x: number
-  y: number
-}
-
-type GraphOptions = {
-  hopStroke: string,
-  stationFill: string,
-  stationRadius: number,
-  trainFill: string,
-  trainRadius: number,
-  offset: Position,
-  size: Position
-}
-
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
   const head = game!.stations.find((station) => station.id === hop.headId)!
   const tail = game!.stations.find((station) => station.id === hop.tailId)!
   return [head, tail]
 }
+
 const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percent: number): Position => {
   const [head, tail] = getGameHopHeadAndTail(game, hop)
   const x = lerp(head.x, tail.x, percent)
@@ -76,7 +17,7 @@ const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percen
 const Hop = ({ game, hop, options }: { game: GameResponse, hop: HopResponse, options: GraphOptions }) => {
   const [head, tail] = getGameHopHeadAndTail(game, hop)
   return (
-    <path key={hop.id} d={`M${head.x} ${head.y} L${tail.x} ${tail.y}`} stroke={options.hopStroke}/>
+    <path key={hop.id} d={`M${head.x} ${head.y} L${tail.x} ${tail.y}`} stroke={options.hopStroke} strokeWidth={options.hopStrokeWidth}/>
   )
 }
 
@@ -89,14 +30,14 @@ const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainRe
   const percent = train.distance / hop.length
   const { x, y } = getGameHopRelativePosition(game, hop, percent)
   return (
-    <circle key={train.id} cx={x} cy={y} r={options.trainRadius} fill={options.trainFill}/>
+    <circle key={train.id} cx={x} cy={y} r={options.trainRadius} fill={train.color}/>
   )
 }
 
 const StationTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
   const station = game.stations.find((station) => station.id === train.stationId)!;
   return (
-    <circle key={train.id} cx={station.x} cy={station.y} r={options.trainRadius} fill={options.trainFill}/>
+    <circle key={train.id} cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color}/>
   )
 }
 
@@ -106,10 +47,10 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
   : <StationTrain game={game} train={train} options={options} />
 )
 
-export const Graph = (props: any) => {
-  const url = 'http://localhost:3001/games/one';
+export const Graph = ({ game }: { game: GameResponse }) => {
   const options = {
     hopStroke: '#61DAFB',
+    hopStrokeWidth: 2,
     stationFill: '#61DAFB',
     stationRadius: 10,
     trainFill: '#00FF00',
@@ -123,13 +64,6 @@ export const Graph = (props: any) => {
       y: 600
     }
   }
-
-  const [game, setGame] = useState<GameResponse | null>(null);
-  useEffect(() => {
-    fetch(url)
-    .then((response) => response.json())
-    .then((data) => setGame(data.game));
-  }, []);
 
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
 

@@ -30,9 +30,9 @@
     "db:sync": "ts-node src/sync.ts",
     "db:seed": "psql mornington_development --variable=ON_ERROR_STOP=on --file=seeds.sql",
     "db:all": "yarn db:drop; yarn db:create && yarn db:sync && yarn db:seed",
-    "start:api": "ts-node src/index.ts",
-    "start:clock": "ts-node src/clock.ts",
-    "start:api:dev": "nodemon src/index.ts",
-    "start:clock:dev": "nodemon src/clock.ts"
+    "start:api": "ts-node src/index.ts | yarn exec pino-pretty",
+    "start:clock": "ts-node src/clock.ts | yarn exec pino-pretty",
+    "start:api:dev": "nodemon src/index.ts | yarn exec pino-pretty",
+    "start:clock:dev": "nodemon src/clock.ts | yarn exec pino-pretty"
   }
 }

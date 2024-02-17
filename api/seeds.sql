@@ -10,72 +10,72 @@ insert into games (name, label, "createdAt", "updatedAt") values ('one', 'Game #
 -- STATIONS
 -----------
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'a', 'A', 50, 150, g.id, now(), now()
+  select 'a', 'Greedon Way', 'A', 50, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'b', 'B', 90, 150, g.id, now(), now()
+  select 'b', 'Wofford Moor', 'B', 90, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'c', 'C', 130, 50, g.id, now(), now()
+  select 'c', 'Grunham Vale', 'C', 130, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'd', 'D', 170, 50, g.id, now(), now()
+  select 'd', 'Diplo East', 'D', 170, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'e', 'E', 130, 250, g.id, now(), now()
+  select 'e', 'Minstowe North', 'E', 130, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'f', 'F', 170, 250, g.id, now(), now()
+  select 'f', 'Badgers Mere', 'F', 170, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'g', 'G', 210, 150, g.id, now(), now()
+  select 'g', 'Cowstone East', 'G', 210, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'h', 'H', 250, 150, g.id, now(), now()
+  select 'h', 'Lefting Cross', 'H', 250, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'i', 'I', 210, 350, g.id, now(), now()
+  select 'i', 'Fayre Holt', 'I', 210, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'j', 'J', 90, 350, g.id, now(), now()
+  select 'j', 'Rivermouth Mount', 'J', 90, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );
@@ -165,34 +165,48 @@ insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "upd
 -- TRAINS
 ---------
 
-insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'blue', 'Example train #1', 0, 1, 3, 0, g.id, s.id, null, now(), now()
+  select 'blue', 'Blue', 'Example train #1', '#4040ff', 0, 1, 3, 0, g.id, s.id, null, now(), now()
   from games as g, stations as s
   where g.name='one' and s.name='c'
 );
 
-insert into trains (name, label, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
 (
-  select 'red', 'Example train #2', 1, 1, 3, 0, g.id, s.id, h.id, now(), now()
-  from games as g, stations as s, hops as h
-  where g.name='one' and s.name='c' and h.label = 'Hop from C to D'
+  select 'red', 'Red', 'Example train #2', '#ff4040', 1, 1, 3, 0, g.id, NULL, h.id, now(), now()
+  from games as g, hops as h
+  where g.name='one' and h.label = 'Hop from C to D'
+);
+
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+(
+  select 'green', 'Green', 'Example train #3', '#40ff40', 1, 1, 3, 0, g.id, NULL, h.id, now(), now()
+  from games as g, hops as h
+  where g.name='one' and h.label = 'Hop from H to I'
 );
 
 ---------
 -- AGENTS
 ---------
 
-insert into agents (name, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
+insert into agents (name, title, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
 (
-  select 'alice', 'Started on a train', g.id, null, t.id, now(), now()
+  select 'alice', 'Alice', 'Started on a train', g.id, null, t.id, now(), now()
   from games as g, trains as t
   where g.name='one' and t.name='blue'
 );
 
-insert into agents (name, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
+insert into agents (name, title, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
 (
-  select 'bob', 'Started in a station', g.id, s.id, null, now(), now()
+  select 'bob', 'Bob', 'Started in a station', g.id, s.id, null, now(), now()
   from games as g, stations as s
   where g.name='one' and s.name='i'
+);
+
+insert into agents (name, title, label, "gameId", "stationId", "trainId", "createdAt", "updatedAt")
+(
+  select 'eve', 'Eve', 'Started in a station', g.id, s.id, null, now(), now()
+  from games as g, stations as s
+  where g.name='one' and s.name='j'
 );

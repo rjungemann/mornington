@@ -46,6 +46,7 @@ export class Station extends Model<
   declare id: CreationOptional<number>;
 
   declare name: string;
+  declare title: string;
   declare label: string;
   declare x: number;
   declare y: number;
@@ -90,7 +91,9 @@ export class Train extends Model<
   declare id: CreationOptional<number>;
 
   declare name: string;
+  declare title: string;
   declare label: string;
+  declare color: string;
   declare distance: number;
   declare speed: number;
   declare maxWaitTime: number;
@@ -115,6 +118,7 @@ export class Agent extends Model<
   declare id: CreationOptional<number>;
 
   declare name: string;
+  declare title: string;
   declare label: string;
 
   declare gameId: ForeignKey<Game['id']>;
@@ -157,6 +161,10 @@ Station.init(
       primaryKey: true
     },
     name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    title: {
       type: new DataTypes.STRING(128),
       allowNull: false
     },
@@ -213,7 +221,15 @@ Train.init(
       type: new DataTypes.STRING(128),
       allowNull: false
     },
+    title: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
     label: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    color: {
       type: new DataTypes.STRING(128),
       allowNull: false
     },
@@ -250,6 +266,10 @@ Agent.init(
       primaryKey: true
     },
     name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    title: {
       type: new DataTypes.STRING(128),
       allowNull: false
     },

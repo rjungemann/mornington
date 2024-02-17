@@ -1,9 +1,9 @@
-import { Graph } from '@/components/graph';
+import { Gameboard } from '@/components/gameboard';
 
 export default function Home() {
   return (
-    <main className="m-2 border-solid border-2 border-sky-500">
-      <Graph />
+    <main className="m-2">
+      <Gameboard />
     </main>
   );
 }
