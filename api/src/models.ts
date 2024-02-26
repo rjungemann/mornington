@@ -1,7 +1,6 @@
 'use strict';
 
-import { Association, DataTypes, Sequelize } from 'sequelize';
-import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { Association, DataTypes, Sequelize, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from 'sequelize';
 import cls from 'cls-hooked'
 import { logger } from './logging'
 
@@ -18,6 +17,10 @@ const sequelize = new Sequelize('postgres://localhost/mornington_development', {
     logger.debug(sql, typeof timing === 'number' ? `Elapsed time: ${timing}ms` : '')
   }
 });
+
+// ------------------
+// Class Declarations
+// ------------------
 
 export class Game extends Model<
   InferAttributes<Game>,
@@ -128,6 +131,23 @@ export class Agent extends Model<
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
+
+export class GameTurn extends Model<
+  InferAttributes<GameTurn>,
+  InferCreationAttributes<GameTurn>
+> {
+  declare id: CreationOptional<number>;
+  declare data: any;
+
+  declare gameId: ForeignKey<Game['id']>;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+}
+
+// --------------------
+// Model Initialization
+// --------------------
 
 Game.init(
   {
@@ -286,6 +306,30 @@ Agent.init(
   }
 );
 
+GameTurn.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    data: {
+      type: new DataTypes.JSONB(),
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'gameTurns'
+  }
+);
+
+// ------------------
+// Model Associations
+// ------------------
+
 Game.hasMany(Station, { as: 'stations', foreignKey: 'gameId' });
 Game.hasMany(Hop, { as: 'hops', foreignKey: 'gameId' });
 Game.hasMany(Train, { as: 'trains', foreignKey: 'gameId' });
@@ -306,5 +350,6 @@ Train.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
 Agent.belongsTo(Station, { as: 'station', foreignKey: 'stationId' });
 Agent.belongsTo(Train, { as: 'train', foreignKey: 'trainId' });
 Agent.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
+GameTurn.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
 
 export default sequelize

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import db, { Game, Hop, Station, Train } from './models';
 import { Attributes, CreationAttributes, InferAttributes, InferCreationAttributes, Model, ModelStatic, Op, Sequelize } from 'sequelize';
-import { listHoppingTrainsByGameId, listHopsByGameIdAndStationId, listStationTrainsByGameId } from './services';
+import { findCompleteGameByName, listHoppingTrainsByGameId, listHopsByGameIdAndStationId, listStationTrainsByGameId } from './services';
 import { logger } from './logging'
 
 dotenv.config();
@@ -195,6 +195,10 @@ async function main() {
         logger.info({ gameId }, 'Began processing tick for game...')
         await tickGame(gameId)
         logger.info({ gameId }, 'Finished processing tick for game!')
+
+        const newGame = await findCompleteGameByName(db)(gameName)
+        await db.models.GameTurn.create({ gameId, data: newGame })
+        logger.info({ gameId }, 'Finished caching game turn data!')
       });
       logger.info({ gameId }, 'Transaction committed for game!')
     } catch (error) {

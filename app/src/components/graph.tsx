@@ -30,7 +30,7 @@ const Station = ({ game, station, options }: { game: GameResponse, station: Stat
       <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill}/>
       <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
-        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
+        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
     </>
   )

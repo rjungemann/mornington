@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import db from './models'
+import db, { Game } from './models'
 import { Sequelize } from 'sequelize'
 import cors from 'cors';
 import { findCompleteGameByName } from './services';
@@ -29,8 +29,16 @@ async function main() {
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
-    const game = await findCompleteGameByName(db)(name)
-    res.send(JSON.stringify({ game }))
+    const gameTurn = await db.models.GameTurn.findOne({
+      include: { model: Game, as: 'game', where: { name } },
+      order: [['createdAt', 'DESC']]
+    })
+    if (!gameTurn) {
+      res.send({ game: null })
+    } else {
+      const gameData = gameTurn!.dataValues.data
+      res.send(JSON.stringify({ game: gameData }))
+    }
   });
 
   app.listen(port, () => {
