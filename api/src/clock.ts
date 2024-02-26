@@ -6,6 +6,8 @@ import { logger } from './logging'
 
 dotenv.config();
 
+// TODO: There should be a destination
+
 async function tickHoppingTrain(
   train: Model<any, any>,
   { gameId, trains, hops, stations, agents }:
@@ -19,6 +21,7 @@ async function tickHoppingTrain(
   const speed = train.dataValues.speed
   const newDistance = distance + speed
   if (newDistance >= length) {
+    // Train hopping to station
     const newStationId = hop.dataValues.tailId
     const station: Station = stations.find((station) => station.dataValues.id === newStationId)! as Station
     logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
@@ -27,7 +30,20 @@ async function tickHoppingTrain(
     train.set('currentWaitTime', 0)
     train.set('distance', 0)
   } else {
-    train.set('distance', newDistance)
+    let trainIsOverTaking = false
+    for (let otherTrain of trains) {
+      const otherTrainDistance = otherTrain.dataValues.distance
+      if (otherTrainDistance > distance && otherTrainDistance <= newDistance) {
+        trainIsOverTaking = true
+      }
+    }
+    if (trainIsOverTaking) {
+      // Train would overtake another train. Holding position
+      logger.info({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
+    } else {
+      // Train traveling normally
+      train.set('distance', newDistance)
+    }
   }
   await train.save()
 }
@@ -44,6 +60,7 @@ async function tickStationedTrain(
   const maxWaitTime = train.dataValues.maxWaitTime
   const newWaitTime = currentWaitTime + 1
   if (newWaitTime >= maxWaitTime) {
+    // Train is departing
     logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
     const hops = await listHopsByGameIdAndStationId(db)(gameId, station.dataValues.id)
     const hop = hops.length ? hops[Math.floor(Math.random() * hops.length)] : null
@@ -58,6 +75,7 @@ async function tickStationedTrain(
     }
   }
   else {
+    // Train is waiting
     train.set('currentWaitTime', newWaitTime)
   }
   await train.save()
@@ -73,15 +91,18 @@ async function tickTravelingAgent(
   if (train.dataValues.stationId) {
     const mightDisembarkTrain = Math.random() < 0.5;
     if (mightDisembarkTrain) {
+      // Agent on stationed train is disembarking at station
       logger.info({ gameId, agentName: agent.dataValues.name, trainName: train.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is disembarking train "%s" to station "%s"', agent.dataValues.name, train.dataValues.name, station.dataValues.name)
       agent.set('trainId', null)
       agent.set('stationId', station.dataValues.id)
     }
     else {
+      // Agent on stationed train is staying put
       logger.info({ gameId, agentName: agent.dataValues.name, stationName: train.dataValues.name }, 'Agent "%s" is staying on stationed train "%s"', agent.dataValues.name, train.dataValues.name)
     }
   }
   else {
+    // Agent on traveling train is traveling
     logger.info({ gameId, agentName: agent.dataValues.name, stationName: train.dataValues.name }, 'Agent "%s" is traveling on train "%s"', agent.dataValues.name, train.dataValues.name)
   }
   agent.save()
@@ -98,14 +119,17 @@ async function tickStationedAgent(
   if (trainsInStation.length > 0) {
     const mightBoardTrain = Math.random() < 0.5;
     if (mightBoardTrain) {
+      // Stationed agent in a station with trains, will board a train
       const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
       logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name, trainName: trainToBoard.dataValues.name }, 'Agent "%s" at station "%s" boarding train "%s"', agent.dataValues.name, station.dataValues.name, trainToBoard.dataValues.name)
       agent.set('stationId', null)
       agent.set('trainId', trainToBoard.dataValues.id)
     } else {
+      // Stationed agent in a station with trains, is waiting
       logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is waiting at station "%s" with waiting trains', agent.dataValues.name, station.dataValues.name)
     }
   } else {
+    // Stationed agent in a station with no trains, is waiting
     logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is waiting at station "%s"', agent.dataValues.name, station.dataValues.name)
   }
   await agent.save()
