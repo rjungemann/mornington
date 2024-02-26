@@ -79,3 +79,15 @@ Future enhancements include:
 ### Frontend App
 
 A NextJS app which renders games using React and SVG. Designed to be fast and lightweight.
+
+## Quick Codebase Tour
+
+* `app/`
+  * `package.json` lists the dependencies as well as the scripts that can be run
+  * `src/page.tsx` is the primary page that shows the game board
+  * `src/gameboard.tsx` is the component that renders game state
+  * `src/graph.tsx` renders the game view using SVG
+* `api/`
+  * `package.json` lists the dependencies as well as the scripts that can be run
+  * `src/index.ts` is the primary script for the API service
+  * `src/clock.ts` is the primary script for the Clock
