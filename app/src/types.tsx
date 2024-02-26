@@ -57,6 +57,9 @@ type GraphOptions = {
   stationRadius: number,
   trainFill: string,
   trainRadius: number,
+  agentInitialPadding: number,
+  agentPadding: number,
+  agentRadius: number,
   offset: Position,
   size: Position
 }

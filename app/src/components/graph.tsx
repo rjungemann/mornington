@@ -1,5 +1,7 @@
 'use client';
 
+const dropShadowStyle = { filter: 'drop-shadow(0px 4px 2px rgb(0 0 0 / 0.4))' }
+
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
   const head = game!.stations.find((station) => station.id === hop.headId)!
@@ -17,7 +19,7 @@ const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percen
 const Hop = ({ game, hop, options }: { game: GameResponse, hop: HopResponse, options: GraphOptions }) => {
   const [head, tail] = getGameHopHeadAndTail(game, hop)
   return (
-    <path key={hop.id} d={`M${head.x} ${head.y} L${tail.x} ${tail.y}`} stroke={options.hopStroke} strokeWidth={options.hopStrokeWidth}/>
+    <path key={hop.id} d={`M${head.x} ${head.y} L${tail.x} ${tail.y}`} stroke={options.hopStroke} strokeWidth={options.hopStrokeWidth} style={dropShadowStyle} />
   )
 }
 
@@ -27,29 +29,33 @@ const Station = ({ game, station, options }: { game: GameResponse, station: Stat
   const offsetY = 24
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill}/>
-      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
+      <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill} style={dropShadowStyle} />
+      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY} style={dropShadowStyle}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
     </>
   )
 }
-  
 
 const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
   const hop = game.hops.find((hop) => hop.id === train.hopId)!
   const percent = train.distance / hop.length
   const { x, y } = getGameHopRelativePosition(game, hop, percent)
   return (
-    <circle key={train.id} cx={x} cy={y} r={options.trainRadius} fill={train.color}/>
+    <>
+      <circle cx={x} cy={y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} />
+      <circle cx={x + options.agentInitialPadding} cy={y} r={options.agentRadius} fill={train.color} style={dropShadowStyle} />
+    </>
   )
 }
 
 const StationTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
   const station = game.stations.find((station) => station.id === train.stationId)!;
   return (
-    <circle key={train.id} cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color}/>
+    <>
+      <circle cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} />
+    </>
   )
 }
 
@@ -67,6 +73,9 @@ export const Graph = ({ game }: { game: GameResponse }) => {
     stationRadius: 10,
     trainFill: '#00FF00',
     trainRadius: 6,
+    agentInitialPadding: 14,
+    agentPadding: 6,
+    agentRadius: 2,
     offset: {
       x: 100,
       y: 100

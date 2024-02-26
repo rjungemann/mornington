@@ -25,12 +25,21 @@ export function Gameboard() {
             {game?.agents.map((agent) => {
               const station = game.stations.find((station) => station.id === agent.stationId)
               const train = game.trains.find((train) => train.id === agent.trainId)
+              const trainStation = train?.stationId && game.stations.find((station) => station.id === train?.stationId)
               return (
                 <li key={agent.id} className="mb-2">
                   {agent.title}
                   <ul className="opacity-60 text-xs">
                     {station ? <li>Waiting at {station.title}</li> : null}
-                    {train ? <li>Traveling on {train.title} train</li> : null}
+                    {
+                      train
+                      ? (
+                        trainStation
+                        ? <li>Traveling on {train.title} train, stopped at {trainStation?.title}</li>
+                        : <li>Traveling on {train.title} train</li>
+                      )
+                      : null
+                    }
                   </ul>
                 </li>
               )
