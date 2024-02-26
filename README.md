@@ -6,6 +6,8 @@ Created by [Roger Jungemann](https://phasor.space)
 
 Mornington is a sort of simulation, or [zero-player game](https://en.wikipedia.org/wiki/Zero-player_game), in the vein of [Blaseball](https://en.wikipedia.org/wiki/Blaseball). Instead of simulating games of baseball, Mornington simulates games of [Mornington Crescent](https://en.wikipedia.org/wiki/Mornington_Crescent_(game)).
 
+![image](https://github.com/rjungemann/mornington/assets/49277/35b4e135-b3db-42f6-b236-27366d6d4661)
+
 ## Setup
 
 Have NodeJS and `yarn` installed on your machine, as well as Postgres.
