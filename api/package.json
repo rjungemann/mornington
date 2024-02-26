@@ -32,7 +32,8 @@
     "db:all": "yarn db:drop; yarn db:create && yarn db:sync && yarn db:seed",
     "start:api": "ts-node src/index.ts | yarn exec pino-pretty",
     "start:clock": "ts-node src/clock.ts | yarn exec pino-pretty",
+    "tick:clock": "RUN_ONCE=true ts-node src/clock.ts | yarn exec pino-pretty",
     "start:api:dev": "nodemon src/index.ts | yarn exec pino-pretty",
-    "start:clock:dev": "nodemon src/clock.ts | yarn exec pino-pretty"
+    "start:clock:dev": "ts-node src/clock.ts | yarn exec pino-pretty"
   }
 }

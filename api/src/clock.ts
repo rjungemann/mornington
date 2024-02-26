@@ -1,10 +1,13 @@
 import dotenv from 'dotenv';
-import db, { Game, Hop, Station, Train } from './models';
-import { Attributes, CreationAttributes, InferAttributes, InferCreationAttributes, Model, ModelStatic, Op, Sequelize } from 'sequelize';
-import { findCompleteGameByName, listHoppingTrainsByGameId, listHopsByGameIdAndStationId, listStationTrainsByGameId } from './services';
+import db, { Hop, Station } from './models';
+import { Model, Op } from 'sequelize';
+import { findCompleteGameByName, listHopsByGameIdAndStationId } from './services';
 import { logger } from './logging'
 
 dotenv.config();
+
+const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
+const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '10000', 10)
 
 // TODO: There should be a destination
 
@@ -178,7 +181,7 @@ async function tickGame(gameId: number) {
   }
 }
 
-async function main() {
+async function tick() {
   logger.info('Ticker starting...')
 
   // Initialize DB
@@ -205,10 +208,20 @@ async function main() {
       logger.error({ gameId, error }, 'Transaction rolled back due to error!')
     }
   }
-  // TODO: Cache after ticking
   logger.info('Ticker finished!')
+}
 
-  process.exit()
+const timeout = (interval: number) => new Promise((res) => setTimeout(res, interval))
+
+async function main() {
+  while (true) {
+    await tick()
+    logger.info('Ticker will tick again in %sms!', tickInterval)
+    await timeout(tickInterval)
+    if (runOnce) {
+      break;
+    }
+  }
 }
 
 main()
