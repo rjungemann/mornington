@@ -10,72 +10,72 @@ insert into games (name, label, "createdAt", "updatedAt") values ('one', 'Game #
 -- STATIONS
 -----------
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'a', 'Greedon Way', 'A', 10, 175, g.id, now(), now()
+  select 'a', 'Greedon Way', 'A', FALSE, 10, 175, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'b', 'Wofford Moor', 'B', 70, 150, g.id, now(), now()
+  select 'b', 'Wofford Moor', 'B', FALSE, 70, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'c', 'Grunham Vale', 'C', 110, 50, g.id, now(), now()
+  select 'c', 'Grunham Vale', 'C', FALSE, 110, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'd', 'Diplo East', 'D', 190, 50, g.id, now(), now()
+  select 'd', 'Diplo East', 'D', FALSE, 190, 50, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'e', 'Minstowe North', 'E', 110, 250, g.id, now(), now()
+  select 'e', 'Minstowe North', 'E', FALSE, 110, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'f', 'Badgers Mere', 'F', 190, 250, g.id, now(), now()
+  select 'f', 'Badgers Mere', 'F', FALSE, 190, 250, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'g', 'Cowstone East', 'G', 230, 150, g.id, now(), now()
+  select 'g', 'Cowstone East', 'G', FALSE, 230, 150, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'h', 'Lefting Cross', 'H', 290, 175, g.id, now(), now()
+  select 'h', 'Lefting Cross', 'H', FALSE, 290, 175, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'i', 'Fayre Holt', 'I', 230, 350, g.id, now(), now()
+  select 'i', 'Fayre Holt', 'I', FALSE, 230, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
-insert into stations (name, title, label, x, y, "gameId", "createdAt", "updatedAt")
+insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", "updatedAt")
 (
-  select 'j', 'Rivermouth Mount', 'J', 70, 350, g.id, now(), now()
+  select 'j', 'Rivermouth Mount', 'J', FALSE, 70, 350, g.id, now(), now()
   from games as g
   where g.name='one'
 );

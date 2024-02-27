@@ -51,6 +51,7 @@ export class Station extends Model<
   declare name: string;
   declare title: string;
   declare label: string;
+  declare virtual: boolean;
   declare x: number;
   declare y: number;
 
@@ -191,6 +192,9 @@ Station.init(
     label: {
       type: new DataTypes.STRING(128),
       allowNull: false
+    },
+    virtual: {
+      type: DataTypes.BOOLEAN
     },
     x: {
       type: DataTypes.INTEGER

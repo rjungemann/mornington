@@ -24,15 +24,45 @@ async function tickHoppingTrain(
   const speed = train.dataValues.speed
   const newDistance = distance + speed
   if (newDistance >= length) {
-    // Train hopping to station
+    // Train has finished traveling over the hop
     const newStationId = hop.dataValues.tailId
     const station: Station = stations.find((station) => station.dataValues.id === newStationId)! as Station
-    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
-    train.set('hopId', null)
-    train.set('stationId', newStationId)
-    train.set('currentWaitTime', 0)
-    train.set('distance', 0)
+    if (station.dataValues.virtual) {
+      // Virtual station, immediately transfer to next hop
+      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to virtual station "%s"', station.dataValues.name)
+      const nextHops = hops
+        // Get hops whose station is the head of the hop
+        .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+        // Reject any hops that have trains at 0 distance along them
+        .filter((hop) => (
+          trains.some((train) => train.dataValues.hopId === hop.dataValues.id && train.dataValues.distance !== 0)
+        ))
+      const nextHop = nextHops[Math.floor(nextHops.length * Math.random())]
+      if (nextHop) {
+        // Found a valid hop, jumping to it
+        logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping from virtual station "%s"', station.dataValues.name)
+        train.set('hopId', nextHop.dataValues.id)
+        train.set('stationId', null)
+        train.set('currentWaitTime', 0)
+        train.set('distance', 0)
+      } else {
+        // No valid hops, stuck in virtual station
+        logger.info({ gameId, stationName: station.dataValues.name }, 'Stuck in virtual station "%s"!', station.dataValues.name)
+        train.set('hopId', null)
+        train.set('stationId', newStationId)
+        train.set('currentWaitTime', 0)
+        train.set('distance', 0)
+      }
+    } else {
+      // Found a valid hop, jumping to it
+      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
+      train.set('hopId', null)
+      train.set('stationId', newStationId)
+      train.set('currentWaitTime', 0)
+      train.set('distance', 0)
+    }
   } else {
+    // Deal with one train attempting to overtake another (train in back should wait)
     let trainIsOverTaking = false
     for (let otherTrain of trains) {
       const otherTrainDistance = otherTrain.dataValues.distance
@@ -95,9 +125,15 @@ async function tickTravelingAgent(
     const mightDisembarkTrain = Math.random() < 0.5;
     if (mightDisembarkTrain) {
       // Agent on stationed train is disembarking at station
-      logger.info({ gameId, agentName: agent.dataValues.name, trainName: train.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is disembarking train "%s" to station "%s"', agent.dataValues.name, train.dataValues.name, station.dataValues.name)
-      agent.set('trainId', null)
-      agent.set('stationId', station.dataValues.id)
+      if (station.dataValues.virtual) {
+        // Agents will not disembark from virtual stations
+        logger.info({ gameId, agentName: agent.dataValues.name, trainName: train.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" will not be disembarking train "%s" to virtual station "%s"', agent.dataValues.name, train.dataValues.name, station.dataValues.name)
+      } else {
+        // Agent disembarks train
+        logger.info({ gameId, agentName: agent.dataValues.name, trainName: train.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is disembarking train "%s" to station "%s"', agent.dataValues.name, train.dataValues.name, station.dataValues.name)
+        agent.set('trainId', null)
+        agent.set('stationId', station.dataValues.id)
+      }
     }
     else {
       // Agent on stationed train is staying put
@@ -122,11 +158,17 @@ async function tickStationedAgent(
   if (trainsInStation.length > 0) {
     const mightBoardTrain = Math.random() < 0.5;
     if (mightBoardTrain) {
-      // Stationed agent in a station with trains, will board a train
-      const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
-      logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name, trainName: trainToBoard.dataValues.name }, 'Agent "%s" at station "%s" boarding train "%s"', agent.dataValues.name, station.dataValues.name, trainToBoard.dataValues.name)
-      agent.set('stationId', null)
-      agent.set('trainId', trainToBoard.dataValues.id)
+      // Stationed agent choosing to board a train
+      if (station.dataValues.virtual) {
+        // If station is virtual, agent will not board train
+        logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" trapped in virtual station "%s"', agent.dataValues.name, station.dataValues.name)
+      } else {
+        // Stationed agent in a station with trains, will board a train
+        const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
+        logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name, trainName: trainToBoard.dataValues.name }, 'Agent "%s" at station "%s" boarding train "%s"', agent.dataValues.name, station.dataValues.name, trainToBoard.dataValues.name)
+        agent.set('stationId', null)
+        agent.set('trainId', trainToBoard.dataValues.id)
+      }
     } else {
       // Stationed agent in a station with trains, is waiting
       logger.info({ gameId, agentName: agent.dataValues.name, stationName: station.dataValues.name }, 'Agent "%s" is waiting at station "%s" with waiting trains', agent.dataValues.name, station.dataValues.name)
@@ -217,11 +259,12 @@ async function main() {
   while (true) {
     await tick()
     logger.info('Ticker will tick again in %sms!', tickInterval)
-    await timeout(tickInterval)
     if (runOnce) {
       break;
     }
+    await timeout(tickInterval)
   }
+  process.exit()
 }
 
 main()
