@@ -23,18 +23,43 @@ const Hop = ({ game, hop, options }: { game: GameResponse, hop: HopResponse, opt
   )
 }
 
-const Station = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+const VirtualStation = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
+  const radius = options.virtualStationRadius
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={options.stationRadius} fill={options.stationFill} style={dropShadowStyle} />
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} style={dropShadowStyle} />
+    </>
+  )
+}
+
+const RealStation = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+  const width = 200
+  const height = 100
+  const offsetY = 24
+  const radius = options.stationRadius
+  return (
+    <>
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} style={dropShadowStyle} />
       <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY} style={dropShadowStyle}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
     </>
+  )
+}
+
+const Station = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+  const width = 200
+  const height = 100
+  const offsetY = 24
+  const radius = station.virtual ? options.virtualStationRadius : options.stationRadius
+  return (
+    station.virtual
+    ? <VirtualStation game={game} station={station} options={options} />
+    : <RealStation game={game} station={station} options={options} />
   )
 }
 
@@ -45,7 +70,6 @@ const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainRe
   return (
     <>
       <circle cx={x} cy={y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} />
-      <circle cx={x + options.agentInitialPadding} cy={y} r={options.agentRadius} fill={train.color} style={dropShadowStyle} />
     </>
   )
 }
@@ -71,11 +95,9 @@ export const Graph = ({ game }: { game: GameResponse }) => {
     hopStrokeWidth: 2,
     stationFill: '#61DAFB',
     stationRadius: 10,
+    virtualStationRadius: 5,
     trainFill: '#00FF00',
     trainRadius: 6,
-    agentInitialPadding: 14,
-    agentPadding: 6,
-    agentRadius: 2,
     offset: {
       x: 100,
       y: 100

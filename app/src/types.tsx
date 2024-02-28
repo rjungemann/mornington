@@ -3,6 +3,7 @@ type StationResponse = {
   name: string
   title: string
   label: string
+  virtual: boolean
   x: number
   y: number
 }
@@ -55,11 +56,9 @@ type GraphOptions = {
   hopStrokeWidth: number,
   stationFill: string,
   stationRadius: number,
+  virtualStationRadius: number,
   trainFill: string,
   trainRadius: number,
-  agentInitialPadding: number,
-  agentPadding: number,
-  agentRadius: number,
   offset: Position,
   size: Position
 }

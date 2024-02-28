@@ -9,7 +9,73 @@ dotenv.config();
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '10000', 10)
 
-// TODO: There should be a destination
+async function tickHoppingTrainTraveling(
+  train: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  // Train has finished traveling over the hop
+  const hopId: number = train.dataValues.hopId!
+  const hop: Hop = hops.find((hop) => hop.dataValues.id === hopId)! as Hop
+  const station: Station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)! as Station
+  if (station.dataValues.virtual) {
+    // Virtual station, immediately transfer to next hop
+    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to virtual station "%s"', station.dataValues.name)
+    const nextHops = hops
+      // Get hops whose station is the head of the hop
+      .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+      // // Reject any hops that have trains at 0 distance along them
+      // .filter((hop) => (
+      //   trains.some((train) => train.dataValues.hopId === hop.dataValues.id && train.dataValues.distance !== 0)
+      // ))
+    const nextHop = nextHops[Math.floor(nextHops.length * Math.random())]
+    if (nextHop) {
+      // Found a valid hop, jumping to it
+      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping from virtual station "%s"', station.dataValues.name)
+      train.set('hopId', nextHop.dataValues.id)
+      train.set('stationId', null)
+      train.set('currentWaitTime', 0)
+      train.set('distance', 0)
+    } else {
+      // No valid hops, stuck in virtual station
+      logger.info({ gameId, stationName: station.dataValues.name }, 'Stuck in virtual station "%s"!', station.dataValues.name)
+      train.set('hopId', null)
+      train.set('stationId', station.dataValues.id)
+      train.set('currentWaitTime', 0)
+      train.set('distance', 0)
+    }
+  } else {
+    // Found a valid hop, jumping to it
+    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
+    train.set('hopId', null)
+    train.set('stationId', station.dataValues.id)
+    train.set('currentWaitTime', 0)
+    train.set('distance', 0)
+  }
+}
+
+async function tickHoppingTrainOvertaking(
+  train: Model<any, any>,
+  { gameId, trains, hops, stations, agents }:
+    { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+) {
+  // Deal with one train attempting to overtake another (train in back should wait)
+  const newDistance = train.dataValues.distance + train.dataValues.speed
+  let trainIsOverTaking = false
+  for (let otherTrain of trains) {
+    const otherTrainDistance = otherTrain.dataValues.distance
+    if (otherTrainDistance > train.dataValues.distance && otherTrainDistance <= newDistance) {
+      trainIsOverTaking = true
+    }
+  }
+  if (trainIsOverTaking) {
+    // Train would overtake another train. Holding position
+    logger.info({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
+  } else {
+    // Train traveling normally
+    train.set('distance', newDistance)
+  }
+}
 
 async function tickHoppingTrain(
   train: Model<any, any>,
@@ -17,66 +83,12 @@ async function tickHoppingTrain(
     { gameId: number, trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
 ) {
   logger.info({ gameId, trainName: train.dataValues.name }, 'Handling hopping train "%s"', train.dataValues.name)
-  const hopId: number = train.dataValues.hopId!
-  const hop: Hop = hops.find((hop) => hop.dataValues.id === hopId)! as Hop
-  const length = hop.dataValues.length
-  const distance = train.dataValues.distance
-  const speed = train.dataValues.speed
-  const newDistance = distance + speed
-  if (newDistance >= length) {
-    // Train has finished traveling over the hop
-    const newStationId = hop.dataValues.tailId
-    const station: Station = stations.find((station) => station.dataValues.id === newStationId)! as Station
-    if (station.dataValues.virtual) {
-      // Virtual station, immediately transfer to next hop
-      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to virtual station "%s"', station.dataValues.name)
-      const nextHops = hops
-        // Get hops whose station is the head of the hop
-        .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-        // Reject any hops that have trains at 0 distance along them
-        .filter((hop) => (
-          trains.some((train) => train.dataValues.hopId === hop.dataValues.id && train.dataValues.distance !== 0)
-        ))
-      const nextHop = nextHops[Math.floor(nextHops.length * Math.random())]
-      if (nextHop) {
-        // Found a valid hop, jumping to it
-        logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping from virtual station "%s"', station.dataValues.name)
-        train.set('hopId', nextHop.dataValues.id)
-        train.set('stationId', null)
-        train.set('currentWaitTime', 0)
-        train.set('distance', 0)
-      } else {
-        // No valid hops, stuck in virtual station
-        logger.info({ gameId, stationName: station.dataValues.name }, 'Stuck in virtual station "%s"!', station.dataValues.name)
-        train.set('hopId', null)
-        train.set('stationId', newStationId)
-        train.set('currentWaitTime', 0)
-        train.set('distance', 0)
-      }
-    } else {
-      // Found a valid hop, jumping to it
-      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
-      train.set('hopId', null)
-      train.set('stationId', newStationId)
-      train.set('currentWaitTime', 0)
-      train.set('distance', 0)
-    }
+  const hop: Hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId!)! as Hop
+  const newDistance = train.dataValues.distance + train.dataValues.speed
+  if (newDistance >= hop.dataValues.length) {
+    tickHoppingTrainTraveling(train, { gameId, trains, hops, stations, agents })
   } else {
-    // Deal with one train attempting to overtake another (train in back should wait)
-    let trainIsOverTaking = false
-    for (let otherTrain of trains) {
-      const otherTrainDistance = otherTrain.dataValues.distance
-      if (otherTrainDistance > distance && otherTrainDistance <= newDistance) {
-        trainIsOverTaking = true
-      }
-    }
-    if (trainIsOverTaking) {
-      // Train would overtake another train. Holding position
-      logger.info({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
-    } else {
-      // Train traveling normally
-      train.set('distance', newDistance)
-    }
+    tickHoppingTrainOvertaking(train, { gameId, trains, hops, stations, agents })
   }
   await train.save()
 }
@@ -223,6 +235,24 @@ async function tickGame(gameId: number) {
   }
 }
 
+async function tickEachGame(game: Model<any, any>) {
+  const gameName = game.dataValues.name
+  const gameId = game.dataValues.id
+  try {
+    await db.transaction(async (t) => {
+      logger.info({ gameId }, 'Began processing tick for game...')
+      await tickGame(gameId)
+      logger.info({ gameId }, 'Finished processing tick for game!')
+      const newGame = await findCompleteGameByName(db)(gameName)
+      await db.models.GameTurn.create({ gameId, data: newGame })
+      logger.info({ gameId }, 'Finished caching game turn data!')
+    });
+    logger.info({ gameId }, 'Transaction committed for game!')
+  } catch (error) {
+    logger.error({ gameId, error }, 'Transaction rolled back due to error!')
+  }
+}
+
 async function tick() {
   logger.info('Ticker starting...')
 
@@ -231,25 +261,8 @@ async function tick() {
 
   logger.info('Ticker started!...')
   const games = await db.models.Game.findAll({ attributes: ['id', 'name'] })
-  // TODO: Use `await Promise.allSettled([...])` so games can be concurrently processed
-  for (let game of games) {
-    const gameName = game.dataValues.name
-    const gameId = game.dataValues.id
-    try {
-      await db.transaction(async (t) => {
-        logger.info({ gameId }, 'Began processing tick for game...')
-        await tickGame(gameId)
-        logger.info({ gameId }, 'Finished processing tick for game!')
-
-        const newGame = await findCompleteGameByName(db)(gameName)
-        await db.models.GameTurn.create({ gameId, data: newGame })
-        logger.info({ gameId }, 'Finished caching game turn data!')
-      });
-      logger.info({ gameId }, 'Transaction committed for game!')
-    } catch (error) {
-      logger.error({ gameId, error }, 'Transaction rolled back due to error!')
-    }
-  }
+  const promises = games.map((game) => tickEachGame(game))
+  await Promise.allSettled(promises)
   logger.info('Ticker finished!')
 }
 

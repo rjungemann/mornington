@@ -29,7 +29,7 @@
     "db:create": "psql postgres --command='create database mornington_development;'",
     "db:sync": "ts-node src/sync.ts",
     "db:seed": "psql mornington_development --variable=ON_ERROR_STOP=on --file=seeds.sql",
-    "db:all": "yarn db:drop; yarn db:create && yarn db:sync && yarn db:seed",
+    "db:all": "yarn db:drop; yarn db:create && yarn db:sync && yarn db:seed && yarn tick:clock",
     "start:api": "ts-node src/index.ts | yarn exec pino-pretty",
     "start:clock": "ts-node src/clock.ts | yarn exec pino-pretty",
     "tick:clock": "RUN_ONCE=true ts-node src/clock.ts | yarn exec pino-pretty",
