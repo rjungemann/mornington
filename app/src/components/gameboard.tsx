@@ -48,7 +48,7 @@ export function Gameboard() {
 
           <h2 className="text-xl text-sky-500 font-semibold mt-8 mb-4">Stations</h2>
           <ul className="text-sm">
-            {game?.stations.map((station) => {
+            {game?.stations.filter((station) => !station.virtual).map((station) => {
               const trains = game.trains.filter((train) => train.stationId === station.id)
               const agents = game.agents.filter((agent) => agent.stationId === station.id)
               return (
