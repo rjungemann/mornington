@@ -4,12 +4,24 @@ import { Graph } from '@/components/graph';
 import { useEffect, useState } from 'react';
 
 export function Gameboard() {
+  // TODO: Put this in config
+  const updateInterval = 5000
+  // TODO: Put this in config
   const url = 'http://localhost:3001/games/one';
   const [game, setGame] = useState<GameResponse | null>(null);
   useEffect(() => {
-    fetch(url)
-    .then((response) => response.json())
-    .then((data) => setGame(data.game));
+    // Periodically check for game updates
+    const requestFn = () => {
+      console.info('Fetching updated game data...')
+      fetch(url)
+      .then((response) => response.json())
+      .then((data) => setGame(data.game));
+    }
+    const interval = setInterval(requestFn, 5000)
+    requestFn()
+    return () => {
+      clearInterval(interval)
+    }
   }, []);
 
   return (

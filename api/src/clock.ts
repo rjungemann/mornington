@@ -7,7 +7,7 @@ import { logger } from './logging'
 dotenv.config();
 
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
-const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '10000', 10)
+const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
 async function tickHoppingTrainTraveling(
   train: Model<any, any>,
