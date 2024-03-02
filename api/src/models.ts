@@ -39,7 +39,21 @@ export class Game extends Model<
     hops: Association<Game, Hop>;
     trains: Association<Game, Train>;
     agents: Association<Game, Agent>;
+    gameTurns: Association<Game, GameTurn>;
   };
+}
+
+export class GameTurn extends Model<
+  InferAttributes<GameTurn>,
+  InferCreationAttributes<GameTurn>
+> {
+  declare id: CreationOptional<number>;
+  declare data: any;
+
+  declare gameId: ForeignKey<Game['id']>;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 export class Station extends Model<
@@ -67,6 +81,28 @@ export class Station extends Model<
   };
 }
 
+export class Line extends Model<
+  InferAttributes<Line>,
+  InferCreationAttributes<Line>
+> {
+  declare id: CreationOptional<number>;
+
+  declare name: string;
+  declare title: string;
+  declare label: string;
+  declare color: string;
+
+  declare gameId: ForeignKey<Game['id']>;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+
+  declare static associations: {
+    hops: Association<Line, Hop>;
+    trains: Association<Line, Train>;
+  };
+}
+
 export class Hop extends Model<
   InferAttributes<Hop>,
   InferCreationAttributes<Hop>
@@ -79,12 +115,13 @@ export class Hop extends Model<
   declare gameId: ForeignKey<Game['id']>;
   declare headId: ForeignKey<Station['id']>;
   declare tailId: ForeignKey<Station['id']>;
+  declare lineId: ForeignKey<Line['id']>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
   declare static associations: {
-    trains: Association<Station, Train>;
+    trains: Association<Hop, Train>;
   };
 }
 
@@ -106,12 +143,13 @@ export class Train extends Model<
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']>;
   declare hopId: ForeignKey<Hop['id']>;
+  declare lineId: ForeignKey<Line['id']>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
   declare static associations: {
-    agents: Association<Station, Agent>;
+    agents: Association<Train, Agent>;
   };
 }
 
@@ -128,19 +166,6 @@ export class Agent extends Model<
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']>;
   declare trainId: ForeignKey<Hop['id']>;
-
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-}
-
-export class GameTurn extends Model<
-  InferAttributes<GameTurn>,
-  InferCreationAttributes<GameTurn>
-> {
-  declare id: CreationOptional<number>;
-  declare data: any;
-
-  declare gameId: ForeignKey<Game['id']>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -171,6 +196,26 @@ Game.init(
   {
     sequelize,
     tableName: 'games'
+  }
+);
+
+GameTurn.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    data: {
+      type: new DataTypes.JSON(),
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'gameTurns'
   }
 );
 
@@ -208,6 +253,38 @@ Station.init(
   {
     sequelize,
     tableName: 'stations'
+  }
+);
+
+Line.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    title: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    label: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    color: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'lines'
   }
 );
 
@@ -310,34 +387,20 @@ Agent.init(
   }
 );
 
-GameTurn.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    data: {
-      type: new DataTypes.JSONB(),
-      allowNull: false
-    },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
-  {
-    sequelize,
-    tableName: 'gameTurns'
-  }
-);
-
 // ------------------
 // Model Associations
 // ------------------
 
 Game.hasMany(Station, { as: 'stations', foreignKey: 'gameId' });
+Game.hasMany(Line, { as: 'lines', foreignKey: 'gameId' });
 Game.hasMany(Hop, { as: 'hops', foreignKey: 'gameId' });
 Game.hasMany(Train, { as: 'trains', foreignKey: 'gameId' });
 Game.hasMany(Agent, { as: 'agents', foreignKey: 'gameId' });
+Game.hasMany(GameTurn, { as: 'gameTurns', foreignKey: 'gameId' });
+GameTurn.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
+Line.hasMany(Hop, { as: 'hops', foreignKey: 'lineId' });
+Line.hasMany(Train, { as: 'trains', foreignKey: 'lineId' });
+Line.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
 Station.hasMany(Hop, { as: 'headHops', foreignKey: 'headId' });
 Station.hasMany(Hop, { as: 'tailHops', foreignKey: 'tailId' });
 Station.hasMany(Train, { as: 'trains', foreignKey: 'stationId' });
@@ -346,14 +409,15 @@ Station.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
 Hop.hasMany(Train, { as: 'trains', foreignKey: 'hopId' });
 Hop.belongsTo(Station, { as: 'head', foreignKey: 'headId' });
 Hop.belongsTo(Station, { as: 'tail', foreignKey: 'tailId' });
+Hop.belongsTo(Line, { as: 'line', foreignKey: 'lineId' });
 Hop.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
 Train.hasMany(Agent, { as: 'agents', foreignKey: 'trainId' });
 Train.belongsTo(Station, { as: 'station', foreignKey: 'stationId' });
 Train.belongsTo(Hop, { as: 'hop', foreignKey: 'hopId' });
-Train.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
+Train.belongsTo(Line, { as: 'line', foreignKey: 'lineId' });
+Train.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Agent.belongsTo(Station, { as: 'station', foreignKey: 'stationId' });
 Agent.belongsTo(Train, { as: 'train', foreignKey: 'trainId' });
-Agent.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
-GameTurn.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
+Agent.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 
 export default sequelize

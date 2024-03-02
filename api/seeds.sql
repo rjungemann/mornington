@@ -1,4 +1,4 @@
-truncate stations, hops, trains, agents;
+truncate games, "gameTurns", stations, lines, hops, trains, agents;
 
 --------
 -- GAMES
@@ -94,124 +94,213 @@ insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", 
   where g.name='one'
 );
 
+--------
+-- LINES
+--------
+
+insert into lines (name, title, label, color, "gameId", "createdAt", "updatedAt")
+(
+  select 'blue', 'Blue Line', 'Blue', '#0000cc', g.id, now(), now()
+  from games as g
+  where g.name='one'
+);
+
+insert into lines (name, title, label, color, "gameId", "createdAt", "updatedAt")
+(
+  select 'red', 'Red Line', 'Red', '#cc0000', g.id, now(), now()
+  from games as g
+  where g.name='one'
+);
+
 -------
 -- HOPS
 -------
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+-- Blue lines
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from A to B', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='a' and s2.name='b'
+  select 'Hop from A to B', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='a' and s2.name='b' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from B to C', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='b' and s2.name='c'
+  select 'Hop from B to C', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='b' and s2.name='c' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from B to E', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='b' and s2.name='e'
+  select 'Hop from B to E', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='b' and s2.name='e' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from C to Z', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='c' and s2.name='z'
+  select 'Hop from C to Z', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='c' and s2.name='z' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from Z to D', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='z' and s2.name='d'
+  select 'Hop from Z to D', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='z' and s2.name='d' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from E to X', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='e' and s2.name='x'
+  select 'Hop from E to X', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='e' and s2.name='x' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from X to F', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='x' and s2.name='f'
+  select 'Hop from X to F', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='x' and s2.name='f' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from D to G', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='d' and s2.name='g'
+  select 'Hop from D to G', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='d' and s2.name='g' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from F to G', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='f' and s2.name='g'
+  select 'Hop from F to G', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='f' and s2.name='g' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from G to H', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='g' and s2.name='h'
+  select 'Hop from G to H', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='g' and s2.name='h' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from H to I', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='h' and s2.name='i'
+  select 'Hop from H to I', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='h' and s2.name='i' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from I to J', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='i' and s2.name='j'
+  select 'Hop from I to J', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='i' and s2.name='j' and l.name='blue'
 );
 
-insert into hops (label, length, "gameId", "headId", "tailId", "createdAt", "updatedAt") 
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
 (
-  select 'Hop from J to A', 3, g.id, s1.id, s2.id, now(), now()
-  from games as g, stations as s1, stations as s2
-  where g.name='one' and s1.name='j' and s2.name='a'
+  select 'Hop from J to A', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='j' and s2.name='a' and l.name='blue'
+);
+
+-- Red lines
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from B to C', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='b' and s2.name='c' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from C to Z', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='c' and s2.name='z' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from Z to D', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='z' and s2.name='d' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from D to G', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='d' and s2.name='g' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from G to F', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='g' and s2.name='f' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from F to X', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='f' and s2.name='x' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from X to E', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='x' and s2.name='e' and l.name='red'
+);
+
+insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "createdAt", "updatedAt") 
+(
+  select 'Hop from E to B', 3, g.id, s1.id, s2.id, l.id, now(), now()
+  from games as g, stations as s1, stations as s2, lines as l
+  where g.name='one' and s1.name='e' and s2.name='b' and l.name='red'
 );
 
 ---------
 -- TRAINS
 ---------
 
-insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+-- Blue trains
+
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'blue', 'Blue', 'Example train #1', '#4040ff', 0, 1, 3, 0, g.id, s.id, null, now(), now()
-  from games as g, stations as s
-  where g.name='one' and s.name='c'
+  select 'blue', 'Blue', 'Example train #1', '#4040ff', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  from games as g, stations as s, lines as l
+  where g.name='one' and s.name='c' and l.name='blue'
 );
 
-insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'red', 'Red', 'Example train #2', '#ff4040', 1, 1, 3, 0, g.id, NULL, h.id, now(), now()
-  from games as g, hops as h
-  where g.name='one' and h.label = 'Hop from C to Z'
+  select 'teal', 'Teal', 'Example train #2', '#40ffff', 1, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  from games as g, stations as s, lines as l
+  where g.name='one' and s.name='d' and l.name='blue'
 );
 
-insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "createdAt", "updatedAt")
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'green', 'Green', 'Example train #3', '#40ff40', 1, 1, 3, 0, g.id, NULL, h.id, now(), now()
-  from games as g, hops as h
-  where g.name='one' and h.label = 'Hop from H to I'
+  select 'green', 'Green', 'Example train #3', '#40ff40', 1, 1, 3, 0, g.id, NULL, h.id, l.id, now(), now()
+  from games as g, hops as h, lines as l
+  where g.name='one' and h.label = 'Hop from H to I' and l.name='blue'
+);
+
+-- Red trains
+
+insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
+(
+  select 'red', 'Red', 'Example train #4', '#ff4040', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  from games as g, stations as s, lines as l
+  where g.name='one' and s.name='d' and l.name='red'
 );
 
 ---------
