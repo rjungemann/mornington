@@ -16,10 +16,49 @@ const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percen
   return { x, y }
 }
 
-const Hop = ({ game, hop, options }: { game: GameResponse, hop: HopResponse, options: GraphOptions }) => {
-  const [head, tail] = getGameHopHeadAndTail(game, hop)
+function angleBetween(x1: number, y1: number, x2: number, y2: number) {
+  return Math.atan2(y2 - y1, x2 - x1)
+}
+
+function projectPoint(x: number, y: number, angle: number, magnitude: number): [number, number] {
+  return [x + Math.cos(angle) * magnitude, y + Math.sin(angle) * magnitude]
+}
+
+const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) => {
+  const hopToKey = (hop: HopResponse) => `${[hop.headId, hop.tailId].sort().join(':')}`
+  let keysToHops: Record<string, HopResponse[]> = {}
+  for (let hop of game.hops) {
+    const key = hopToKey(hop)
+    keysToHops[key] ??= []
+    keysToHops[key].push(hop)
+  }
+
   return (
-    <path key={hop.id} d={`M${head.x} ${head.y} L${tail.x} ${tail.y}`} stroke={options.hopStroke} strokeWidth={options.hopStrokeWidth} style={dropShadowStyle} />
+    <g style={dropShadowStyle}>
+      {
+        Object.values(keysToHops).map((hops) => {
+          const hop = hops[0]
+          const colors = hops.map((hop) => game.lines.find((line) => hop.lineId === line.id)?.color)
+          const [head, tail] = getGameHopHeadAndTail(game, hop)
+          const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
+          const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
+          const magnitude = options.hopStrokeWidth
+          return (
+            <g key={hop.id}>
+              {colors.map((color, i) => {
+                const [hx2, hy2, tx2, ty2] = [
+                  ...projectPoint(hx, hy, angle, magnitude * (i - colors.length * 0.5)),
+                  ...projectPoint(tx, ty, angle, magnitude * (i - colors.length * 0.5))
+                ]
+                return (
+                  <path key={i} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} />
+                )
+              })}
+            </g>
+          )
+        })
+      }
+    </g>
   )
 }
 
@@ -92,7 +131,7 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
 export const Graph = ({ game }: { game: GameResponse }) => {
   const options = {
     hopStroke: '#61DAFB',
-    hopStrokeWidth: 2,
+    hopStrokeWidth: 4,
     stationFill: '#61DAFB',
     stationRadius: 10,
     virtualStationRadius: 5,
@@ -110,13 +149,13 @@ export const Graph = ({ game }: { game: GameResponse }) => {
 
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
 
+  
+
   return (
     <div className="App">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
         <g>
-          {game?.hops.map((hop) => (
-            <Hop key={hop.id} game={game} hop={hop} options={options} />
-          ))}
+          {<Hops game={game} options={options} />}
         </g>
         <g>
           {game?.stations.map((station) => (

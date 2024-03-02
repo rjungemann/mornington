@@ -8,12 +8,21 @@ type StationResponse = {
   y: number
 }
 
+type LineResponse = {
+  id: number
+  name: string
+  title: string
+  label: string
+  color: string
+}
+
 type HopResponse = {
   id: number
   label: string
   length: number
   headId: number
   tailId: number
+  lineId: number
 }
 
 type TrainResponse = {
@@ -28,6 +37,7 @@ type TrainResponse = {
   currentWaitTime: number,
   stationId: number
   hopId: number
+  lineId: number
 }
 
 type AgentResponse = {
@@ -41,6 +51,7 @@ type AgentResponse = {
 
 type GameResponse = {
   stations: StationResponse[]
+  lines: LineResponse[]
   hops: HopResponse[]
   trains: TrainResponse[]
   agents: AgentResponse[]
