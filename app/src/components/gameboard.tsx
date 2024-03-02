@@ -79,12 +79,16 @@ export function Gameboard() {
           <ul className="text-sm">
             {game?.trains.map((train) => {
               const station = game.stations.find((station) => station.id === train.stationId)
+              const hop = game.hops.find((hop) => hop.id === train.hopId)
+              const headStation = hop ? game.stations.find((station) => station.id === hop.headId) : null
+              const tailStation = hop ? game.stations.find((station) => station.id === hop.tailId) : null
               const agents = game.agents.filter((agent) => agent.trainId === train.id)
               return (
                 <li key={train.id} className="mb-2">
                   <span style={{ color: train.color }}>{train.title}</span> train
                   <ul className="opacity-60 text-xs">
                     {station ? <li>Stopped at: {station.title}</li> : null}
+                    {headStation && tailStation ? <li>Traveling from {headStation!.title} to {tailStation!.title}</li> : null}
                     {agents.length ? <li>Carrying passengers: {agents.map((a) => a.title).join(', ')}</li> : null}
                   </ul>
                 </li>

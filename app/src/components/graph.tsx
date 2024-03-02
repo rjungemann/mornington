@@ -1,6 +1,7 @@
 'use client';
 
-const dropShadowStyle = { filter: 'drop-shadow(0px 4px 2px rgb(0 0 0 / 0.4))' }
+// const dropShadowStyle = { filter: 'drop-shadow(0px 4px 2px rgb(0 0 0 / 0.4))' }
+const dropShadowStyle = {}
 
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
@@ -69,7 +70,7 @@ const VirtualStation = ({ game, station, options }: { game: GameResponse, statio
   const radius = options.virtualStationRadius
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} style={dropShadowStyle} />
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} style={dropShadowStyle} />
     </>
   )
 }
@@ -81,7 +82,7 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
   const radius = options.stationRadius
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} style={dropShadowStyle} />
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} style={dropShadowStyle} />
       <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY} style={dropShadowStyle}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
@@ -108,7 +109,8 @@ const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainRe
   const { x, y } = getGameHopRelativePosition(game, hop, percent)
   return (
     <>
-      <circle cx={x} cy={y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} />
+      {/* <circle cx={x} cy={y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} /> */}
+      <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} />
     </>
   )
 }
@@ -117,7 +119,8 @@ const StationTrain = ({ game, train, options }: { game: GameResponse, train: Tra
   const station = game.stations.find((station) => station.id === train.stationId)!;
   return (
     <>
-      <circle cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} />
+      {/* <circle cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} /> */}
+      <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} />
     </>
   )
 }
@@ -132,11 +135,13 @@ export const Graph = ({ game }: { game: GameResponse }) => {
   const options = {
     hopStroke: '#61DAFB',
     hopStrokeWidth: 4,
-    stationFill: '#61DAFB',
-    stationRadius: 10,
+    stationStroke: '#ffffff',
+    stationStrokeWidth: 4,
+    stationFill: '#000000',
+    stationRadius: 8,
     virtualStationRadius: 5,
     trainFill: '#00FF00',
-    trainRadius: 6,
+    trainRadius: 7,
     offset: {
       x: 100,
       y: 100

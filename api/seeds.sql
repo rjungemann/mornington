@@ -100,14 +100,14 @@ insert into stations (name, title, label, virtual, x, y, "gameId", "createdAt", 
 
 insert into lines (name, title, label, color, "gameId", "createdAt", "updatedAt")
 (
-  select 'blue', 'Blue Line', 'Blue', '#0000cc', g.id, now(), now()
+  select 'blue', 'Blue Line', 'Blue', '#1d4ed8', g.id, now(), now()
   from games as g
   where g.name='one'
 );
 
 insert into lines (name, title, label, color, "gameId", "createdAt", "updatedAt")
 (
-  select 'red', 'Red Line', 'Red', '#cc0000', g.id, now(), now()
+  select 'red', 'Red Line', 'Red', '#b91c1c', g.id, now(), now()
   from games as g
   where g.name='one'
 );
@@ -275,21 +275,21 @@ insert into hops (label, length, "gameId", "headId", "tailId", "lineId", "create
 
 insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'blue', 'Blue', 'Example train #1', '#4040ff', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  select 'blue:1', 'Blue #1', 'Example train #1', '#60a5fa', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
   from games as g, stations as s, lines as l
   where g.name='one' and s.name='c' and l.name='blue'
 );
 
 insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'teal', 'Teal', 'Example train #2', '#40ffff', 1, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  select 'blue:2', 'Blue #2', 'Example train #2', '#60a5fa', 1, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
   from games as g, stations as s, lines as l
   where g.name='one' and s.name='d' and l.name='blue'
 );
 
 insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'green', 'Green', 'Example train #3', '#40ff40', 1, 1, 3, 0, g.id, NULL, h.id, l.id, now(), now()
+  select 'blue:3', 'Blue #3', 'Example train #3', '#60a5fa', 1, 1, 3, 0, g.id, NULL, h.id, l.id, now(), now()
   from games as g, hops as h, lines as l
   where g.name='one' and h.label = 'Hop from H to I' and l.name='blue'
 );
@@ -298,7 +298,7 @@ insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "
 
 insert into trains (name, title, label, color, distance, speed, "maxWaitTime", "currentWaitTime", "gameId", "stationId", "hopId", "lineId", "createdAt", "updatedAt")
 (
-  select 'red', 'Red', 'Example train #4', '#ff4040', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
+  select 'red', 'Red', 'Example train #4', '#f87171', 0, 1, 3, 0, g.id, s.id, NULL, l.id, now(), now()
   from games as g, stations as s, lines as l
   where g.name='one' and s.name='d' and l.name='red'
 );
