@@ -27,7 +27,7 @@ export function Gameboard() {
   return (
     <main className="m-2">
       <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2 border-solid border-2 border-sky-500">
+        <div className="col-span-2 border-solid border-2 border-white">
           {game ? <Graph game={game} /> : null}
         </div>
 

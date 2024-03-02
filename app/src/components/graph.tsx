@@ -133,22 +133,20 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
 
 export const Graph = ({ game }: { game: GameResponse }) => {
   const options = {
-    hopStroke: '#61DAFB',
     hopStrokeWidth: 4,
-    stationStroke: '#ffffff',
+    stationStroke: '#f5f5f4',
     stationStrokeWidth: 4,
-    stationFill: '#000000',
+    stationFill: '#0c0a09',
     stationRadius: 8,
     virtualStationRadius: 5,
-    trainFill: '#00FF00',
     trainRadius: 7,
     offset: {
       x: 100,
       y: 100
     },
     size: {
-      x: 600,
-      y: 600
+      x: 500,
+      y: 500
     }
   }
 

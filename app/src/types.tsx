@@ -63,14 +63,12 @@ type Position = {
 }
 
 type GraphOptions = {
-  hopStroke: string,
   hopStrokeWidth: number,
   stationStroke: string,
   stationStrokeWidth: number,
   stationFill: string,
   stationRadius: number,
   virtualStationRadius: number,
-  trainFill: string,
   trainRadius: number,
   offset: Position,
   size: Position

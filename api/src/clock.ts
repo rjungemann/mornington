@@ -8,92 +8,53 @@ dotenv.config();
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
-function tickHoppingTrainTraveling(
-  train: Model<any, any>,
-  { gameId, lines, trains, hops, stations, agents }:
-    { gameId: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
-) {
-  // Train has finished traveling over the hop
-  const hopId: number = train.dataValues.hopId!
-  const hop: Hop = hops.find((hop) => hop.dataValues.id === hopId)! as Hop
-  const station: Station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)! as Station
-  if (station.dataValues.virtual) {
-    // Virtual station, immediately transfer to next hop
-    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to virtual station "%s"', station.dataValues.name)
-    const nextHops = hops
-      // Get hops whose station is the head of the hop
-      .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-      // Get hops whose line matches the train's line
-      .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-      // // Reject any hops that have trains at 0 distance along them
-      // .filter((hop) => (
-      //   trains.some((train) => train.dataValues.hopId === hop.dataValues.id && train.dataValues.distance !== 0)
-      // ))
-    const nextHop = nextHops[Math.floor(nextHops.length * Math.random())]
-    if (nextHop) {
-      // Found a valid hop, jumping to it
-      logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping from virtual station "%s"', station.dataValues.name)
-      train.set('hopId', nextHop.dataValues.id)
-      train.set('stationId', null)
-      train.set('currentWaitTime', 0)
-      train.set('distance', 0)
-    } else {
-      // No valid hops, stuck in virtual station
-      logger.warn({ gameId, stationName: station.dataValues.name }, 'Stuck in virtual station "%s"!', station.dataValues.name)
-      train.set('hopId', null)
-      train.set('stationId', station.dataValues.id)
-      train.set('currentWaitTime', 0)
-      train.set('distance', 0)
-    }
-  } else {
-    // Found a valid hop, jumping to it
-    logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
-    train.set('hopId', null)
-    train.set('stationId', station.dataValues.id)
-    train.set('currentWaitTime', 0)
-    train.set('distance', 0)
-  }
-}
-
-function tickHoppingTrainOvertaking(
-  train: Model<any, any>,
-  { gameId, lines, trains, hops, stations, agents }:
-    { gameId: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
-) {
-  // Deal with one train attempting to overtake another (train in back should wait)
-  const newDistance = train.dataValues.distance + train.dataValues.speed
-  let trainIsOverTaking = false
-  for (let otherTrain of trains) {
-    const otherTrainDistance = otherTrain.dataValues.distance
-    if (otherTrainDistance > train.dataValues.distance && otherTrainDistance <= newDistance) {
-      trainIsOverTaking = true
-    }
-  }
-  if (trainIsOverTaking) {
-    // Train would overtake another train. Holding position
-    logger.warn({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
-  } else {
-    // Train traveling normally
-    train.set('distance', newDistance)
-  }
-}
-
 function tickHoppingTrain(
   train: Model<any, any>,
   { gameId, lines, trains, hops, stations, agents }:
     { gameId: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
 ) {
   logger.info({ gameId, trainName: train.dataValues.name }, 'Handling hopping train "%s"', train.dataValues.name)
-  const nextHops = hops
-    .filter((hop) => hop.dataValues.id === train.dataValues.hopId)
-    .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-  const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
+  const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
   if (hop) {
-    const newDistance = train.dataValues.distance + train.dataValues.speed
-    if (newDistance >= hop.dataValues.length) {
-      tickHoppingTrainTraveling(train, { gameId, lines, trains, hops, stations, agents })
-    } else {
-      tickHoppingTrainOvertaking(train, { gameId, lines, trains, hops, stations, agents })
+    if (train.dataValues.distance >= hop.dataValues.length) {
+      // Train has reached end of hop
+      const station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)
+      if (station) {
+        // Found a station to transfer to. Will transfer
+        logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
+        train.set('hopId', null)
+        train.set('stationId', station.dataValues.id)
+        train.set('currentWaitTime', 0)
+        train.set('distance', 0)
+      }
+      else {
+        // Could not find station to transfer to. Hold position.
+        logger.warn({ gameId, trainName: train.dataValues.name }, 'Train "%s" could not find a station to transfer to. Holding...', train.dataValues.name)
+      }
+    }
+    else {
+      // Traveling normally
+
+      // Deal with one train attempting to overtake another (train in back should wait)
+      const newDistance = train.dataValues.distance + train.dataValues.speed
+      let trainIsOverTaking = false
+      const trainsInHop = trains
+        .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
+        .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+        .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
+      for (let otherTrain of trainsInHop) {
+        if (newDistance >= otherTrain.dataValues.distance) {
+          trainIsOverTaking = true
+        }
+      }
+      if (trainIsOverTaking) {
+        // Train would overtake another train. Holding position
+        logger.warn({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
+      }
+      else {
+        // Train traveling normally
+        train.set('distance', train.dataValues.distance + train.dataValues.speed)
+      }
     }
   } else {
     logger.warn({ gameId, trainName: train.dataValues.name }, 'Hopping train "%s" has no hops to hop on!', train.dataValues.name)
@@ -106,29 +67,52 @@ function tickStationedTrain(
     { gameId: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
 ) {
   logger.info({ gameId, trainName: train.dataValues.name }, 'Handling stationed train "%s"', train.dataValues.name)
-  const stationId: number = train.dataValues.stationId!
-  const station: Station = stations.find((station) => station.dataValues.id === stationId)! as Station
-  const currentWaitTime = train.dataValues.currentWaitTime
-  const maxWaitTime = train.dataValues.maxWaitTime
-  const newWaitTime = currentWaitTime + 1
-  if (newWaitTime >= maxWaitTime) {
-    // Train is departing
-    logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
-    const nextHops = hops.filter((hop) => hop.dataValues.headId === station.dataValues.id)
-    const hop = nextHops.length ? nextHops[Math.floor(Math.random() * nextHops.length)] : null
-    if (hop) {
-      train.set('hopId', hop.dataValues.id)
-      train.set('stationId', null)
-      train.set('currentWaitTime', 0)
-      train.set('distance', 0)
+  const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
+  if (station) {
+    if (station.dataValues.virtual) {
+      // Trains depart virtual stations immediately
+      logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart virtual station!', train.dataValues.id)
+      const nextHops = hops
+        .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+        .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+      const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
+      if (hop) {
+        train.set('hopId', hop.dataValues.id)
+        train.set('stationId', null)
+        train.set('currentWaitTime', 0)
+        train.set('distance', 0)
+      }
+      else {
+        logger.warn({ gameId, trainName: train.dataValues.name }, 'Departing train "%s" has no hops to depart on!', train.dataValues.name)
+      }
     }
     else {
-      logger.warn({ gameId, trainName: train.dataValues.name }, 'Departing train "%s" has no hops to depart on!', train.dataValues.name)
+      if (train.dataValues.currentWaitTime >= train.dataValues.maxWaitTime) {
+        // Train is departing
+        logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
+        const nextHops = hops
+          .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+          .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+        const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
+        if (hop) {
+          train.set('hopId', hop.dataValues.id)
+          train.set('stationId', null)
+          train.set('currentWaitTime', 0)
+          train.set('distance', 0)
+        }
+        else {
+          logger.warn({ gameId, trainName: train.dataValues.name }, 'Departing train "%s" has no hops to depart on!', train.dataValues.name)
+        }
+      }
+      else {
+        // Train is waiting
+        train.set('currentWaitTime', train.dataValues.currentWaitTime + 1)
+        logger.info({ gameId, trainName: train.dataValues.name }, 'Train "%s" is waiting in station', train.dataValues.name)
+      }
     }
   }
   else {
-    // Train is waiting
-    train.set('currentWaitTime', newWaitTime)
+    logger.error({ gameId, trainName: train.dataValues.name }, 'Stationed train has no station!', train.dataValues.name)
   }
 }
 
