@@ -20,12 +20,25 @@ function tickHoppingTrain(
       // Train has reached end of hop
       const station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)
       if (station) {
-        // Found a station to transfer to. Will transfer
-        logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
-        train.set('hopId', null)
-        train.set('stationId', station.dataValues.id)
-        train.set('currentWaitTime', 0)
-        train.set('distance', 0)
+        const otherTrain = trains
+          // Filter out current train
+          .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+          // Only consider trains of the same line
+          .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
+          // Filter down to trains in current station
+          .find((otherTrain) => otherTrain.dataValues.stationId === station.dataValues.id)
+        if (otherTrain) {
+          // There's another train of the same line already in the station
+          logger.warn({ gameId, stationName: station.dataValues.name }, 'There is another train in station "%s". Holding...', station.dataValues.name)
+        }
+        else {
+          // Found a station to transfer to. Will transfer
+          logger.info({ gameId, stationName: station.dataValues.name }, 'Hopping to station "%s"', station.dataValues.name)
+          train.set('hopId', null)
+          train.set('stationId', station.dataValues.id)
+          train.set('currentWaitTime', 0)
+          train.set('distance', 0)
+        }
       }
       else {
         // Could not find station to transfer to. Hold position.
@@ -34,26 +47,25 @@ function tickHoppingTrain(
     }
     else {
       // Traveling normally
-
-      // Deal with one train attempting to overtake another (train in back should wait)
-      const newDistance = train.dataValues.distance + train.dataValues.speed
-      let trainIsOverTaking = false
-      const trainsInHop = trains
-        .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
+      const overtakenTrains = trains
+        // Filter out current train
         .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+        // Only consider trains of the same line
         .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
-      for (let otherTrain of trainsInHop) {
-        if (newDistance >= otherTrain.dataValues.distance) {
-          trainIsOverTaking = true
-        }
-      }
-      if (trainIsOverTaking) {
+        // Filter down to trains in the same hop
+        .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
+        // Filter down to trains ahead of current train 
+        .filter((otherTrain) => train.dataValues.distance < otherTrain.dataValues.distance)
+        // Filter down to trains which *would be behind* of current train, if it moves
+        .filter((otherTrain) => train.dataValues.distance + train.dataValues.speed >= otherTrain.dataValues.distance)
+      if (overtakenTrains.length) {
         // Train would overtake another train. Holding position
         logger.warn({ gameId, trainName: train.dataValues.name }, 'Train "%s" would be overtaking another train. Holding...', train.dataValues.name)
       }
       else {
         // Train traveling normally
         train.set('distance', train.dataValues.distance + train.dataValues.speed)
+        logger.info({ gameId, trainName: train.dataValues.name }, 'Train "%s" traveling normally...', train.dataValues.name)
       }
     }
   } else {
@@ -73,8 +85,22 @@ function tickStationedTrain(
       // Trains depart virtual stations immediately
       logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart virtual station!', train.dataValues.id)
       const nextHops = hops
+        // Filter down to hops heading from this station
         .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+        // Filter down to hops of same line as train
         .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+        // Filter out other hops which have trains at distance 0
+        .filter((hop) => (
+          trains
+            // Filter out current train
+            .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+            // Only consider trains of the same line
+            .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
+            // Filter down to trains in the same hop
+            .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
+            // Filter down to trains in the same hop
+            .some((otherTrain) => otherTrain.dataValues.distance === 0)
+        ))
       const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
       if (hop) {
         train.set('hopId', hop.dataValues.id)
@@ -91,8 +117,22 @@ function tickStationedTrain(
         // Train is departing
         logger.info({ gameId, trainName: train.dataValues.name }, 'Time for train to depart!', train.dataValues.id)
         const nextHops = hops
+          // Filter down to hops heading from this station
           .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+          // Filter down to hops of same line as train
           .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+          // Filter out other hops which have trains at distance 0
+          .filter((hop) => (
+            !trains
+              // Filter out current train
+              .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+              // Only consider trains of the same line
+              .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
+              // Filter down to trains in the same hop
+              .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
+              // Filter down to trains in the same hop
+              .some((otherTrain) => otherTrain.dataValues.distance === 0)
+          ))
         const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
         if (hop) {
           train.set('hopId', hop.dataValues.id)
