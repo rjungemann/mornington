@@ -4,6 +4,8 @@ type StationResponse = {
   title: string
   label: string
   virtual: boolean
+  start: boolean
+  end: boolean
   x: number
   y: number
 }
@@ -75,6 +77,12 @@ type GraphOptions = {
   stationFill: string,
   stationRadius: number,
   virtualStationRadius: number,
+  sourceRadius: number,
+  sourceStroke: string,
+  sourceStrokeWidth: number,
+  destinationRadius: number,
+  destinationStroke: string,
+  destinationStrokeWidth: number,
   trainRadius: number,
   offset: Position,
   size: Position

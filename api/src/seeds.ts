@@ -32,6 +32,8 @@ export async function seed(db: Sequelize) {
       title: 'Z',
       label: 'Z',
       virtual: true,
+      start: false,
+      end: false,
       x: 150,
       y: 50,
       gameId: game.dataValues.id
@@ -41,6 +43,8 @@ export async function seed(db: Sequelize) {
       title: 'X',
       label: 'X',
       virtual: true,
+      start: false,
+      end: false,
       x: 150,
       y: 250,
       gameId: game.dataValues.id
@@ -50,6 +54,8 @@ export async function seed(db: Sequelize) {
       title: 'Greedon Way',
       label: 'A',
       virtual: false,
+      start: true,
+      end: false,
       x: 10,
       y: 175,
       gameId: game.dataValues.id
@@ -59,6 +65,8 @@ export async function seed(db: Sequelize) {
       title: 'Wofford Moor',
       label: 'B',
       virtual: false,
+      start: false,
+      end: false,
       x: 70,
       y: 150,
       gameId: game.dataValues.id
@@ -68,6 +76,8 @@ export async function seed(db: Sequelize) {
       title: 'Grunham Vale',
       label: 'C',
       virtual: false,
+      start: false,
+      end: false,
       x: 110,
       y: 50,
       gameId: game.dataValues.id
@@ -77,6 +87,8 @@ export async function seed(db: Sequelize) {
       title: 'Diplo East',
       label: 'D',
       virtual: false,
+      start: false,
+      end: false,
       x: 190,
       y: 50,
       gameId: game.dataValues.id
@@ -86,6 +98,8 @@ export async function seed(db: Sequelize) {
       title: 'Minstowe North',
       label: 'E',
       virtual: false,
+      start: false,
+      end: false,
       x: 110,
       y: 250,
       gameId: game.dataValues.id
@@ -104,6 +118,8 @@ export async function seed(db: Sequelize) {
       title: 'Cowstone East',
       label: 'G',
       virtual: false,
+      start: false,
+      end: false,
       x: 230,
       y: 150,
       gameId: game.dataValues.id
@@ -113,6 +129,8 @@ export async function seed(db: Sequelize) {
       title: 'Lefting Cross',
       label: 'H',
       virtual: false,
+      start: false,
+      end: true,
       x: 290,
       y: 175,
       gameId: game.dataValues.id
@@ -122,6 +140,8 @@ export async function seed(db: Sequelize) {
       title: 'Fayre Holt',
       label: 'I',
       virtual: false,
+      start: false,
+      end: false,
       x: 230,
       y: 350,
       gameId: game.dataValues.id
@@ -131,6 +151,8 @@ export async function seed(db: Sequelize) {
       title: 'Rivermouth Mount',
       label: 'J',
       virtual: false,
+      start: false,
+      end: false,
       x: 70,
       y: 350,
       gameId: game.dataValues.id
@@ -162,6 +184,7 @@ export async function seed(db: Sequelize) {
     // Blue Line
 
     const hopBlueFromAToB = await db.models.Hop.create({
+      name: 'a:b',
       label: 'Hop from A to B',
       length: 3,
       gameId: game.dataValues.id,
@@ -170,6 +193,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromBToC = await db.models.Hop.create({
+      name: 'b:c',
       label: 'Hop from B to C',
       length: 3,
       gameId: game.dataValues.id,
@@ -178,6 +202,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromBToE = await db.models.Hop.create({
+      name: 'b:e',
       label: 'Hop from B to E',
       length: 3,
       gameId: game.dataValues.id,
@@ -186,6 +211,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromCToZ = await db.models.Hop.create({
+      name: 'c:z',
       label: 'Hop from C to Z',
       length: 3,
       gameId: game.dataValues.id,
@@ -194,6 +220,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromZToD = await db.models.Hop.create({
+      name: 'z:d',
       label: 'Hop from Z to D',
       length: 3,
       gameId: game.dataValues.id,
@@ -202,6 +229,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromEToX = await db.models.Hop.create({
+      name: 'e:x',
       label: 'Hop from E to X',
       length: 3,
       gameId: game.dataValues.id,
@@ -210,6 +238,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromXToF = await db.models.Hop.create({
+      name: 'x:f',
       label: 'Hop from X to F',
       length: 3,
       gameId: game.dataValues.id,
@@ -218,6 +247,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromDToG = await db.models.Hop.create({
+      name: 'd:g',
       label: 'Hop from D to G',
       length: 3,
       gameId: game.dataValues.id,
@@ -226,6 +256,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromFToG = await db.models.Hop.create({
+      name: 'f:g',
       label: 'Hop from F to G',
       length: 3,
       gameId: game.dataValues.id,
@@ -234,6 +265,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromGToH = await db.models.Hop.create({
+      name: 'g:h',
       label: 'Hop from G to H',
       length: 3,
       gameId: game.dataValues.id,
@@ -242,6 +274,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromHToI = await db.models.Hop.create({
+      name: 'h:i',
       label: 'Hop from H to I',
       length: 3,
       gameId: game.dataValues.id,
@@ -250,6 +283,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromIToJ = await db.models.Hop.create({
+      name: 'i:j',
       label: 'Hop from I to J',
       length: 3,
       gameId: game.dataValues.id,
@@ -258,6 +292,7 @@ export async function seed(db: Sequelize) {
       lineId: lineBlue.dataValues.id
     })
     const hopBlueFromJToA = await db.models.Hop.create({
+      name: 'j:a',
       label: 'Hop from J to A',
       length: 3,
       gameId: game.dataValues.id,
@@ -269,6 +304,7 @@ export async function seed(db: Sequelize) {
     // Red Line
 
     const hopRedFromBToC = await db.models.Hop.create({
+      name: 'b:c',
       label: 'Hop from B to C',
       length: 3,
       gameId: game.dataValues.id,
@@ -277,6 +313,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromCToZ = await db.models.Hop.create({
+      name: 'c:z',
       label: 'Hop from C to Z',
       length: 3,
       gameId: game.dataValues.id,
@@ -285,6 +322,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromZToD = await db.models.Hop.create({
+      name: 'z:d',
       label: 'Hop from Z to D',
       length: 3,
       gameId: game.dataValues.id,
@@ -293,6 +331,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromDToG = await db.models.Hop.create({
+      name: 'd:g',
       label: 'Hop from D to G',
       length: 3,
       gameId: game.dataValues.id,
@@ -301,6 +340,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromGToF = await db.models.Hop.create({
+      name: 'g:f',
       label: 'Hop from G to F',
       length: 3,
       gameId: game.dataValues.id,
@@ -309,6 +349,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromFToX = await db.models.Hop.create({
+      name: 'f:x',
       label: 'Hop from F to X',
       length: 3,
       gameId: game.dataValues.id,
@@ -317,6 +358,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromXToE = await db.models.Hop.create({
+      name: 'x:e',
       label: 'Hop from X to E',
       length: 3,
       gameId: game.dataValues.id,
@@ -325,6 +367,7 @@ export async function seed(db: Sequelize) {
       lineId: lineRed.dataValues.id
     })
     const hopRedFromEToB = await db.models.Hop.create({
+      name: 'e:b',
       label: 'Hop from E to B',
       length: 3,
       gameId: game.dataValues.id,
@@ -411,7 +454,6 @@ export async function seed(db: Sequelize) {
       stationId: null,
       trainId: trainBlue1.dataValues.id
     })
-    console.log(agent1)
     const agent2 = await db.models.Agent.create({
       name: 'bob',
       title: 'Bib',

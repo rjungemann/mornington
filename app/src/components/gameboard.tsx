@@ -19,6 +19,12 @@ export function Gameboard() {
     stationRadius: 8,
     virtualStationRadius: 5,
     trainRadius: 7,
+    sourceRadius: 15,
+    sourceStroke: '#4ade80',
+    sourceStrokeWidth: 2,
+    destinationRadius: 15,
+    destinationStroke: '#facc15',
+    destinationStrokeWidth: 2,
     offset: {
       x: 100,
       y: 100

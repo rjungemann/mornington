@@ -68,6 +68,8 @@ export class Station extends Model<
   declare title: string;
   declare label: string;
   declare virtual: boolean;
+  declare start: boolean;
+  declare end: boolean;
   declare x: number;
   declare y: number;
 
@@ -111,6 +113,7 @@ export class Hop extends Model<
 > {
   declare id: CreationOptional<number>;
 
+  declare name: string;
   declare label: string;
   declare length: number;
 
@@ -180,7 +183,7 @@ export class Agent extends Model<
 Game.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -208,7 +211,7 @@ Game.init(
 GameTurn.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -232,7 +235,7 @@ GameTurn.init(
 Station.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -249,6 +252,12 @@ Station.init(
       allowNull: false
     },
     virtual: {
+      type: DataTypes.BOOLEAN
+    },
+    start: {
+      type: DataTypes.BOOLEAN
+    },
+    end: {
       type: DataTypes.BOOLEAN
     },
     x: {
@@ -269,7 +278,7 @@ Station.init(
 Line.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -301,9 +310,13 @@ Line.init(
 Hop.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
+    },
+    name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
     },
     label: {
       type: new DataTypes.STRING(128),
@@ -324,7 +337,7 @@ Hop.init(
 Train.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -372,7 +385,7 @@ Train.init(
 Agent.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },

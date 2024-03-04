@@ -80,6 +80,20 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
   return (
     <>
       <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+      {
+        station.start
+        ? (
+          <circle key={station.id} cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={0.5} />
+        )
+        : null
+      }
+      {
+        station.end
+        ? (
+          <circle key={station.id} cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={0.5} />
+        )
+        : null
+      }
       <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
