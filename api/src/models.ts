@@ -29,6 +29,7 @@ export class Game extends Model<
   declare id: CreationOptional<number>;
 
   declare name: string;
+  declare title: string;
   declare label: string;
 
   declare createdAt: CreationOptional<Date>;
@@ -48,6 +49,7 @@ export class GameTurn extends Model<
   InferCreationAttributes<GameTurn>
 > {
   declare id: CreationOptional<number>;
+  declare turnNumber: number;
   declare data: any;
 
   declare gameId: ForeignKey<Game['id']>;
@@ -186,6 +188,10 @@ Game.init(
       type: new DataTypes.STRING(128),
       allowNull: false
     },
+    title: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
     label: {
       type: new DataTypes.STRING(128),
       allowNull: false
@@ -205,6 +211,10 @@ GameTurn.init(
       type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true
+    },
+    turnNumber: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
     },
     data: {
       type: new DataTypes.JSON(),

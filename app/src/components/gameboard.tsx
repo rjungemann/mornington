@@ -9,13 +9,37 @@ export function Gameboard() {
   // TODO: Put this in config
   const url = 'http://localhost:3001/games/one';
   const [game, setGame] = useState<GameResponse | null>(null);
+  const [metadata, setMetadata] = useState<MetadataResponse | null>(null);
+  const [turnNumber, setTurnNumber] = useState<number | null>(null);
+  const graphOptions = {
+    hopStrokeWidth: 4,
+    stationStroke: '#f5f5f4',
+    stationStrokeWidth: 4,
+    stationFill: '#0c0a09',
+    stationRadius: 8,
+    virtualStationRadius: 5,
+    trainRadius: 7,
+    offset: {
+      x: 100,
+      y: 100
+    },
+    size: {
+      x: 500,
+      y: 500
+    }
+  }
+
   useEffect(() => {
     // Periodically check for game updates
     const requestFn = () => {
       console.info('Fetching updated game data...')
       fetch(url)
       .then((response) => response.json())
-      .then((data) => setGame(data.game));
+      .then((data): void => {
+        setGame(data.game.data)
+        setTurnNumber(data.game.turnNumber)
+        setMetadata(data.metadata)
+      });
     }
     const interval = setInterval(requestFn, 5000)
     requestFn()
@@ -28,11 +52,21 @@ export function Gameboard() {
     <main className="m-2">
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 border-solid border-2 border-white">
-          {game ? <Graph game={game} /> : null}
+          {game && graphOptions ? <Graph game={game} options={graphOptions} /> : null}
         </div>
 
         <div>
-          <h2 className="text-xl text-sky-500 font-semibold mt-8 mb-4">Agents</h2>
+          {
+            metadata?.title && turnNumber
+            ? (
+              <h1 className="text-xl text-white font-semibold mt-4">
+                {metadata?.title}, Turn #{turnNumber}
+              </h1>
+            )
+            : null
+          }
+          
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
           <ul className="text-sm">
             {game?.agents.map((agent) => {
               const station = game.stations.find((station) => station.id === agent.stationId)
@@ -58,7 +92,7 @@ export function Gameboard() {
             })}
           </ul>
 
-          <h2 className="text-xl text-sky-500 font-semibold mt-8 mb-4">Stations</h2>
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
           <ul className="text-sm">
             {game?.stations.filter((station) => !station.virtual).map((station) => {
               const trains = game.trains.filter((train) => train.stationId === station.id)
@@ -75,7 +109,7 @@ export function Gameboard() {
             })}
           </ul>
 
-          <h2 className="text-xl text-sky-500 font-semibold mt-8 mb-4">Trains</h2>
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
           <ul className="text-sm">
             {game?.trains.map((train) => {
               const station = game.stations.find((station) => station.id === train.stationId)

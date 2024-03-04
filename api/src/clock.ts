@@ -299,8 +299,18 @@ async function tickGame(game: Model<any, any>) {
         ],
         where: { name: gameName }
       })
-      await db.models.GameTurn.create({ gameId, data: newGame })
-      logger.info({ gameId }, 'Finished caching game turn data!')
+      const previousGameTurn = await db.models.GameTurn.findOne({
+        order: [['turnNumber', 'DESC']],
+        where: { gameId }
+      })
+      const previousTurnNumber = previousGameTurn?.dataValues.turnNumber || 0
+      const turnNumber = previousTurnNumber + 1
+      await db.models.GameTurn.create({
+        gameId,
+        turnNumber,
+        data: newGame
+      })
+      logger.info({ gameId, turnNumber }, 'Finished caching game turn data!')
     });
     logger.info({ gameId }, 'Transaction committed for game!')
   } catch (error) {

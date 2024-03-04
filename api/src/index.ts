@@ -7,18 +7,6 @@ import { logger } from './logging'
 
 dotenv.config();
 
-function getLatestGameTurnByName(db: Sequelize, name: string) {
-  return db.models.GameTurn.findOne({
-    include: { model: Game, as: 'game', where: { name } },
-    order: [['createdAt', 'DESC']]
-  })
-}
-
-function serializeGameTurn(gameTurn: Model<any, any>) {
-  const gameData = gameTurn!.dataValues.data
-  return JSON.stringify({ game: gameData })
-}
-
 async function main() {
   // Initialize DB
   await db.sync({ force: false });
@@ -40,12 +28,15 @@ async function main() {
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
-    const gameTurn = await getLatestGameTurnByName(db, name)
-    if (!gameTurn) {
-      res.send({ game: null })
-    } else {
-      res.send(serializeGameTurn(gameTurn))
-    }
+    const game = await db.models.Game.findOne({
+      order: [['createdAt', 'DESC']],
+      where: { name }
+    })
+    const gameTurn = await db.models.GameTurn.findOne({
+      order: [['turnNumber', 'DESC']],
+      where: { gameId: game?.dataValues.id }
+    })
+    res.json({ metadata: game, game: gameTurn })
   });
 
   app.listen(port, () => {

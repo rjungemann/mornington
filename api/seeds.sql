@@ -4,7 +4,7 @@ truncate games, "gameTurns", stations, lines, hops, trains, agents;
 -- GAMES
 --------
 
-insert into games (name, label, "createdAt", "updatedAt") values ('one', 'Game #1', now(), now());
+insert into games (name, title, label, "createdAt", "updatedAt") values ('one', 'Game #1', 'Game #1', now(), now());
 
 -----------
 -- STATIONS

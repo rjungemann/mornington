@@ -1,8 +1,5 @@
 'use client';
 
-// const dropShadowStyle = { filter: 'drop-shadow(0px 4px 2px rgb(0 0 0 / 0.4))' }
-const dropShadowStyle = {}
-
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
   const head = game!.stations.find((station) => station.id === hop.headId)!
@@ -35,7 +32,7 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
   }
 
   return (
-    <g style={dropShadowStyle}>
+    <g>
       {
         Object.values(keysToHops).map((hops) => {
           const hop = hops[0]
@@ -70,7 +67,7 @@ const VirtualStation = ({ game, station, options }: { game: GameResponse, statio
   const radius = options.virtualStationRadius
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} style={dropShadowStyle} />
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
     </>
   )
 }
@@ -82,8 +79,8 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
   const radius = options.stationRadius
   return (
     <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} style={dropShadowStyle} />
-      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY} style={dropShadowStyle}>
+      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
@@ -109,8 +106,7 @@ const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainRe
   const { x, y } = getGameHopRelativePosition(game, hop, percent)
   return (
     <>
-      {/* <circle cx={x} cy={y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} /> */}
-      <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} />
+      <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
     </>
   )
 }
@@ -119,8 +115,7 @@ const StationTrain = ({ game, train, options }: { game: GameResponse, train: Tra
   const station = game.stations.find((station) => station.id === train.stationId)!;
   return (
     <>
-      {/* <circle cx={station.x} cy={station.y} r={options.trainRadius} fill={train.color} style={dropShadowStyle} /> */}
-      <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} />
+      <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
     </>
   )
 }
@@ -131,29 +126,9 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
   : <StationTrain game={game} train={train} options={options} />
 )
 
-export const Graph = ({ game }: { game: GameResponse }) => {
-  const options = {
-    hopStrokeWidth: 4,
-    stationStroke: '#f5f5f4',
-    stationStrokeWidth: 4,
-    stationFill: '#0c0a09',
-    stationRadius: 8,
-    virtualStationRadius: 5,
-    trainRadius: 7,
-    offset: {
-      x: 100,
-      y: 100
-    },
-    size: {
-      x: 500,
-      y: 500
-    }
-  }
-
+export const Graph = ({ game, options }: { game: GameResponse, options: GraphOptions }) => {
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
-
   
-
   return (
     <div className="App">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>

@@ -57,6 +57,12 @@ type GameResponse = {
   agents: AgentResponse[]
 }
 
+type MetadataResponse = {
+  name: string,
+  title: string,
+  label: string
+}
+
 type Position = {
   x: number
   y: number
