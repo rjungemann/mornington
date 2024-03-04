@@ -60,10 +60,18 @@ type GameResponse = {
 }
 
 type MetadataResponse = {
-  name: string,
-  title: string,
+  name: string
+  title: string
   label: string
 }
+
+type MessageResponse = {
+  turnNumber: number
+  message: string
+  gameId: number
+}
+
+type MessagesResponse = MessageResponse[]
 
 type Position = {
   x: number

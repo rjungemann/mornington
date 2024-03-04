@@ -36,7 +36,15 @@ async function main() {
       order: [['turnNumber', 'DESC']],
       where: { gameId: game?.dataValues.id }
     })
-    res.json({ metadata: game, game: gameTurn })
+    const turnNumber = gameTurn?.dataValues.turnNumber
+    const messages = await db.models.Message.findAll({
+      order: [['id', 'DESC']],
+      where: {
+        gameId: game?.dataValues.id,
+        turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
+      }
+    })
+    res.json({ metadata: game, game: gameTurn, messages })
   });
 
   app.listen(port, () => {

@@ -11,7 +11,7 @@ export async function seed(db: Sequelize) {
     // Truncate
     // --------
 
-    await sequelize.query(`truncate games, "gameTurns", stations, lines, hops, trains, agents`);
+    await sequelize.query(`truncate games, "gameTurns", stations, lines, hops, trains, agents, messages`);
 
     // ----
     // Game

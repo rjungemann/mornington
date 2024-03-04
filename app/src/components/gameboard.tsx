@@ -9,8 +9,9 @@ export function Gameboard() {
   // TODO: Put this in config
   const url = 'http://localhost:3001/games/one';
   const [game, setGame] = useState<GameResponse | null>(null);
-  const [metadata, setMetadata] = useState<MetadataResponse | null>(null);
   const [turnNumber, setTurnNumber] = useState<number | null>(null);
+  const [metadata, setMetadata] = useState<MetadataResponse | null>(null);
+  const [messages, setMessages] = useState<MessagesResponse | null>(null);
   const graphOptions = {
     hopStrokeWidth: 4,
     stationStroke: '#f5f5f4',
@@ -45,6 +46,7 @@ export function Gameboard() {
         setGame(data.game.data)
         setTurnNumber(data.game.turnNumber)
         setMetadata(data.metadata)
+        setMessages(data.messages)
       });
     }
     const interval = setInterval(requestFn, 5000)
@@ -56,22 +58,27 @@ export function Gameboard() {
 
   return (
     <main className="m-2">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2 border-solid border-2 border-white">
           {game && graphOptions ? <Graph game={game} options={graphOptions} /> : null}
         </div>
 
-        <div>
-          {
-            metadata?.title && turnNumber
-            ? (
-              <h1 className="text-xl text-white font-semibold mt-4">
-                {metadata?.title}, Turn #{turnNumber}
-              </h1>
-            )
-            : null
-          }
-          
+        <div className="col-span-1">
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Game</h2>
+          <ul className="text-sm">
+            <li>Match: {metadata?.title}</li>
+            <li>Turn Number: #{turnNumber}</li>
+          </ul>
+
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Messages</h2>
+          <ul className="text-sm">
+            {messages?.map((message) => (
+              <li>{message.message}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-span-1">
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
           <ul className="text-sm">
             {game?.agents.map((agent) => {

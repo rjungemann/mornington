@@ -5,13 +5,25 @@ import { logger } from './logging'
 
 dotenv.config();
 
+class MessageLog {
+  messages: string[] = []
+
+  append(message: string) {
+    this.messages.push(message)
+  }
+
+  retrieveAll() {
+    return this.messages
+  }
+}
+
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
 function tickTravelingTrain(
   train: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
+    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog }
 ) {
   const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
   if (hop) {
@@ -19,12 +31,12 @@ function tickTravelingTrain(
       // Train has reached end of hop
       const station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)
       if (station) {
+        // Filter out current train
+        // Only consider trains of the same line
+        // Filter down to trains in current station
         const otherTrain = trains
-          // Filter out current train
           .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-          // Only consider trains of the same line
           .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
-          // Filter down to trains in current station
           .find((otherTrain) => otherTrain.dataValues.stationId === station.dataValues.id)
         if (otherTrain) {
           // There's another train of the same line already in the station
@@ -37,8 +49,9 @@ function tickTravelingTrain(
               stationName: station.dataValues.name,
               hopName: hop.dataValues.name
             },
-            'Traveling train is attempting to stop in station, but there is another train. Holding...'
+            'Traveling train is attempting to stop in station, but there is another train! Holding...'
           )
+          messageLog.append(`Traveling train ${train.dataValues.title} is attempting to stop at ${station.dataValues.title}, but ${train.dataValues.title} is in the way!`)
         }
         else {
           // Found a station to transfer to. Will transfer
@@ -50,8 +63,9 @@ function tickTravelingTrain(
               stationName: station.dataValues.name,
               hopName: hop.dataValues.name
             },
-            'Traveling train is stopping in station'
+            'Traveling train is stopping in station.'
           )
+          messageLog.append(`Traveling train ${train.dataValues.title} is stopping at ${station.dataValues.title}.`)
           train.set('hopId', null)
           train.set('stationId', station.dataValues.id)
           train.set('currentWaitTime', 0)
@@ -69,20 +83,22 @@ function tickTravelingTrain(
           },
           'Traveling train could not find a station to transfer to. Holding...'
         )
+        messageLog.append(`Traveling train ${train.dataValues.title} could not find station to transfer to! Holding...`)
       }
     }
     else {
       // Traveling normally
+
+      // Filter out current train
+      // Only consider trains of the same line
+      // Filter down to trains in the same hop
+      // Filter down to trains ahead of current train
+      // Filter down to trains which *would be behind* of current train, if it moves
       const overtakenTrain = trains
-        // Filter out current train
         .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-        // Only consider trains of the same line
         .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
-        // Filter down to trains in the same hop
         .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
-        // Filter down to trains ahead of current train 
         .filter((otherTrain) => train.dataValues.distance < otherTrain.dataValues.distance)
-        // Filter down to trains which *would be behind* of current train, if it moves
         .find((otherTrain) => train.dataValues.distance + train.dataValues.speed >= otherTrain.dataValues.distance)
       if (overtakenTrain) {
         // Train would overtake another train. Holding position
@@ -96,6 +112,7 @@ function tickTravelingTrain(
           },
           'Traveling train would overtake another train. Holding...'
         )
+        messageLog.append(`Traveling train ${train.dataValues.title} would overtake ${overtakenTrain.dataValues.title}! Holding...`)
       }
       else {
         // Train traveling normally
@@ -109,6 +126,7 @@ function tickTravelingTrain(
           },
           'Traveling train traveling normally'
         )
+        messageLog.append(`Traveling train ${train.dataValues.title} is traveling normally.`)
       }
     }
   } else {
@@ -121,33 +139,36 @@ function tickTravelingTrain(
       'Traveling train has no hops to hop on!',
       train.dataValues.name
     )
+    messageLog.append(`Traveling train ${train.dataValues.title} has no hops to transfer to!`)
   }
 }
 
 function tickStationedTrain(
   train: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
+    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
 ) {
   const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
   if (station) {
     if (station.dataValues.virtual) {
       // Trains depart virtual stations immediately
+
+      // Filter down to hops heading from this station
+      // Filter down to hops of same line as train
+      // Filter out other hops which have trains at distance 0
       const nextHops = hops
-        // Filter down to hops heading from this station
         .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-        // Filter down to hops of same line as train
         .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-        // Filter out other hops which have trains at distance 0
         .filter((hop) => (
+          // Find all trains that *don't* match the criteria:
+          // * Filter out current train
+          // * Only consider trains of the same line
+          // * Filter down to trains in the same hop
+          // * Filter down to trains that haven't moved in the hop
           !trains
-            // Filter out current train
             .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-            // Only consider trains of the same line
             .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-            // Filter down to trains in the same hop
             .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
-            // Filter down to trains in the same hop
             .some((otherTrain) => otherTrain.dataValues.distance === 0)
         ))
       const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
@@ -166,6 +187,7 @@ function tickStationedTrain(
           },
           'Stationed train deparating virtual station!'
         )
+        messageLog.append(`Stationed train ${train.dataValues.title} is departing service station ${station.dataValues.title}.`)
       }
       else {
         logger.warn(
@@ -177,26 +199,29 @@ function tickStationedTrain(
           },
           'Stationed train has no hops to depart from in this virtual station!'
         )
+        messageLog.append(`Stationed train ${train.dataValues.title} has no hops to transfer to from ${station.dataValues.title}!`)
       }
     }
     else {
       if (train.dataValues.currentWaitTime >= train.dataValues.maxWaitTime) {
         // Train is departing
+
+        // Filter down to hops heading from this station
+        // Filter down to hops of same line as train
+        // Filter out other hops which have trains at distance 0
         const nextHops = hops
-          // Filter down to hops heading from this station
           .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-          // Filter down to hops of same line as train
           .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-          // Filter out other hops which have trains at distance 0
           .filter((hop) => (
+            // Find all trains that *don't* match the criteria:
+            // * Filter out current train
+            // * Only consider trains of the same line
+            // * Filter down to trains in the same hop
+            // * Filter down to trains that haven't moved in the hop
             !trains
-              // Filter out current train
               .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-              // Only consider trains of the same line
               .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-              // Filter down to trains in the same hop
               .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
-              // Filter down to trains in the same hop
               .some((otherTrain) => otherTrain.dataValues.distance === 0)
           ))
         const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
@@ -215,6 +240,7 @@ function tickStationedTrain(
             },
             'Departing train jumped to hop from station!'
           )
+          messageLog.append(`Stationed train ${train.dataValues.title} is departing from ${station.dataValues.title}.`)
         }
         else {
           logger.warn(
@@ -226,6 +252,7 @@ function tickStationedTrain(
             },
             'Stationed train wants to depart but has no hops to depart on!'
           )
+          messageLog.append(`Stationed train ${train.dataValues.title} wants to depart ${station.dataValues.title} but there are no hops to depart from!`)
         }
       }
       else {
@@ -240,6 +267,7 @@ function tickStationedTrain(
           },
           'Stationed train is waiting in station'
         )
+        messageLog.append(`Stationed train ${train.dataValues.title} is waiting in ${station.dataValues.title}.`)
       }
     }
   }
@@ -252,13 +280,14 @@ function tickStationedTrain(
       },
       'Stationed train has no station!'
     )
+    messageLog.append(`Stationed train ${train.dataValues.title} has no station!`)
   }
 }
 
 function tickTravelingAgent(
   agent: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
+    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
 ) {
   const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
   if (train) {
@@ -278,6 +307,7 @@ function tickTravelingAgent(
           },
             'Traveling agent will not be disembarking train to virtual station'
           )
+          messageLog.append(`Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`)
         } else {
           // Agent disembarks train
           logger.info(
@@ -290,6 +320,7 @@ function tickTravelingAgent(
             },
             'Traveling agent is disembarking train to station'
           )
+          messageLog.append(`Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`)
           agent.set('trainId', null)
           agent.set('stationId', station.dataValues.id)
         }
@@ -306,6 +337,7 @@ function tickTravelingAgent(
           },
           'Traveling agent is staying on stationed train'
         )
+        messageLog.append(`Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`)
       }
     }
     else {
@@ -319,6 +351,7 @@ function tickTravelingAgent(
         },
         'Traveling agent is traveling on train'
       )
+      messageLog.append(`Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`)
     }
   }
   else {
@@ -331,13 +364,14 @@ function tickTravelingAgent(
       },
       'Traveling agent is traveling without a train!'
     )
+    messageLog.append(`Traveling agent ${agent.dataValues.title} is traveling without a train!`)
   }
 }
 
 function tickStationedAgent(
   agent: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[] }
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
+    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
 ) {
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (station) {
@@ -359,6 +393,7 @@ function tickStationedAgent(
             },
             'Stationed agent attempted to board train, but is trapped in virtual station'
           )
+          messageLog.append(`Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`)
         }
         else {
           // Stationed agent in a station with trains, will board a train
@@ -372,6 +407,7 @@ function tickStationedAgent(
             },
             'Stationed at station is boarding train'
           )
+          messageLog.append(`Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`)
           agent.set('stationId', null)
           agent.set('trainId', trainToBoard.dataValues.id)
         }
@@ -387,6 +423,7 @@ function tickStationedAgent(
           },
           'Stationed agent is waiting at station with waiting trains'
         )
+        messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`)
       }
     }
     else {
@@ -400,6 +437,7 @@ function tickStationedAgent(
         },
         'Stationed agent is waiting at station'
       )
+      messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`)
     }
   }
   else {
@@ -411,10 +449,11 @@ function tickStationedAgent(
       },
       'Stationed agent is stationed, but the station cannot be found'
     )
+    messageLog.append(`Stationed agent ${agent.dataValues.title} is without a station!`)
   }
 }
 
-async function tickGameTurn(gameId: number, gameName: string, turnNumber: number) {
+async function tickGameTurn(gameId: number, gameName: string, turnNumber: number, messageLog: MessageLog) {
   const lines = await db.models.Line.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
@@ -425,12 +464,12 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
   for (let train of trains) {
     // Traveling train
     if (train.dataValues.hopId) {
-      tickTravelingTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents })
+      tickTravelingTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
       await train.save()
     }
     // Stationed train
     else if (train.dataValues.stationId) {
-      tickStationedTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents })
+      tickStationedTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
       await train.save()
     }
     // A train is "out-of-bounds" if not hopping or stationed.
@@ -443,12 +482,12 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
   for (let agent of agents) {
     // Traveling agent
     if (agent.dataValues.trainId) {
-      tickTravelingAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents })
+      tickTravelingAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
       await agent.save()
     }
     // Stationed agent
     else if (agent.dataValues.stationId) {
-      tickStationedAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents })
+      tickStationedAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
       await agent.save()
     }
     // An agent is "out-of-bounds" if not traveling or stationed.
@@ -472,7 +511,10 @@ async function tickGame(game: Model<any, any>) {
       const turnNumber = previousTurnNumber + 1
       // Tick the game
       logger.info({ gameName, turnNumber }, 'Began processing tick for game...')
-      await tickGameTurn(gameId, gameName, turnNumber)
+      const messageLog = new MessageLog()
+      await tickGameTurn(gameId, gameName, turnNumber, messageLog)
+      const messages = messageLog.retrieveAll()
+      await db.models.Message.bulkCreate(messages.map((message) => ({ gameId, turnNumber, message })))
       logger.info({ gameName, turnNumber }, 'Finished processing tick for game!')
       // Pull up the updated game data
       const newGame = await db.models.Game.findOne({

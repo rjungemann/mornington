@@ -36,11 +36,12 @@ export class Game extends Model<
   declare updatedAt: CreationOptional<Date>;
 
   declare static associations: {
+    gameTurns: Association<Game, GameTurn>;
+    messages: Association<Game, GameTurn>;
     stations: Association<Game, Station>;
     hops: Association<Game, Hop>;
     trains: Association<Game, Train>;
     agents: Association<Game, Agent>;
-    gameTurns: Association<Game, GameTurn>;
   };
 }
 
@@ -51,6 +52,20 @@ export class GameTurn extends Model<
   declare id: CreationOptional<number>;
   declare turnNumber: number;
   declare data: any;
+
+  declare gameId: ForeignKey<Game['id']>;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+}
+
+export class Message extends Model<
+  InferAttributes<Message>,
+  InferCreationAttributes<Message>
+> {
+  declare id: CreationOptional<number>;
+  declare turnNumber: number;
+  declare message: string;
 
   declare gameId: ForeignKey<Game['id']>;
 
@@ -229,6 +244,30 @@ GameTurn.init(
   {
     sequelize,
     tableName: 'gameTurns'
+  }
+);
+
+Message.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    turnNumber: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    message: {
+      type: new DataTypes.TEXT,
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'messages'
   }
 );
 
@@ -414,13 +453,15 @@ Agent.init(
 // Model Associations
 // ------------------
 
+Game.hasMany(GameTurn, { as: 'gameTurns', foreignKey: 'gameId' });
+Game.hasMany(Message, { as: 'messages', foreignKey: 'gameId' });
 Game.hasMany(Station, { as: 'stations', foreignKey: 'gameId' });
 Game.hasMany(Line, { as: 'lines', foreignKey: 'gameId' });
 Game.hasMany(Hop, { as: 'hops', foreignKey: 'gameId' });
 Game.hasMany(Train, { as: 'trains', foreignKey: 'gameId' });
 Game.hasMany(Agent, { as: 'agents', foreignKey: 'gameId' });
-Game.hasMany(GameTurn, { as: 'gameTurns', foreignKey: 'gameId' });
 GameTurn.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
+Message.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Line.hasMany(Hop, { as: 'hops', foreignKey: 'lineId' });
 Line.hasMany(Train, { as: 'trains', foreignKey: 'lineId' });
 Line.belongsTo(Game, { as: 'game', foreignKey: 'gameId' })
