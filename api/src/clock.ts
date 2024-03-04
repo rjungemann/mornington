@@ -91,7 +91,7 @@ function tickStationedTrain(
         .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
         // Filter out other hops which have trains at distance 0
         .filter((hop) => (
-          trains
+          !trains
             // Filter out current train
             .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
             // Only consider trains of the same line
@@ -201,9 +201,9 @@ function tickStationedAgent(
   logger.info({ gameId, agentName: agent.dataValues.name }, 'Handling stationed agent "%s"', agent.dataValues.name)
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (station) {
-    const trainsInStation = trains.filter((train) => agent.dataValues.id === train.dataValues.stationId)
+    const trainsInStation = trains.filter((train) => station.dataValues.id === train.dataValues.stationId)
     if (trainsInStation.length > 0) {
-      const mightBoardTrain = Math.random() < 0.5;
+      const mightBoardTrain = Math.random() < 0.5; // TODO: Change this
       if (mightBoardTrain) {
         // Stationed agent choosing to board a train
         if (station.dataValues.virtual) {
