@@ -280,6 +280,8 @@ function tickStationedTrain(
       },
       'Stationed train has no station!'
     )
+    console.log(train)
+    console.log(stations)
     messageLog.append(`Stationed train ${train.dataValues.title} has no station!`)
   }
 }

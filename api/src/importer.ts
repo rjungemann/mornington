@@ -272,7 +272,8 @@ async function main() {
 
   await db.transaction(async (t) => {
     const game = await db.models.Game.create(gameData)
-    const stations = await db.models.Station.bulkCreate(stationsData)
+    const stations = await db.models.Station
+    .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
     const lines = await db.models.Line
     .bulkCreate(linesData.map((line) => ({ ...line, gameId: game.dataValues.id })))
     const hops = await db.models.Hop
@@ -305,12 +306,11 @@ async function main() {
         currentWaitTime: train.currentWaitTime,
         maxWaitTime: train.maxWaitTime,
         gameId: game.dataValues.id,
-        stationId: station?.dataValues.stationId,
-        hopId: hop?.dataValues.hopId,
-        lineId: line.dataValues.lineId
+        stationId: station?.dataValues.id,
+        hopId: hop?.dataValues.id,
+        lineId: line.dataValues.id
       }
     }))
-
     const agents = await db.models.Agent
     .bulkCreate(agentsData.map((agent) => {
       const startingStations = stations.filter((station) => station.dataValues.start)
@@ -321,14 +321,12 @@ async function main() {
         label: agent.label,
         gameId: game.dataValues.id,
         stationId: startingStation.dataValues.id,
-        train: null
+        trainId: null
       }
     }))
-
-    // TODO: Finish this
-    // TODO: Delete existing game and its dependencies first
-    throw new Error('oops')
   })
+
+  process.exit()
 }
 
 main()
