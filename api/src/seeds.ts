@@ -456,7 +456,7 @@ export async function seed(db: Sequelize) {
     })
     const agent2 = await db.models.Agent.create({
       name: 'bob',
-      title: 'Bib',
+      title: 'Bob',
       label: 'Started in a station',
       gameId: game.dataValues.id,
       stationId: stationI.dataValues.id,

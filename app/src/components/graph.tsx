@@ -41,6 +41,7 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
           const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
           const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
           const magnitude = options.hopStrokeWidth
+
           return (
             <g key={hop.id}>
               {colors.map((color, i) => {
@@ -140,6 +141,30 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
   : <StationTrain game={game} train={train} options={options} />
 )
 
+// TODO: Use this to show possible paths, etc.
+const Traversal = ({ game, stationNames }: { game: GameResponse, stationNames: string[] }) => {
+  let paths = []
+  for (let i = 0; i < stationNames.length; i++) {
+    if (i === 0) {
+      continue
+    }
+    const head = game.stations.find((station) => station.name === stationNames[i - 1])!
+    const tail = game.stations.find((station) => station.name === stationNames[i])!
+    const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
+    // const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
+    const magnitude = 40
+    // const [cx, cy, dx, dy] = [
+    //   ...projectPoint(hx, hy, angle, magnitude),
+    //   ...projectPoint(tx, ty, angle, magnitude)
+    // ]
+    const [cx, cy, dx, dy] = [hx, hy - magnitude, tx, ty - magnitude]
+    const path = `M ${hx} ${hy} C ${cx} ${cy}, ${dx} ${dy}, ${tx} ${ty}`
+    // TODO: Options
+    paths.push(<path d={path} stroke="yellow" strokeWidth={2} opacity={0.6} fill="transparent"/>)
+  }
+  return paths
+}
+
 export const Graph = ({ game, options }: { game: GameResponse, options: GraphOptions }) => {
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
   
@@ -158,6 +183,9 @@ export const Graph = ({ game, options }: { game: GameResponse, options: GraphOpt
           {game?.trains.map((train) => (
             <Train key={train.id} game={game} train={train} options={options} />
           ))}
+        </g>
+        <g>
+          {<Traversal game={game} stationNames={'a b c z d g h'.split(' ')} />}
         </g>
       </svg>
     </div>
