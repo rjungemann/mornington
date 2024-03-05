@@ -144,7 +144,7 @@ export const Graph = ({ game, options }: { game: GameResponse, options: GraphOpt
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
   
   return (
-    <div className="App">
+    <div className="border-solid border-2 border-white">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
         <g>
           {<Hops game={game} options={options} />}

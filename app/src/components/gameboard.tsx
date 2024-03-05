@@ -28,7 +28,7 @@ export function Gameboard() {
     destinationStrokeWidth: 2,
     offset: {
       x: 100,
-      y: 100
+      y: 50
     },
     size: {
       x: 500,
@@ -56,31 +56,31 @@ export function Gameboard() {
     }
   }, []);
 
+  const groupedMessages: Record<number, MessageResponse[]> = messages?.reduce((hash: Record<number, MessageResponse[]>, message: MessageResponse) => {
+    hash[message.turnNumber] ??= []
+    hash[message.turnNumber] = [...hash[message.turnNumber], message]
+    return hash
+  }, {}) || []
+  const turnNumbers: number[] = Object.keys(groupedMessages).map((n) => parseInt(n, 10)).sort().reverse()
+
   return (
     <main className="m-2">
+      <h1 className="text-3xl text-sky-500 font-semibold mt-4 mb-4">Mornington</h1>
+
       <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-2 border-solid border-2 border-white">
+        <div className="col-span-2">
           {game && graphOptions ? <Graph game={game} options={graphOptions} /> : null}
-        </div>
 
-        <div className="col-span-1">
-          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Game</h2>
-          <ul className="text-sm">
-            <li>Match: {metadata?.title}</li>
-            <li>Turn Number: #{turnNumber}</li>
-          </ul>
-
-          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Messages</h2>
-          <ul className="text-sm">
-            {messages?.map((message) => (
-              <li>{message.message}</li>
-            ))}
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Basic Info</h2>
+          <ul className="text-sm mb-4">
+            <li><span className="font-bold">Match</span> {metadata?.title}</li>
+            <li><span className="font-bold">Turn Number</span> #{turnNumber}</li>
           </ul>
         </div>
 
         <div className="col-span-1">
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
-          <ul className="text-sm">
+          <ul className="text-sm mb-4">
             {game?.agents.map((agent) => {
               const station = game.stations.find((station) => station.id === agent.stationId)
               const train = game.trains.find((train) => train.id === agent.trainId)
@@ -105,25 +105,8 @@ export function Gameboard() {
             })}
           </ul>
 
-          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
-          <ul className="text-sm">
-            {game?.stations.filter((station) => !station.virtual).map((station) => {
-              const trains = game.trains.filter((train) => train.stationId === station.id)
-              const agents = game.agents.filter((agent) => agent.stationId === station.id)
-              return (
-                <li key={station.id} className="mb-2">
-                  {station.title}
-                  <ul className="opacity-60 text-xs">
-                    {trains.length ? <li>Stopped trains: {trains.map((t) => `${t.title} train`).join(', ')}</li> : null}
-                    {agents.length ? <li>Waiting passengers: {agents.map((a) => a.title).join(', ')}</li> : null}
-                  </ul>
-                </li>
-              )
-            })}
-          </ul>
-
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
-          <ul className="text-sm">
+          <ul className="text-sm mb-4">
             {game?.trains.map((train) => {
               const station = game.stations.find((station) => station.id === train.stationId)
               const hop = game.hops.find((hop) => hop.id === train.hopId)
@@ -142,6 +125,35 @@ export function Gameboard() {
               )
             })}
           </ul>
+
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
+          <ul className="text-sm mb-4">
+            {game?.stations.filter((station) => !station.virtual).map((station) => {
+              const trains = game.trains.filter((train) => train.stationId === station.id)
+              const agents = game.agents.filter((agent) => agent.stationId === station.id)
+              return (
+                <li key={station.id} className="mb-2">
+                  {station.title}
+                  <ul className="opacity-60 text-xs">
+                    {trains.length ? <li>Stopped trains: {trains.map((t) => `${t.title} train`).join(', ')}</li> : null}
+                    {agents.length ? <li>Waiting passengers: {agents.map((a) => a.title).join(', ')}</li> : null}
+                  </ul>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+
+        <div className="col-span-1">
+          <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
+          <p className="text-xs mb-4">(<span className="font-bold">Note</span>: Messages are listed most recent first.)</p>
+          {turnNumbers.map((turnNumber, i) => (
+            <ul className="opacity-60 text-xs mb-4 border-solid border-white border-opacity-60 border-t-2 pt-2">
+              {groupedMessages[turnNumber].map((message: MessageResponse) => (
+                <li className="mb-2">{message.message}</li>
+              ))}
+            </ul>
+          ))}
         </div>
       </div>
     </main>
