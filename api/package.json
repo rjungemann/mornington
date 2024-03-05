@@ -14,15 +14,20 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@types/xml2js": "^0.4.14",
+    "@types/yargs": "^17.0.32",
     "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.2",
     "express": "^4.18.2",
+    "libxmljs": "^1.0.11",
     "nodemon": "^3.0.3",
     "pg": "^8.11.3",
     "pino": "^8.18.0",
     "sequelize": "^6.35.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "xml2js": "^0.6.2",
+    "yargs": "^17.7.2"
   },
   "scripts": {
     "db:drop": "psql postgres --command='drop database mornington_development;'",
@@ -30,6 +35,7 @@
     "db:sync": "ts-node src/sync.ts",
     "db:seed": "ts-node src/seed.ts",
     "db:all": "yarn db:drop && yarn db:create && yarn db:sync && yarn db:seed && yarn tick:clock",
+    "map:import": "ts-node src/importer.ts",
     "api:start": "ts-node src/index.ts | yarn exec pino-pretty",
     "clock:start": "ts-node src/clock.ts | yarn exec pino-pretty",
     "clock:tick": "RUN_ONCE=true ts-node src/clock.ts | yarn exec pino-pretty",
