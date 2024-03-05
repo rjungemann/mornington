@@ -63,13 +63,60 @@ export function Gameboard() {
   }, {}) || []
   const turnNumbers: number[] = Object.keys(groupedMessages).map((n) => parseInt(n, 10)).sort().reverse()
 
+  // TODO: Port to backend
+  function findRandomPath(game: GameResponse, sourceName: string, destinationName: string): string[] | undefined {
+    const maxTries = 10
+    const source = game.stations.find((station) => station.start)!
+    const destination = game.stations.find((station) => station.end)!
+    for (let i = 0; i < maxTries; i++) {
+      let current: StationResponse | undefined = source
+      let stationNames: string[] = []
+      while (true) {
+        if (!current) {
+          break
+        }
+        stationNames.push(current.name)
+        if (current.id === destination.id) {
+          return stationNames
+        }
+        const hops = game.hops.filter((hop) => hop.headId === current?.id)
+        const hop = hops[Math.floor(Math.random() * hops.length)]
+        current = game.stations
+          .filter((station) => !stationNames.some((name) => name === station.name))
+          .find((station) => station.id === hop.tailId)
+      }
+    }
+    return
+  }
+
+
+  const [traversal, setTraversal] = useState<string[]>([])
+  useEffect(() => {
+    setInterval(() => {
+      if (!game) {
+        return
+      }
+      const source = game.stations.find((station) => station.start)!
+      const destination = game.stations.find((station) => station.end)!
+      const path = findRandomPath(game, source.name, destination.name)
+      if (path) {
+        setTraversal(path)
+      }
+      else {
+        setTraversal([])
+      }
+    }, 2000)
+  }, [game])
+
+
+
   return (
     <main className="m-2">
       <h1 className="text-3xl text-sky-500 font-semibold mt-4 mb-4">Mornington</h1>
 
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2">
-          {game && graphOptions ? <Graph game={game} options={graphOptions} /> : null}
+          {game && graphOptions ? <Graph game={game} options={graphOptions} traversal={traversal} /> : null}
 
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Basic Info</h2>
           <ul className="text-sm mb-4">
@@ -148,9 +195,9 @@ export function Gameboard() {
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
           <p className="text-xs mb-4">(<span className="font-bold">Note</span>: Messages are listed most recent first.)</p>
           {turnNumbers.map((turnNumber, i) => (
-            <ul className="opacity-60 text-xs mb-4 border-solid border-white border-opacity-60 border-t-2 pt-2">
+            <ul key={turnNumber} className="opacity-60 text-xs mb-4 border-solid border-white border-opacity-60 border-t-2 pt-2">
               {groupedMessages[turnNumber].map((message: MessageResponse) => (
-                <li className="mb-2">{message.message}</li>
+                <li key={message.id} className="mb-2">{message.message}</li>
               ))}
             </ul>
           ))}

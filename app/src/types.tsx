@@ -66,6 +66,7 @@ type MetadataResponse = {
 }
 
 type MessageResponse = {
+  id: number
   turnNumber: number
   message: string
   gameId: number

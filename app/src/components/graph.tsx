@@ -79,19 +79,19 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
   const offsetY = 24
   const radius = options.stationRadius
   return (
-    <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+    <g key={station.id}>
+      <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
       {
         station.start
         ? (
-          <circle key={station.id} cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={0.5} />
+          <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={0.5} />
         )
         : null
       }
       {
         station.end
         ? (
-          <circle key={station.id} cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={0.5} />
+          <circle cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={0.5} />
         )
         : null
       }
@@ -99,7 +99,7 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
-    </>
+    </g>
   )
 }
 
@@ -142,14 +142,14 @@ const Train = ({ game, train, options }: { game: GameResponse, train: TrainRespo
 )
 
 // TODO: Use this to show possible paths, etc.
-const Traversal = ({ game, stationNames }: { game: GameResponse, stationNames: string[] }) => {
+const Traversal = ({ game, traversal }: { game: GameResponse, traversal: string[] }) => {
   let paths = []
-  for (let i = 0; i < stationNames.length; i++) {
+  for (let i = 0; i < traversal.length; i++) {
     if (i === 0) {
       continue
     }
-    const head = game.stations.find((station) => station.name === stationNames[i - 1])!
-    const tail = game.stations.find((station) => station.name === stationNames[i])!
+    const head = game.stations.find((station) => station.name === traversal[i - 1])!
+    const tail = game.stations.find((station) => station.name === traversal[i])!
     const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
     // const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
     const magnitude = 40
@@ -160,14 +160,14 @@ const Traversal = ({ game, stationNames }: { game: GameResponse, stationNames: s
     const [cx, cy, dx, dy] = [hx, hy - magnitude, tx, ty - magnitude]
     const path = `M ${hx} ${hy} C ${cx} ${cy}, ${dx} ${dy}, ${tx} ${ty}`
     // TODO: Options
-    paths.push(<path d={path} stroke="yellow" strokeWidth={2} opacity={0.6} fill="transparent"/>)
+    paths.push(<path key={`${head.name}:${tail.name}`} d={path} stroke="yellow" strokeWidth={2} opacity={0.6} fill="transparent"/>)
   }
   return paths
 }
 
-export const Graph = ({ game, options }: { game: GameResponse, options: GraphOptions }) => {
+export const Graph = ({ game, traversal, options }: { game: GameResponse, traversal: string[] | undefined, options: GraphOptions }) => {
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
-  
+
   return (
     <div className="border-solid border-2 border-white">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
@@ -185,7 +185,7 @@ export const Graph = ({ game, options }: { game: GameResponse, options: GraphOpt
           ))}
         </g>
         <g>
-          {<Traversal game={game} stationNames={'a b c z d g h'.split(' ')} />}
+          {traversal ? <Traversal game={game} traversal={traversal} /> : null}
         </g>
       </svg>
     </div>
