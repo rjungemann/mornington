@@ -182,6 +182,7 @@ export class Agent extends Model<
   declare name: string;
   declare title: string;
   declare label: string;
+  declare color: string;
 
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']>;
@@ -437,6 +438,10 @@ Agent.init(
       allowNull: false
     },
     label: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    color: {
       type: new DataTypes.STRING(128),
       allowNull: false
     },

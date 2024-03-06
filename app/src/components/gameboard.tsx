@@ -132,7 +132,7 @@ export function Gameboard({ name }: { name: string }) {
               const trainStation = train?.stationId && game.stations.find((station) => station.id === train?.stationId)
               return (
                 <li key={agent.id} className="mb-2">
-                  {agent.title}
+                  <span style={{ color: agent.color }}>{agent.title}</span>
                   <ul className="opacity-60 text-xs">
                     {station ? <li>Waiting at {station.title}</li> : null}
                     {
@@ -164,7 +164,23 @@ export function Gameboard({ name }: { name: string }) {
                   <ul className="opacity-60 text-xs">
                     {station ? <li>Stopped at: {station.title}</li> : null}
                     {headStation && tailStation ? <li>Traveling from {headStation!.title} to {tailStation!.title}</li> : null}
-                    {agents.length ? <li>Carrying passengers: {agents.map((a) => a.title).join(', ')}</li> : null}
+                    {
+                      agents.length
+                      ? (
+                        <li>
+                          Carrying passengers:
+                          &nbsp;
+                          {
+                            agents
+                            .map((a) => (
+                              <span style={{ color: a.color }}>{a.title}</span>
+                            ))
+                            .join(', ')
+                          }
+                        </li>
+                      )
+                      : null
+                    }
                   </ul>
                 </li>
               )
@@ -181,7 +197,20 @@ export function Gameboard({ name }: { name: string }) {
                   {station.title}
                   <ul className="opacity-60 text-xs">
                     {trains.length ? <li>Stopped trains: {trains.map((t) => `${t.title} train`).join(', ')}</li> : null}
-                    {agents.length ? <li>Waiting passengers: {agents.map((a) => a.title).join(', ')}</li> : null}
+                    {
+                      agents.length
+                      ? (
+                        <li>
+                          Waiting passengers:
+                          &nbsp;
+                          {
+                            agents
+                            .map((a) => <span style={{ color: a.color }}>{a.title}</span>)
+                          }
+                        </li>
+                      )
+                      : null
+                    }
                   </ul>
                 </li>
               )

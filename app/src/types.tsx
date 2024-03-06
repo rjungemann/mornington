@@ -54,6 +54,7 @@ type AgentResponse = {
   name: string
   title: string
   label: string
+  color: string
   stationId: number
   trainId: number
 }

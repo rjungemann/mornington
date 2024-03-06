@@ -452,22 +452,25 @@ export async function seed(db: Sequelize) {
       name: 'alice',
       title: 'Alice',
       label: 'Started on a train',
+      color: '#3366cc',
       gameId: game.dataValues.id,
       stationId: null,
-      trainId: trainBlue1.dataValues.id
+      trainId: trainBlue1.dataValues.id,
     })
     const agent2 = await db.models.Agent.create({
       name: 'bob',
       title: 'Bob',
       label: 'Started in a station',
+      color: '#99cc33',
       gameId: game.dataValues.id,
       stationId: stationI.dataValues.id,
-      trainId: null
+      trainId: null,
     })
     const agent3 = await db.models.Agent.create({
       name: 'eve',
       title: 'Eve',
       label: 'Started in a station',
+      color: '#ff9900',
       gameId: game.dataValues.id,
       stationId: stationJ.dataValues.id,
       trainId: null

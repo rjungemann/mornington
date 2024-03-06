@@ -45,6 +45,7 @@ type AgentItem = {
     label: string
     stationName: string
     trainName: string
+    style: string
   }
 }
 
@@ -52,6 +53,7 @@ type AgentTransformed = {
   name: string
   title: string
   label: string
+  color: string
   stationName: string | null
   trainName: string | null
 }
@@ -173,9 +175,10 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const name = agent.$['inkscape:label']
     const title = agent.$.title
     const label = agent.$.label
+    const color = agent.$.style.match(/fill:\s*(#[^;]*)/)![1]
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, stationName, trainName }
+    return { name, title, label, color, stationName, trainName }
   })
   return agents
 }
@@ -319,6 +322,7 @@ async function main() {
         name: agent.name,
         title: agent.title,
         label: agent.label,
+        color: agent.color,
         gameId: game.dataValues.id,
         stationId: startingStation.dataValues.id,
         trainId: null
