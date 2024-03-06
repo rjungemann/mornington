@@ -1,3 +1,10 @@
+type GameMiniResponse = {
+  id: number
+  name: string
+  title: string
+  label: string
+}
+
 type StationResponse = {
   id: number
   name: string

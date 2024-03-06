@@ -3,11 +3,11 @@
 import { Graph } from '@/components/graph';
 import { useEffect, useState } from 'react';
 
-export function Gameboard() {
+export function Gameboard({ name }: { name: string }) {
   // TODO: Put this in config
   const updateInterval = 5000
   // TODO: Put this in config
-  const url = 'http://localhost:3001/games/one';
+  const url = `http://localhost:3001/games/${name}`;
   const [game, setGame] = useState<GameResponse | null>(null);
   const [turnNumber, setTurnNumber] = useState<number | null>(null);
   const [metadata, setMetadata] = useState<MetadataResponse | null>(null);
@@ -27,8 +27,8 @@ export function Gameboard() {
     destinationStroke: '#facc15',
     destinationStrokeWidth: 2,
     offset: {
-      x: 100,
-      y: 50
+      x: 0,
+      y: 0
     },
     size: {
       x: 500,
@@ -112,8 +112,6 @@ export function Gameboard() {
 
   return (
     <main className="m-2">
-      <h1 className="text-3xl text-sky-500 font-semibold mt-4 mb-4">Mornington</h1>
-
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2">
           {game && graphOptions ? <Graph game={game} options={graphOptions} traversal={traversal} /> : null}

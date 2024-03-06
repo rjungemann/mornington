@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="600"
-   height="600"
-   viewBox="0 0 600 600"
+   width="500"
+   height="500"
+   viewBox="0 0 500 500"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20e, 2023-11-25)"
@@ -32,7 +32,7 @@
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer3">
+     inkscape:current-layer="layer1">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -65,7 +65,7 @@
      inkscape:label="Hops">
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="m 360,380 60,-80"
+       d="m 303.2,337.6 60,-80"
        id="path7"
        inkscape:label="e:f"
        line="red"
@@ -73,7 +73,7 @@
        label="Hop from E to F" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="M 240,380 H 360"
+       d="m 183.2,337.6 h 120"
        id="path6"
        inkscape:label="d:e"
        line="red"
@@ -81,7 +81,7 @@
        label="Hop from D to E" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="m 180,300 60,80"
+       d="m 123.2,257.6 60,80"
        id="path5"
        inkscape:label="a:d"
        line="red"
@@ -89,7 +89,7 @@
        label="Hop from A to D" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="m 360,220 60,80"
+       d="m 303.2,177.6 60,80"
        id="path4"
        inkscape:label="c:f"
        line="red"
@@ -97,7 +97,7 @@
        label="Hop from C to F" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="M 240,220 H 360"
+       d="m 183.2,177.6 h 120"
        id="path3"
        inkscape:label="b:c"
        line="red"
@@ -105,7 +105,7 @@
        label="Hop from B to C" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
-       d="m 180,300 60,-80"
+       d="m 123.2,257.6 60,-80"
        id="path2"
        inkscape:label="a:b"
        line="red"
@@ -119,8 +119,8 @@
     <circle
        style="fill:#ffffff;stroke:#ff6600;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1-8"
-       cx="420"
-       cy="300"
+       cx="363.20001"
+       cy="257.60001"
        r="20"
        inkscape:label="f"
        end="true"
@@ -129,8 +129,8 @@
     <circle
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1-8-59"
-       cx="360"
-       cy="380"
+       cx="303.20001"
+       cy="337.60001"
        r="20"
        inkscape:label="e"
        title="Bow Church"
@@ -138,8 +138,8 @@
     <circle
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1-8-5"
-       cx="240"
-       cy="380"
+       cx="183.2"
+       cy="337.60001"
        r="20"
        inkscape:label="d"
        title="South Harrow"
@@ -147,8 +147,8 @@
     <circle
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1-8-5-1-4"
-       cx="360"
-       cy="220"
+       cx="303.20001"
+       cy="177.60001"
        r="20"
        inkscape:label="c"
        title="Surrey Quays"
@@ -156,8 +156,8 @@
     <circle
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1-8-5-1"
-       cx="240"
-       cy="220"
+       cx="183.2"
+       cy="177.60001"
        r="20"
        inkscape:label="b"
        label="Balham"
@@ -165,8 +165,8 @@
     <circle
        style="fill:#ffffff;stroke:#3366cc;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        id="path1"
-       cx="180"
-       cy="300"
+       cx="123.2"
+       cy="257.60001"
        r="20"
        inkscape:label="a"
        start="true"

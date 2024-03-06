@@ -184,9 +184,9 @@ export const Graph = ({ game, traversal, options }: { game: GameResponse, traver
             <Train key={train.id} game={game} train={train} options={options} />
           ))}
         </g>
-        <g>
+        {/* <g>
           {traversal ? <Traversal game={game} traversal={traversal} /> : null}
-        </g>
+        </g> */}
       </svg>
     </div>
   );

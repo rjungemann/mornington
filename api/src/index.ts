@@ -25,6 +25,13 @@ async function main() {
     res.send('OK');
   });
 
+  app.get('/games', async (req: Request, res: Response<any, { db: Sequelize }>) => {
+    const db = res.locals!.db
+    // TODO: Detect finished games and don't show them
+    const games = await db.models.Game.findAll()
+    res.json({ games })
+  })
+
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
@@ -32,24 +39,29 @@ async function main() {
       order: [['createdAt', 'DESC']],
       where: { name }
     })
-    const gameTurn = await db.models.GameTurn.findOne({
-      order: [['turnNumber', 'DESC']],
-      where: { gameId: game?.dataValues.id }
-    })
-    const turnNumber = gameTurn?.dataValues.turnNumber
-    const messages = await db.models.Message.findAll({
-      order: [['id', 'DESC']],
-      where: {
-        gameId: game?.dataValues.id,
-        turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
-      }
-    })
-    res.json({ metadata: game, game: gameTurn, messages })
-  });
+    if (game) {
+      const gameTurn = await db.models.GameTurn.findOne({
+        order: [['turnNumber', 'DESC']],
+        where: { gameId: game?.dataValues.id }
+      })
+      const turnNumber = gameTurn?.dataValues.turnNumber
+      const messages = await db.models.Message.findAll({
+        order: [['id', 'DESC']],
+        where: {
+          gameId: game?.dataValues.id,
+          turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
+        }
+      })
+      res.json({ metadata: game, game: gameTurn, messages })
+    }
+    else {
+      res.status(404).json({})
+    }
+  })
 
   app.listen(port, () => {
     logger.info({ port }, `Server is running at http://localhost:%s`, port);
-  });
+  })
 }
 
 main()

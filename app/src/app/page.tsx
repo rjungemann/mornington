@@ -1,9 +1,9 @@
-import { Gameboard } from '@/components/gameboard';
+import { Gameboards } from '@/components/gameboards';
 
 export default function Home() {
   return (
     <main className="m-2">
-      <Gameboard />
+      <Gameboards name={'one'} />
     </main>
   );
 }

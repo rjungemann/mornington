@@ -27,6 +27,8 @@ export async function seed(db: Sequelize) {
     // Stations
     // --------
 
+    const [ox, oy] = [100, 50]
+
     const stationZ = await db.models.Station.create({
       name: 'z',
       title: 'Z',
@@ -34,8 +36,8 @@ export async function seed(db: Sequelize) {
       virtual: true,
       start: false,
       end: false,
-      x: 150,
-      y: 50,
+      x: ox + 150,
+      y: oy + 50,
       gameId: game.dataValues.id
     })
     const stationX = await db.models.Station.create({
@@ -45,8 +47,8 @@ export async function seed(db: Sequelize) {
       virtual: true,
       start: false,
       end: false,
-      x: 150,
-      y: 250,
+      x: ox + 150,
+      y: oy + 250,
       gameId: game.dataValues.id
     })
     const stationA = await db.models.Station.create({
@@ -56,8 +58,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: true,
       end: false,
-      x: 10,
-      y: 175,
+      x: ox + 10,
+      y: oy + 175,
       gameId: game.dataValues.id
     })
     const stationB = await db.models.Station.create({
@@ -67,8 +69,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 70,
-      y: 150,
+      x: ox + 70,
+      y: oy + 150,
       gameId: game.dataValues.id
     })
     const stationC = await db.models.Station.create({
@@ -78,8 +80,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 110,
-      y: 50,
+      x: ox + 110,
+      y: oy + 50,
       gameId: game.dataValues.id
     })
     const stationD = await db.models.Station.create({
@@ -89,8 +91,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 190,
-      y: 50,
+      x: ox + 190,
+      y: oy + 50,
       gameId: game.dataValues.id
     })
     const stationE = await db.models.Station.create({
@@ -100,8 +102,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 110,
-      y: 250,
+      x: ox + 110,
+      y: oy + 250,
       gameId: game.dataValues.id
     })
     const stationF = await db.models.Station.create({
@@ -109,8 +111,8 @@ export async function seed(db: Sequelize) {
       title: 'Badgers Mare',
       label: 'F',
       virtual: false,
-      x: 190,
-      y: 250,
+      x: ox + 190,
+      y: oy + 250,
       gameId: game.dataValues.id
     })
     const stationG = await db.models.Station.create({
@@ -120,8 +122,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 230,
-      y: 150,
+      x: ox + 230,
+      y: oy + 150,
       gameId: game.dataValues.id
     })
     const stationH = await db.models.Station.create({
@@ -131,8 +133,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: true,
-      x: 290,
-      y: 175,
+      x: ox + 290,
+      y: oy + 175,
       gameId: game.dataValues.id
     })
     const stationI = await db.models.Station.create({
@@ -142,8 +144,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 230,
-      y: 350,
+      x: ox + 230,
+      y: oy + 350,
       gameId: game.dataValues.id
     })
     const stationJ = await db.models.Station.create({
@@ -153,8 +155,8 @@ export async function seed(db: Sequelize) {
       virtual: false,
       start: false,
       end: false,
-      x: 70,
-      y: 350,
+      x: ox + 70,
+      y: oy + 350,
       gameId: game.dataValues.id
     })
 

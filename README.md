@@ -20,7 +20,18 @@ Clone the `mornington` repo. `cd mornington`
 # Setup backend prerequisites
 pushd api
 yarn install
+
+# Create the database
+yarn db:drop
+yarn db:create
+yarn db:sync
+yarn db:seed
+# Or...
 yarn db:all
+
+# Import an SVG map
+yarn game:import --file=../assets/map1.svg --name=two
+
 popd
 
 # Setup frontend prerequisites
@@ -31,12 +42,14 @@ popd
 # Start the API service
 # In another terminal,
 cd api
-yarn start:api
+yarn api:start
 
 # Start the clock, which runs the simulation
 # In another terminal,
 cd api
-yarn start:clock
+yarn clock:start
+# Or, to just run once:
+yarn clock:tick
 
 # Start the frontend app
 # In another terminal,
