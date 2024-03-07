@@ -28,7 +28,9 @@ async function main() {
   app.get('/games', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     // TODO: Detect finished games and don't show them
-    const games = await db.models.Game.findAll()
+    const games = await db.models.Game.findAll({
+      order: [['createdAt', 'ASC']]
+    })
     res.json({ games })
   })
 

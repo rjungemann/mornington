@@ -97,6 +97,7 @@ const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnRespons
       }
       <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
+        {/* TODO: Options */}
         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
       </svg>
     </g>
@@ -164,7 +165,7 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
 
   return (
-    <div className="border-solid border-2 border-white">
+    <div className="border-solid border-2 border-slate-200">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
         <g>
           {<Hops gameTurn={gameTurn} options={options} />}

@@ -45,6 +45,10 @@ export function Gameboard({ name }: { name: string }) {
       fetch(url)
       .then((response) => response.json())
       .then((data): void => {
+        if (!data.game) {
+          console.error('Could not load game data, will retry...')
+          return
+        }
         if (data.game.turnNumber !== turnNumber) {
           setTurnNumber(0)
         }
@@ -165,15 +169,25 @@ export function Gameboard({ name }: { name: string }) {
   //   }, 2000)
   // }, [game])
 
+  const formatDate = (d: Date) => {
+    const year = d.getFullYear().toString().padStart(4, '0')
+    const month = d.getMonth().toString().padStart(2, '0')
+    const date = d.getDate().toString().padStart(2, '0')
+    const hour = d.getHours().toString().padStart(2, '0')
+    const minutes = d.getMinutes().toString().padStart(2, '0')
+    const seconds = d.getSeconds().toString().padStart(2, '0')
+    return `${year}/${month}/${date} ${hour}:${minutes}:${seconds}`
+  }
+
   // TODO: Better loading indicator
-  if (!gameTurn) {
+  if (!gameTurn || !game) {
     return <></>
   }
   return (
     <main className="m-2 p-4">
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2">
-          {gameTurn && graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
+          {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
 
           {
             currentMessage
@@ -186,10 +200,24 @@ export function Gameboard({ name }: { name: string }) {
           }
 
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Basic Info</h2>
-          <ul className="text-sm mb-4">
-            <li><span className="font-bold">Match</span> {game?.title}</li>
-            <li><span className="font-bold">Turn Number</span> #{turnNumber}</li>
-          </ul>
+          <div className="w-full text-sm mb-4">
+            <div className="grid grid-cols-4 mb-2">
+              <div className="font-bold whitespace-nowrap">Game Title</div>
+              <div className="col-span-3">{game.title}</div>
+            </div>
+            <div className="grid grid-cols-4 mb-2">
+              <div className="font-bold whitespace-nowrap">Turn Number</div>
+              <div className="col-span-3">#{turnNumber}</div>
+            </div>
+            <div className="grid grid-cols-4 mb-2">
+              <div className="font-bold whitespace-nowrap">Started At</div>
+              <div className="col-span-3">{formatDate(new Date(game.createdAt))}</div>
+            </div>
+            <div className="grid grid-cols-4 mb-2">
+              <div className="font-bold whitespace-nowrap">Last Turn At</div>
+              <div className="col-span-3">{formatDate(new Date(gameTurn.createdAt))}</div>
+            </div>
+          </div>
         </div>
 
         <div className="col-span-1">
@@ -214,7 +242,11 @@ export function Gameboard({ name }: { name: string }) {
                       )
                       : null
                     }
-                    <li>Estimated distance (in stations): {estimatedDistance || 'Unknown'}</li>
+                    {
+                      estimatedDistance
+                      ? <li>An estimated {estimatedDistance} stations away</li>
+                      : null
+                    }
                   </ul>
                 </li>
               )
@@ -292,14 +324,28 @@ export function Gameboard({ name }: { name: string }) {
 
         <div className="col-span-1">
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
-          <p className="text-xs mb-4">(<span className="font-bold">Note</span>: Messages are listed most recent first.)</p>
-          {turnNumbers.map((turnNumber, i) => (
-            <ul key={turnNumber} className="opacity-60 text-xs mb-4 border-solid border-white border-opacity-60 border-t-2 pt-2">
-              {groupedMessages[turnNumber].map((message: MessageResponse) => (
-                <li key={message.id} className="mb-2">{message.message}</li>
-              ))}
-            </ul>
-          ))}
+          <p className="text-xs mb-4 bg-sky-200 text-slate-800 p-2 opacity-60">
+            <span className="font-bold">Note</span>: Events are listed most recent first.
+          </p>
+          {turnNumbers.map((turnNumber, i) => {
+            const classNames = [
+              ...(i !== 0 ? ['border-solid', 'border-slate-200', 'border-opacity-60', 'border-t-2', 'pt-2'] : [])
+            ]
+            return (
+              <div key={turnNumber} className={classNames.join(' ')}>
+                <h3 className="opacity-100 font-md mb-2">Turn #{turnNumber}</h3>
+                <ul className="opacity-60 text-xs mb-4">
+                  {groupedMessages[turnNumber].map((message: MessageResponse) => (
+                    <li key={message.id} className="mb-2">
+                      <span className="opacity-60">{formatDate(new Date(message.createdAt))}</span>
+                      &nbsp;
+                      {message.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          })}
         </div>
       </div>
     </main>

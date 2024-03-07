@@ -3,6 +3,8 @@ type GameMiniResponse = {
   name: string
   title: string
   label: string
+  createdAt: string
+  updatedAt: string
 }
 
 type StationResponse = {
@@ -65,12 +67,16 @@ type GameTurnResponse = {
   hops: HopResponse[]
   trains: TrainResponse[]
   agents: AgentResponse[]
+  createdAt: string
+  updatedAt: string
 }
 
 type GameResponse = {
   name: string
   title: string
   label: string
+  createdAt: string
+  updatedAt: string
 }
 
 type MessageResponse = {
@@ -78,6 +84,8 @@ type MessageResponse = {
   turnNumber: number
   message: string
   gameId: number
+  createdAt: string
+  updatedAt: string
 }
 
 type MessagesResponse = MessageResponse[]
