@@ -25,14 +25,14 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="299.04229"
+     inkscape:cx="297.77247"
      inkscape:cy="384.75505"
      inkscape:window-width="1392"
      inkscape:window-height="1027"
-     inkscape:window-x="0"
+     inkscape:window-x="407"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer1">
+     inkscape:current-layer="layer5">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -67,7 +67,7 @@
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 303.2,337.6 60,-80"
        id="path7"
-       inkscape:label="e:f"
+       inkscape:label="f:e"
        line="red"
        length="3"
        label="Hop from E to F" />
@@ -75,7 +75,7 @@
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 183.2,337.6 h 120"
        id="path6"
-       inkscape:label="d:e"
+       inkscape:label="e:d"
        line="red"
        length="3"
        label="Hop from D to E" />
@@ -83,7 +83,7 @@
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 123.2,257.6 60,80"
        id="path5"
-       inkscape:label="a:d"
+       inkscape:label="d:a"
        line="red"
        length="3"
        label="Hop from A to D" />
@@ -239,9 +239,7 @@
        x="-60"
        y="0"
        inkscape:label="two"
-       title="Red #1"
-       label="Red #1"
-       stationName="a"
-       hopName="null" />
+       title="Game #2"
+       label="Game #2" />
   </g>
 </svg>

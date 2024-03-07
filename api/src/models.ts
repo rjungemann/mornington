@@ -31,6 +31,7 @@ export class Game extends Model<
   declare name: string;
   declare title: string;
   declare label: string;
+  declare turnNumber: number;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -213,6 +214,10 @@ Game.init(
     },
     label: {
       type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    turnNumber: {
+      type: new DataTypes.INTEGER,
       allowNull: false
     },
     createdAt: DataTypes.DATE,

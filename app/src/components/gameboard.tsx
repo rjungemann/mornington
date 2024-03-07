@@ -12,6 +12,7 @@ export function Gameboard({ name }: { name: string }) {
   const [turnNumber, setTurnNumber] = useState<number | null>(null)
   const [metadata, setMetadata] = useState<MetadataResponse | null>(null)
   const [messages, setMessages] = useState<MessagesResponse | null>(null)
+  const [messageIndex, setMessageIndex] = useState<number>(0)
   const [agentNamesToDistances, setAgentNamesToDistances] = useState<Record<string, number> | null>(null)
   const graphOptions = {
     hopStrokeWidth: 4,
@@ -44,6 +45,9 @@ export function Gameboard({ name }: { name: string }) {
       fetch(url)
       .then((response) => response.json())
       .then((data): void => {
+        if (data.game.turnNumber !== turnNumber) {
+          setTurnNumber(0)
+        }
         setGame(data.game.data)
         setTurnNumber(data.game.turnNumber)
         setMetadata(data.metadata)
@@ -73,7 +77,6 @@ export function Gameboard({ name }: { name: string }) {
       let current: StationResponse | undefined = source
       let stationNames: string[] = []
       while (true) {
-        console.log('stationNames', stationNames)
         if (!current) {
           break
         }
@@ -140,6 +143,10 @@ export function Gameboard({ name }: { name: string }) {
     setAgentNamesToDistances(dictionary)
   }, [game])
 
+  // On each load, choose a message from the current turn
+  const currentMessages = messages?.filter((message) => message.turnNumber === turnNumber) || []
+  const currentMessage = currentMessages[Math.floor(Math.random() * currentMessages.length)]
+
   const [traversal, setTraversal] = useState<string[]>([])
   // useEffect(() => {
   //   setInterval(() => {
@@ -167,6 +174,16 @@ export function Gameboard({ name }: { name: string }) {
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2">
           {game && graphOptions ? <Graph game={game} options={graphOptions} traversal={traversal} /> : null}
+
+          {
+            currentMessage
+            ? (
+              <div className="truncate p-4 pb-5 font-semibold text-sm text-sky-500 tracking-tight font-semibold bg-slate-200 text-slate-800">
+                {currentMessage.message}
+              </div>
+            )
+            : null
+          }
 
           <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Basic Info</h2>
           <ul className="text-sm mb-4">
@@ -224,7 +241,7 @@ export function Gameboard({ name }: { name: string }) {
                         <li>
                           Carrying passengers:
                           &nbsp;
-                          {agents.map((a) => <><span style={{ color: a.color }}>{a.title}</span>&nbsp;</>)}
+                          {agents.map((a) => <span key={a.id}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
                         </li>
                       )
                       : null
@@ -250,7 +267,7 @@ export function Gameboard({ name }: { name: string }) {
                         <li>
                           Stopped trains:
                           &nbsp;
-                          {trains.map((t) => <><span style={{ color: t.color }}>{t.title}</span>&nbsp;</>)}
+                          {trains.map((t) => <span key={t.id}><span style={{ color: t.color }}>{t.title}</span>&nbsp;</span>)}
                         </li>
                       )
                       : null
@@ -261,7 +278,7 @@ export function Gameboard({ name }: { name: string }) {
                         <li>
                           Waiting passengers:
                           &nbsp;
-                          {agents.map((a) => <><span style={{ color: a.color }}>{a.title}</span>&nbsp;</>)}
+                          {agents.map((a) => <span key={a.id}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
                         </li>
                       )
                       : null

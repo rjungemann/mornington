@@ -570,6 +570,9 @@ async function tickGame(game: Model<any, any>) {
         data: newGame
       })
       logger.info({ gameName, turnNumber }, 'Finished caching game turn data!')
+      
+      game.dataValues.turnNumber = turnNumber
+      game.save()
     });
     logger.info({ gameName }, 'Transaction committed for game!')
   } catch (error) {

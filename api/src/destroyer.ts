@@ -23,7 +23,7 @@ async function main() {
   .argv as Args;
 
   await db.transaction(async (t) => {
-    const game = (await db.models.Game.findOne({ where: { name: 'one' } }))!
+    const game = (await db.models.Game.findOne({ where: { name: args.name } }))!
 
     await db.models.Message.destroy({ where: { gameId: game.dataValues.id } })
     await db.models.Agent.destroy({ where: { gameId: game.dataValues.id } })

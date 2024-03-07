@@ -44,15 +44,20 @@ async function main() {
         order: [['turnNumber', 'DESC']],
         where: { gameId: game?.dataValues.id }
       })
-      const turnNumber = gameTurn?.dataValues.turnNumber
-      const messages = await db.models.Message.findAll({
-        order: [['id', 'DESC']],
-        where: {
-          gameId: game?.dataValues.id,
-          turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
-        }
-      })
-      res.json({ metadata: game, game: gameTurn, messages })
+      if (gameTurn) {
+        const turnNumber = gameTurn.dataValues.turnNumber
+        const messages = await db.models.Message.findAll({
+          order: [['id', 'DESC']],
+          where: {
+            gameId: game.dataValues.id,
+            turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
+          }
+        })
+        res.json({ metadata: game, game: gameTurn, messages })
+      }
+      else {
+        res.status(404).json({})
+      }
     }
     else {
       res.status(404).json({})

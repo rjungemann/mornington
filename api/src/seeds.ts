@@ -21,6 +21,7 @@ export async function seed(db: Sequelize) {
       name: 'one',
       title: 'Game #1',
       label: 'Game #1',
+      turnNumber: 0,
     })
 
     // --------

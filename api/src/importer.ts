@@ -220,12 +220,14 @@ const parseStations = (result: ResultItem): StationTransformed[] => {
 
 const parseHops = (result: ResultItem): HopTransformed[] => {
   const layer = getLayer(result, 'Hops')
-  const hops = layer.path.map((line: HopItem) => {
-    const name = line.$['inkscape:label']
-    const label = line.$.label
-    const length = parseInt(line.$.length, 10)
+  console.log(layer.path)
+  const hops = layer.path.map((hop: HopItem) => {
+    console.log(hop)
+    const name = hop.$['inkscape:label']
+    const label = hop.$.label
+    const length = parseInt(hop.$.length, 10)
     const [headName, tailName] = name.split(':')
-    const lineName = line.$.line
+    const lineName = hop.$.line
     return { name, length, label, headName, tailName, lineName }
   })
   return hops
@@ -274,7 +276,7 @@ async function main() {
   const linesData = parseLines(result)
 
   await db.transaction(async (t) => {
-    const game = await db.models.Game.create(gameData)
+    const game = await db.models.Game.create({ ...gameData, turnNumber: 0 })
     const stations = await db.models.Station
     .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
     const lines = await db.models.Line
