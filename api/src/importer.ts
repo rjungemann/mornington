@@ -3,6 +3,7 @@ import db from './models'
 import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
 import xml2js from 'xml2js'
+import destroyGameByName from './services/destroyGameByName';
 
 type Args = {
   file: string
@@ -263,7 +264,7 @@ async function main() {
   .argv as Args;
 
   const { file, name } = args
-  const data = (await readFile(args.file)).toLocaleString()
+  const data = (await readFile(file)).toLocaleString()
   const result = await parseXml(data);
 
   const gameData = parseGame(result)
@@ -274,7 +275,10 @@ async function main() {
   const linesData = parseLines(result)
 
   await db.transaction(async (t) => {
-    const game = await db.models.Game.create({ ...gameData, turnNumber: 0 })
+    // Remove existing game first
+    await destroyGameByName(db)(name)
+
+    const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
     const stations = await db.models.Station
     .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
     const lines = await db.models.Line

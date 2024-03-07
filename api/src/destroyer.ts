@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import db from './models'
 import * as yargs from 'yargs'
+import destroyGameByName from './services/destroyGameByName';
 
 dotenv.config();
 
@@ -22,19 +23,7 @@ async function main() {
   })
   .argv as Args;
 
-  await db.transaction(async (t) => {
-    const game = (await db.models.Game.findOne({ where: { name: args.name } }))!
-
-    await db.models.Message.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.Agent.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.Train.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.Hop.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.Line.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.Station.destroy({ where: { gameId: game.dataValues.id } })
-    await db.models.GameTurn.destroy({ where: { gameId: game.dataValues.id } })
-
-    await game.destroy()
-  })
+  await destroyGameByName(db)(args.name)
 
   process.exit();
 }

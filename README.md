@@ -105,3 +105,7 @@ A NextJS app which renders games using React and SVG. Designed to be fast and li
   * `package.json` lists the dependencies as well as the scripts that can be run
   * `src/index.ts` is the primary script for the API service
   * `src/clock.ts` is the primary script for the Clock
+
+## Credits
+
+Subway icon from [SVG Repo](https://www.svgrepo.com/svg/488698/subway).

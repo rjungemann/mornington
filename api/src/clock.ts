@@ -671,7 +671,10 @@ async function tickStationedAgent(agent: Model<Agent>, context: Context) {
   }
 }
 
-async function tickGameTurn(gameId: number, gameName: string, turnNumber: number) {
+async function tickGameTurn(game: Model<Game>) {
+  const gameId = game.dataValues.id
+  const gameName = game.dataValues.name
+  const turnNumber = game.dataValues.turnNumber
   const lines = await db.models.Line.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
@@ -715,6 +718,14 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
       logger.error({ gameName, turnNumber, agentName: agent.dataValues.name }, 'Agent is out-of-bounds. Skipping!')
     }
   }
+
+  const destinations = stations.filter((station) => station.dataValues.end)
+  const finishedAgents = agents.filter((agent) => destinations.find((s) => agent.dataValues.stationId === s.dataValues.id))
+  if (finishedAgents.length > 0) {
+    await game.update({ finished: true })
+  }
+
+  await game.save()
 }
 
 async function tickGame(game: Model<Game>) {
@@ -723,15 +734,13 @@ async function tickGame(game: Model<Game>) {
   try {
     await db.transaction(async (t) => {
       // Calculate current turn number
-      const previousGameTurn = await db.models.GameTurn.findOne({
-        order: [['turnNumber', 'DESC']],
-        where: { gameId }
-      })
-      const previousTurnNumber = previousGameTurn?.dataValues.turnNumber || 0
+      const previousTurnNumber = game.dataValues.turnNumber || 0
       const turnNumber = previousTurnNumber + 1
+      await game.update({ turnNumber })
+
       // Tick the game
       logger.info({ gameName, turnNumber }, 'Began processing tick for game...')
-      await tickGameTurn(gameId, gameName, turnNumber)
+      await tickGameTurn(game)
       logger.info({ gameName, turnNumber }, 'Finished processing tick for game!')
       // Pull up the updated game data
       const newGame = await db.models.Game.findOne({
@@ -751,8 +760,6 @@ async function tickGame(game: Model<Game>) {
         data: newGame
       })
       logger.info({ gameName, turnNumber }, 'Finished caching game turn data!')
-      
-      await game.update({ turnNumber })
     });
     logger.info({ gameName }, 'Transaction committed for game!')
   } catch (error) {
@@ -767,7 +774,9 @@ async function tick() {
   await db.sync({ force: false });
 
   logger.info('Ticker started!...')
-  const games: Model<Game>[] = await db.models.Game.findAll({ attributes: ['id', 'name'] })
+  const games: Model<Game>[] = await db.models.Game.findAll({
+    where: { finished: false }
+  })
   const promises = games.map((game) => tickGame(game))
   await Promise.allSettled(promises)
   logger.info('Ticker finished!')
