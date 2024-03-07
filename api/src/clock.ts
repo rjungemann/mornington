@@ -295,40 +295,8 @@ function tickTravelingAgent(
   if (train) {
     const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
     if (station) {
-      const mightDisembarkTrain = Math.random() < 0.5;
-      if (mightDisembarkTrain) {
-        // Agent on stationed train is disembarking at station
-        if (station.dataValues.virtual) {
-          // Agents will not disembark from virtual stations
-          logger.warn({
-            gameName,
-            turnNumber,
-            agentName: agent.dataValues.name,
-            trainName: train.dataValues.name,
-            stationName: station.dataValues.name
-          },
-            'Traveling agent will not be disembarking train to virtual station'
-          )
-          messageLog.append(`Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`)
-        } else {
-          // Agent disembarks train
-          logger.info(
-            {
-              gameName,
-              turnNumber,
-              agentName: agent.dataValues.name,
-              trainName: train.dataValues.name,
-              stationName: station.dataValues.name
-            },
-            'Traveling agent is disembarking train to station'
-          )
-          messageLog.append(`Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`)
-          agent.set('trainId', null)
-          agent.set('stationId', station.dataValues.id)
-        }
-      }
-      else {
-        // Agent on stationed train is staying put
+      if (station.dataValues.end) {
+        // Agent on stationed train has reached destination and disembarks train
         logger.info(
           {
             gameName,
@@ -337,9 +305,60 @@ function tickTravelingAgent(
             trainName: train.dataValues.name,
             stationName: station.dataValues.name
           },
-          'Traveling agent is staying on stationed train'
+          'Traveling agent has found their destination! Disembarking...'
         )
-        messageLog.append(`Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`)
+        messageLog.append(`Traveling agent ${agent.dataValues.title} has found their destination, ${station.dataValues.title} and is disembarking from train ${station.dataValues.title}.`)
+        agent.set('trainId', null)
+        agent.set('stationId', station.dataValues.id)
+      }
+      else {
+        // Agent on stationed train has not yet reached destination
+        const mightDisembarkTrain = Math.random() < 0.5;
+        if (mightDisembarkTrain) {
+          // Agent on stationed train is disembarking at station
+          if (station.dataValues.virtual) {
+            // Agents will not disembark from virtual stations
+            logger.warn({
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              trainName: train.dataValues.name,
+              stationName: station.dataValues.name
+            },
+              'Traveling agent will not be disembarking train to virtual station'
+            )
+            messageLog.append(`Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`)
+          } else {
+            // Agent disembarks train
+            logger.info(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                trainName: train.dataValues.name,
+                stationName: station.dataValues.name
+              },
+              'Traveling agent is disembarking train to station'
+            )
+            messageLog.append(`Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`)
+            agent.set('trainId', null)
+            agent.set('stationId', station.dataValues.id)
+          }
+        }
+        else {
+          // Agent on stationed train is staying put
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              trainName: train.dataValues.name,
+              stationName: station.dataValues.name
+            },
+            'Traveling agent is staying on stationed train'
+          )
+          messageLog.append(`Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`)
+        }
       }
     }
     else {
@@ -377,58 +396,7 @@ function tickStationedAgent(
 ) {
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (station) {
-    const trainsInStation = trains.filter((train) => station.dataValues.id === train.dataValues.stationId)
-    const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
-    if (trainsInStation.length > 0) {
-      const mightBoardTrain = Math.random() < 0.5; // TODO: Change this
-      if (mightBoardTrain) {
-        // Stationed agent choosing to board a train
-        if (station.dataValues.virtual) {
-          // If station is virtual, agent will not board train
-          logger.error(
-            {
-              gameName,
-              turnNumber,
-              agentName: agent.dataValues.name,
-              stationName: station.dataValues.name,
-              trainName: trainToBoard.dataValues.name
-            },
-            'Stationed agent attempted to board train, but is trapped in virtual station'
-          )
-          messageLog.append(`Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`)
-        }
-        else {
-          // Stationed agent in a station with trains, will board a train
-          logger.info(
-            {
-              gameName,
-              turnNumber,
-              agentName: agent.dataValues.name,
-              stationName: station.dataValues.name,
-              trainName: trainToBoard.dataValues.name
-            },
-            'Stationed at station is boarding train'
-          )
-          messageLog.append(`Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`)
-          agent.set('stationId', null)
-          agent.set('trainId', trainToBoard.dataValues.id)
-        }
-      }
-      else {
-        // Stationed agent in a station with trains, is waiting
-        logger.info(
-          {
-            gameName,
-            turnNumber,
-            agentName: agent.dataValues.name,
-            stationName: station.dataValues.name
-          },
-          'Stationed agent is waiting at station with waiting trains'
-        )
-        messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`)
-      }
-    }
-    else {
+    if (station.dataValues.end) {
       // Stationed agent in a station with no trains, is waiting
       logger.info(
         {
@@ -437,9 +405,75 @@ function tickStationedAgent(
           agentName: agent.dataValues.name,
           stationName: station.dataValues.name
         },
-        'Stationed agent is waiting at station'
+        'Stationed agent is waiting at destination'
       )
-      messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`)
+      messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting at their destination, ${station.dataValues.title}.`)
+    }
+    else {
+      const trainsInStation = trains.filter((train) => station.dataValues.id === train.dataValues.stationId)
+      const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
+      if (trainsInStation.length > 0) {
+        const mightBoardTrain = Math.random() < 0.5; // TODO: Change this
+        if (mightBoardTrain) {
+          // Stationed agent choosing to board a train
+          if (station.dataValues.virtual) {
+            // If station is virtual, agent will not board train
+            logger.error(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                stationName: station.dataValues.name,
+                trainName: trainToBoard.dataValues.name
+              },
+              'Stationed agent attempted to board train, but is trapped in virtual station'
+            )
+            messageLog.append(`Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`)
+          }
+          else {
+            // Stationed agent in a station with trains, will board a train
+            logger.info(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                stationName: station.dataValues.name,
+                trainName: trainToBoard.dataValues.name
+              },
+              'Stationed at station is boarding train'
+            )
+            messageLog.append(`Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`)
+            agent.set('stationId', null)
+            agent.set('trainId', trainToBoard.dataValues.id)
+          }
+        }
+        else {
+          // Stationed agent in a station with trains, is waiting
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              stationName: station.dataValues.name
+            },
+            'Stationed agent is waiting at station with waiting trains'
+          )
+          messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`)
+        }
+      }
+      else {
+        // Stationed agent in a station with no trains, is waiting
+        logger.info(
+          {
+            gameName,
+            turnNumber,
+            agentName: agent.dataValues.name,
+            stationName: station.dataValues.name
+          },
+          'Stationed agent is waiting at station'
+        )
+        messageLog.append(`Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`)
+      }
     }
   }
   else {

@@ -32,7 +32,7 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
   }
 
   return (
-    <g>
+    <>
       {
         Object.values(keysToHops).map((hops) => {
           const hop = hops[0]
@@ -57,7 +57,7 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
           )
         })
       }
-    </g>
+    </>
   )
 }
 
@@ -151,12 +151,7 @@ const Traversal = ({ game, traversal }: { game: GameResponse, traversal: string[
     const head = game.stations.find((station) => station.name === traversal[i - 1])!
     const tail = game.stations.find((station) => station.name === traversal[i])!
     const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
-    // const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
     const magnitude = 40
-    // const [cx, cy, dx, dy] = [
-    //   ...projectPoint(hx, hy, angle, magnitude),
-    //   ...projectPoint(tx, ty, angle, magnitude)
-    // ]
     const [cx, cy, dx, dy] = [hx, hy - magnitude, tx, ty - magnitude]
     const path = `M ${hx} ${hy} C ${cx} ${cy}, ${dx} ${dy}, ${tx} ${ty}`
     // TODO: Options

@@ -7,11 +7,12 @@ export function Gameboard({ name }: { name: string }) {
   // TODO: Put this in config
   const updateInterval = 5000
   // TODO: Put this in config
-  const url = `http://localhost:3001/games/${name}`;
-  const [game, setGame] = useState<GameResponse | null>(null);
-  const [turnNumber, setTurnNumber] = useState<number | null>(null);
-  const [metadata, setMetadata] = useState<MetadataResponse | null>(null);
-  const [messages, setMessages] = useState<MessagesResponse | null>(null);
+  const url = `http://localhost:3001/games/${name}`
+  const [game, setGame] = useState<GameResponse | null>(null)
+  const [turnNumber, setTurnNumber] = useState<number | null>(null)
+  const [metadata, setMetadata] = useState<MetadataResponse | null>(null)
+  const [messages, setMessages] = useState<MessagesResponse | null>(null)
+  const [agentNamesToDistances, setAgentNamesToDistances] = useState<Record<string, number> | null>(null)
   const graphOptions = {
     hopStrokeWidth: 4,
     stationStroke: '#f5f5f4',
@@ -63,22 +64,23 @@ export function Gameboard({ name }: { name: string }) {
   }, {}) || []
   const turnNumbers: number[] = Object.keys(groupedMessages).map((n) => parseInt(n, 10)).sort().reverse()
 
-  // TODO: Port to backend
+  // Estimate the distances of each agent from the destination
   function findRandomPath(game: GameResponse, sourceName: string, destinationName: string): string[] | undefined {
     const maxTries = 10
-    const source = game.stations.find((station) => station.start)!
-    const destination = game.stations.find((station) => station.end)!
+    const source = game.stations.find((station) => station.name === sourceName)!
+    const destination = game.stations.find((station) => station.name === destinationName)!
     for (let i = 0; i < maxTries; i++) {
       let current: StationResponse | undefined = source
       let stationNames: string[] = []
       while (true) {
+        console.log('stationNames', stationNames)
         if (!current) {
           break
         }
-        stationNames.push(current.name)
         if (current.id === destination.id) {
           return stationNames
         }
+        stationNames.push(current.name)
         const hops = game.hops.filter((hop) => hop.headId === current?.id)
         const hop = hops[Math.floor(Math.random() * hops.length)]
         current = game.stations
@@ -88,30 +90,80 @@ export function Gameboard({ name }: { name: string }) {
     }
     return
   }
-
-
-  const [traversal, setTraversal] = useState<string[]>([])
   useEffect(() => {
-    setInterval(() => {
-      if (!game) {
-        return
-      }
-      const source = game.stations.find((station) => station.start)!
-      const destination = game.stations.find((station) => station.end)!
-      const path = findRandomPath(game, source.name, destination.name)
-      if (path) {
-        setTraversal(path)
+    if (!game) {
+      return
+    }
+
+    // TODO: Does not try and estimate distance for traveling agents
+    const dictionary: Record<string, number> = {}
+    const destination = game.stations.find((station) => station.end)
+    for (let agent of game.agents) {
+      const train = game.trains.find((train) => train.id === agent.trainId)
+      if (train) {
+        const hop = game.hops.find((hop) => hop.id === train.hopId)
+        if (hop) {
+          // Agent is on a train inside a hop
+          const station = game.stations.find((station) => station.id === hop.headId)
+          const estimatedDistance = station && destination ? findRandomPath(game, station.name, destination.name)?.length : null
+          if (station && destination) {
+            const path = findRandomPath(game, station.name, destination.name)
+            if (path) {
+              dictionary[agent.name] = path.length
+            }
+          }
+        }
+        else {
+          // Agent is on a train inside a station
+          const station = game.stations.find((station) => station.id === train.stationId)
+          const estimatedDistance = station && destination ? findRandomPath(game, station.name, destination.name)?.length : null
+          if (station && destination) {
+            const path = findRandomPath(game, station.name, destination.name)
+            if (path) {
+              dictionary[agent.name] = path.length
+            }
+          }
+        }
       }
       else {
-        setTraversal([])
+        // Agent is in a station
+        const station = game.stations.find((station) => station.id === agent.stationId)
+        const estimatedDistance = station && destination ? findRandomPath(game, station.name, destination.name)?.length : null
+        if (station && destination) {
+          const path = findRandomPath(game, station.name, destination.name)
+          if (path) {
+            dictionary[agent.name] = path.length
+          }
+        }
       }
-    }, 2000)
+    }
+    setAgentNamesToDistances(dictionary)
   }, [game])
 
+  const [traversal, setTraversal] = useState<string[]>([])
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     if (!game) {
+  //       return
+  //     }
+  //     const source = game.stations.find((station) => station.start)!
+  //     const destination = game.stations.find((station) => station.end)!
+  //     const path = findRandomPath(game, source.name, destination.name)
+  //     if (path) {
+  //       setTraversal(path)
+  //     }
+  //     else {
+  //       setTraversal([])
+  //     }
+  //   }, 2000)
+  // }, [game])
 
-
+  // TODO: Better loading indicator
+  if (!game) {
+    return <></>
+  }
   return (
-    <main className="m-2">
+    <main className="m-2 p-4">
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2">
           {game && graphOptions ? <Graph game={game} options={graphOptions} traversal={traversal} /> : null}
@@ -130,6 +182,7 @@ export function Gameboard({ name }: { name: string }) {
               const station = game.stations.find((station) => station.id === agent.stationId)
               const train = game.trains.find((train) => train.id === agent.trainId)
               const trainStation = train?.stationId && game.stations.find((station) => station.id === train?.stationId)
+              const estimatedDistance = agentNamesToDistances?.[agent.name]
               return (
                 <li key={agent.id} className="mb-2">
                   <span style={{ color: agent.color }}>{agent.title}</span>
@@ -144,6 +197,7 @@ export function Gameboard({ name }: { name: string }) {
                       )
                       : null
                     }
+                    <li>Estimated distance (in stations): {estimatedDistance || 'Unknown'}</li>
                   </ul>
                 </li>
               )
@@ -170,13 +224,7 @@ export function Gameboard({ name }: { name: string }) {
                         <li>
                           Carrying passengers:
                           &nbsp;
-                          {
-                            agents
-                            .map((a) => (
-                              <span style={{ color: a.color }}>{a.title}</span>
-                            ))
-                            .join(', ')
-                          }
+                          {agents.map((a) => <><span style={{ color: a.color }}>{a.title}</span>&nbsp;</>)}
                         </li>
                       )
                       : null
@@ -196,17 +244,24 @@ export function Gameboard({ name }: { name: string }) {
                 <li key={station.id} className="mb-2">
                   {station.title}
                   <ul className="opacity-60 text-xs">
-                    {trains.length ? <li>Stopped trains: {trains.map((t) => `${t.title} train`).join(', ')}</li> : null}
+                    {
+                      trains.length
+                      ? (
+                        <li>
+                          Stopped trains:
+                          &nbsp;
+                          {trains.map((t) => <><span style={{ color: t.color }}>{t.title}</span>&nbsp;</>)}
+                        </li>
+                      )
+                      : null
+                    }
                     {
                       agents.length
                       ? (
                         <li>
                           Waiting passengers:
                           &nbsp;
-                          {
-                            agents
-                            .map((a) => <span style={{ color: a.color }}>{a.title}</span>)
-                          }
+                          {agents.map((a) => <><span style={{ color: a.color }}>{a.title}</span>&nbsp;</>)}
                         </li>
                       )
                       : null
