@@ -1,4 +1,4 @@
-type GameMiniResponse = {
+type GameListItemResponse = {
   id: number
   name: string
   title: string
@@ -75,6 +75,7 @@ type GameResponse = {
   name: string
   title: string
   label: string
+  turnNumber: number
   createdAt: string
   updatedAt: string
 }
@@ -111,4 +112,10 @@ type GraphOptions = {
   trainRadius: number,
   offset: Position,
   size: Position
+}
+
+type GameContextData {
+  game: GameResponse
+  gameTurn: GameTurnResponse
+  messages: MessageResponse[]
 }
