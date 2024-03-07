@@ -1,14 +1,14 @@
 'use client';
 
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
-const getGameHopHeadAndTail = (game: GameResponse, hop: HopResponse): [StationResponse, StationResponse] => {
-  const head = game!.stations.find((station) => station.id === hop.headId)!
-  const tail = game!.stations.find((station) => station.id === hop.tailId)!
+const getGameHopHeadAndTail = (gameTurn: GameTurnResponse, hop: HopResponse): [StationResponse, StationResponse] => {
+  const head = gameTurn.stations.find((station) => station.id === hop.headId)!
+  const tail = gameTurn.stations.find((station) => station.id === hop.tailId)!
   return [head, tail]
 }
 
-const getGameHopRelativePosition = (game: GameResponse, hop: HopResponse, percent: number): Position => {
-  const [head, tail] = getGameHopHeadAndTail(game, hop)
+const getGameHopRelativePosition = (gameTurn: GameTurnResponse, hop: HopResponse, percent: number): Position => {
+  const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
   const x = lerp(head.x, tail.x, percent)
   const y = lerp(head.y, tail.y, percent)
   return { x, y }
@@ -22,10 +22,10 @@ function projectPoint(x: number, y: number, angle: number, magnitude: number): [
   return [x + Math.cos(angle) * magnitude, y + Math.sin(angle) * magnitude]
 }
 
-const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) => {
+const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: GraphOptions }) => {
   const hopToKey = (hop: HopResponse) => `${[hop.headId, hop.tailId].sort().join(':')}`
   let keysToHops: Record<string, HopResponse[]> = {}
-  for (let hop of game.hops) {
+  for (let hop of gameTurn.hops) {
     const key = hopToKey(hop)
     keysToHops[key] ??= []
     keysToHops[key].push(hop)
@@ -36,8 +36,8 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
       {
         Object.values(keysToHops).map((hops) => {
           const hop = hops[0]
-          const colors = hops.map((hop) => game.lines.find((line) => hop.lineId === line.id)?.color)
-          const [head, tail] = getGameHopHeadAndTail(game, hop)
+          const colors = hops.map((hop) => gameTurn.lines.find((line) => hop.lineId === line.id)?.color)
+          const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
           const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
           const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
           const magnitude = options.hopStrokeWidth
@@ -61,7 +61,7 @@ const Hops = ({ game, options }: { game: GameResponse, options: GraphOptions }) 
   )
 }
 
-const VirtualStation = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+const VirtualStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
@@ -73,7 +73,7 @@ const VirtualStation = ({ game, station, options }: { game: GameResponse, statio
   )
 }
 
-const RealStation = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
@@ -103,22 +103,22 @@ const RealStation = ({ game, station, options }: { game: GameResponse, station: 
   )
 }
 
-const Station = ({ game, station, options }: { game: GameResponse, station: StationResponse, options: GraphOptions }) => {
+const Station = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
   const radius = station.virtual ? options.virtualStationRadius : options.stationRadius
   return (
     station.virtual
-    ? <VirtualStation game={game} station={station} options={options} />
-    : <RealStation game={game} station={station} options={options} />
+    ? <VirtualStation gameTurn={gameTurn} station={station} options={options} />
+    : <RealStation gameTurn={gameTurn} station={station} options={options} />
   )
 }
 
-const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
-  const hop = game.hops.find((hop) => hop.id === train.hopId)!
+const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
+  const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)!
   const percent = train.distance / hop.length
-  const { x, y } = getGameHopRelativePosition(game, hop, percent)
+  const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
   return (
     <>
       <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
@@ -126,8 +126,8 @@ const HopTrain = ({ game, train, options }: { game: GameResponse, train: TrainRe
   )
 }
 
-const StationTrain = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => {
-  const station = game.stations.find((station) => station.id === train.stationId)!;
+const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
+  const station = gameTurn.stations.find((station) => station.id === train.stationId)!;
   return (
     <>
       <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
@@ -135,21 +135,21 @@ const StationTrain = ({ game, train, options }: { game: GameResponse, train: Tra
   )
 }
 
-const Train = ({ game, train, options }: { game: GameResponse, train: TrainResponse, options: GraphOptions }) => (
+const Train = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => (
   train.hopId
-  ? <HopTrain game={game} train={train} options={options} />
-  : <StationTrain game={game} train={train} options={options} />
+  ? <HopTrain gameTurn={gameTurn} train={train} options={options} />
+  : <StationTrain gameTurn={gameTurn} train={train} options={options} />
 )
 
 // TODO: Use this to show possible paths, etc.
-const Traversal = ({ game, traversal }: { game: GameResponse, traversal: string[] }) => {
+const Traversal = ({ gameTurn, traversal }: { gameTurn: GameTurnResponse, traversal: string[] }) => {
   let paths = []
   for (let i = 0; i < traversal.length; i++) {
     if (i === 0) {
       continue
     }
-    const head = game.stations.find((station) => station.name === traversal[i - 1])!
-    const tail = game.stations.find((station) => station.name === traversal[i])!
+    const head = gameTurn.stations.find((station) => station.name === traversal[i - 1])!
+    const tail = gameTurn.stations.find((station) => station.name === traversal[i])!
     const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
     const magnitude = 40
     const [cx, cy, dx, dy] = [hx, hy - magnitude, tx, ty - magnitude]
@@ -160,27 +160,27 @@ const Traversal = ({ game, traversal }: { game: GameResponse, traversal: string[
   return paths
 }
 
-export const Graph = ({ game, traversal, options }: { game: GameResponse, traversal: string[] | undefined, options: GraphOptions }) => {
+export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResponse, traversal: string[] | undefined, options: GraphOptions }) => {
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
 
   return (
     <div className="border-solid border-2 border-white">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
         <g>
-          {<Hops game={game} options={options} />}
+          {<Hops gameTurn={gameTurn} options={options} />}
         </g>
         <g>
-          {game?.stations.map((station) => (
-            <Station key={station.id} game={game} station={station} options={options} />
+          {gameTurn?.stations.map((station) => (
+            <Station key={station.id} gameTurn={gameTurn} station={station} options={options} />
           ))}
         </g>
         <g>
-          {game?.trains.map((train) => (
-            <Train key={train.id} game={game} train={train} options={options} />
+          {gameTurn?.trains.map((train) => (
+            <Train key={train.id} gameTurn={gameTurn} train={train} options={options} />
           ))}
         </g>
         {/* <g>
-          {traversal ? <Traversal game={game} traversal={traversal} /> : null}
+          {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} /> : null}
         </g> */}
       </svg>
     </div>

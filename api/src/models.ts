@@ -162,8 +162,8 @@ export class Train extends Model<
   declare currentWaitTime: number;
 
   declare gameId: ForeignKey<Game['id']>;
-  declare stationId: ForeignKey<Station['id']>;
-  declare hopId: ForeignKey<Hop['id']>;
+  declare stationId: ForeignKey<Station['id']> | null;
+  declare hopId: ForeignKey<Hop['id']> | null;
   declare lineId: ForeignKey<Line['id']>;
 
   declare createdAt: CreationOptional<Date>;
@@ -186,8 +186,8 @@ export class Agent extends Model<
   declare color: string;
 
   declare gameId: ForeignKey<Game['id']>;
-  declare stationId: ForeignKey<Station['id']>;
-  declare trainId: ForeignKey<Hop['id']>;
+  declare stationId: ForeignKey<Station['id']> | null;
+  declare trainId: ForeignKey<Hop['id']> | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;

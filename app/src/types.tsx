@@ -59,7 +59,7 @@ type AgentResponse = {
   trainId: number
 }
 
-type GameResponse = {
+type GameTurnResponse = {
   stations: StationResponse[]
   lines: LineResponse[]
   hops: HopResponse[]
@@ -67,7 +67,7 @@ type GameResponse = {
   agents: AgentResponse[]
 }
 
-type MetadataResponse = {
+type GameResponse = {
   name: string
   title: string
   label: string

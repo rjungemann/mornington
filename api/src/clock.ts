@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import db, { Hop, Station } from './models';
+import db, { Agent, Game, Hop, Line, Station, Train } from './models';
 import { Model, Op, Sequelize } from 'sequelize';
 import { logger } from './logging'
 
@@ -17,13 +17,24 @@ class MessageLog {
   }
 }
 
+type Context = {
+  gameId: number
+  gameName: string
+  turnNumber: number
+  lines: Model<Line>[]
+  trains: Model<Train>[]
+  hops: Model<Hop>[]
+  stations: Model<Station>[]
+  agents: Model<Agent>[]
+  messageLog: MessageLog
+}
+
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
 function tickTravelingTrain(
-  train: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog }
+  train: Model<Train>,
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }: Context
 ) {
   const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
   if (hop) {
@@ -144,9 +155,8 @@ function tickTravelingTrain(
 }
 
 function tickStationedTrain(
-  train: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
+  train: Model<Train>,
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }: Context
 ) {
   const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
   if (station) {
@@ -168,7 +178,7 @@ function tickStationedTrain(
           !trains
             .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
             .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-            .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
+            .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
             .some((otherTrain) => otherTrain.dataValues.distance === 0)
         ))
       const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
@@ -221,7 +231,7 @@ function tickStationedTrain(
             !trains
               .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
               .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-              .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.hopId)
+              .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
               .some((otherTrain) => otherTrain.dataValues.distance === 0)
           ))
         const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
@@ -287,9 +297,8 @@ function tickStationedTrain(
 }
 
 function tickTravelingAgent(
-  agent: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
+  agent: Model<Agent>,
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }: Context
 ) {
   const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
   if (train) {
@@ -390,9 +399,8 @@ function tickTravelingAgent(
 }
 
 function tickStationedAgent(
-  agent: Model<any, any>,
-  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }:
-    { gameId: number, gameName: string, turnNumber: number, lines: Model<any, any>[], trains: Model<any, any>[], hops: Model<any, any>[], stations: Model<any, any>[], agents: Model<any, any>[], messageLog: MessageLog  }
+  agent: Model<Agent>,
+  { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }: Context
 ) {
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (station) {
@@ -496,16 +504,18 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
   const stations = await db.models.Station.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } } })
 
+  const context = { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog }
+
   // Train phase
   for (let train of trains) {
     // Traveling train
     if (train.dataValues.hopId) {
-      tickTravelingTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
+      tickTravelingTrain(train, context)
       await train.save()
     }
     // Stationed train
     else if (train.dataValues.stationId) {
-      tickStationedTrain(train, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
+      tickStationedTrain(train, context)
       await train.save()
     }
     // A train is "out-of-bounds" if not hopping or stationed.
@@ -518,12 +528,12 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
   for (let agent of agents) {
     // Traveling agent
     if (agent.dataValues.trainId) {
-      tickTravelingAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
+      tickTravelingAgent(agent, context)
       await agent.save()
     }
     // Stationed agent
     else if (agent.dataValues.stationId) {
-      tickStationedAgent(agent, { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, messageLog })
+      tickStationedAgent(agent, context)
       await agent.save()
     }
     // An agent is "out-of-bounds" if not traveling or stationed.
@@ -533,7 +543,7 @@ async function tickGameTurn(gameId: number, gameName: string, turnNumber: number
   }
 }
 
-async function tickGame(game: Model<any, any>) {
+async function tickGame(game: Model<Game>) {
   const gameName = game.dataValues.name
   const gameId = game.dataValues.id
   try {
@@ -587,7 +597,7 @@ async function tick() {
   await db.sync({ force: false });
 
   logger.info('Ticker started!...')
-  const games = await db.models.Game.findAll({ attributes: ['id', 'name'] })
+  const games: Model<Game>[] = await db.models.Game.findAll({ attributes: ['id', 'name'] })
   const promises = games.map((game) => tickGame(game))
   await Promise.allSettled(promises)
   logger.info('Ticker finished!')

@@ -53,7 +53,7 @@ async function main() {
             turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
           }
         })
-        res.json({ metadata: game, game: gameTurn, messages })
+        res.json({game, gameTurn, messages })
       }
       else {
         res.status(404).json({})
