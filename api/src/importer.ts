@@ -220,9 +220,7 @@ const parseStations = (result: ResultItem): StationTransformed[] => {
 
 const parseHops = (result: ResultItem): HopTransformed[] => {
   const layer = getLayer(result, 'Hops')
-  console.log(layer.path)
   const hops = layer.path.map((hop: HopItem) => {
-    console.log(hop)
     const name = hop.$['inkscape:label']
     const label = hop.$.label
     const length = parseInt(hop.$.length, 10)
