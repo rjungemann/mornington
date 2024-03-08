@@ -798,7 +798,7 @@ async function tickGameTurn(game: Model<Game>) {
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const stations = await db.models.Station.findAll({ where: { gameId: { [Op.eq]: gameId } } })
-  const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } } })
+  const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } }, order: [['initiative', 'DESC']] })
   const hazards = await db.models.Hazard.findAll({ where: { gameId: { [Op.eq]: gameId } } })
 
   const context = { db, gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards }

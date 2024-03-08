@@ -466,6 +466,7 @@ export async function seed(db: Sequelize) {
       currentHp: hp1,
       maxHp: hp1,
       initiative: 10,
+      timeout: 0,
       gameId: game.dataValues.id,
       stationId: null,
       trainId: trainBlue1.dataValues.id,
@@ -482,6 +483,7 @@ export async function seed(db: Sequelize) {
       currentHp: hp1,
       maxHp: hp1,
       initiative: 10,
+      timeout: 0,
       gameId: game.dataValues.id,
       stationId: stationI.dataValues.id,
       trainId: null,
@@ -498,6 +500,7 @@ export async function seed(db: Sequelize) {
       currentHp: hp1,
       maxHp: hp1,
       initiative: 10,
+      timeout: 0,
       gameId: game.dataValues.id,
       stationId: stationJ.dataValues.id,
       trainId: null

@@ -127,8 +127,30 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const trainStation = train?.stationId && gameTurn.stations.find((station) => station.id === train?.stationId)
           const estimatedDistance = agentNamesToDistances?.[agent.name]
           return (
-            <li key={agent.id} className="mb-2">
-              <span style={{ color: agent.color }}>{agent.title}</span>
+            <li key={agent.id} className="mb-4">
+              <h3 className="mb-2" style={{ color: agent.color }}>{agent.title}</h3>
+
+              <table className="table-fixed w-full mb-2 text-xs opacity-60">
+                <thead>
+                  <tr>
+                    <th>Init.</th>
+                    <th>HP</th>
+                    <th>Str.</th>
+                    <th>Dex.</th>
+                    <th>Wil.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{agent.initiative}</td>
+                    <td>{agent.currentHp} / {agent.maxHp}</td>
+                    <td>{agent.strength}</td>
+                    <td>{agent.dexterity}</td>
+                    <td>{agent.willpower}</td>
+                  </tr>
+                </tbody>
+              </table>
+
               <ul className="opacity-60 text-xs">
                 {station ? <li>Waiting at {station.title}</li> : null}
                 {

@@ -25,8 +25,8 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="22.221826"
-     inkscape:cy="511.73691"
+     inkscape:cx="21.586917"
+     inkscape:cy="308.56593"
      inkscape:window-width="1392"
      inkscape:window-height="847"
      inkscape:window-x="48"
@@ -219,7 +219,8 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0" />
   </g>
   <g
      inkscape:groupmode="layer"

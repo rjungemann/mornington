@@ -25,7 +25,7 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="206.34553"
+     inkscape:cx="205.71062"
      inkscape:cy="435.5478"
      inkscape:window-width="1392"
      inkscape:window-height="847"
@@ -349,7 +349,8 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -366,7 +367,8 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -383,7 +385,8 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0" />
   </g>
   <g
      inkscape:groupmode="layer"

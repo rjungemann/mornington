@@ -193,6 +193,7 @@ export class Agent extends Model<
   declare currentHp: number;
   declare maxHp: number;
   declare initiative: number;
+  declare timeout: number;
 
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']> | null;
@@ -505,6 +506,10 @@ Agent.init(
       allowNull: false
     },
     initiative: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    timeout: {
       type: new DataTypes.INTEGER,
       allowNull: false
     },
