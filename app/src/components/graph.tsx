@@ -1,5 +1,7 @@
 'use client';
 
+const dropShadowStyle = { filter: 'drop-shadow(0px 2px 1px rgb(0 0 0 / 0.6))' }
+
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (gameTurn: GameTurnResponse, hop: HopResponse): [StationResponse, StationResponse] => {
   const head = gameTurn.stations.find((station) => station.id === hop.headId)!
@@ -73,11 +75,100 @@ const VirtualStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResp
   )
 }
 
+// TODO: Cleanup bubbles!
+// TODO: Extract options
+const StationBubble = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
+  const width = 200
+  const height = 100
+  const offsetY = 24
+  const bubbleOffsetX = 12
+  const bubbleHeight = 20
+  const x = station.x - width * 0.5
+  const y = station.y - height * 0.5 + offsetY
+  const x2 = width * 0.5 + bubbleOffsetX
+  const y2 = height * 0.5 - offsetY
+  const points = [[0, 0], [6 + 1, -3], [6 + 1, 3]].map((n) => [n[0] + x2, n[1] + y2])
+
+  const agents = gameTurn.agents
+  .filter((a) => a.timeout === 0)
+  .filter((a) => a.stationId === station.id)
+  if (agents.length === 0) {
+    return null
+  }
+
+  return (
+    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle}>
+      <polyline stroke="none" fill="white" points={points.map((n) => n.join(',')).join(' ')} />
+      <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
+      {agents.map((a, i) => {
+        return (
+          <circle key={a.id} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" stroke-width="0.5" />
+        )
+      })}
+    </svg>
+  )
+}
+
+const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
+  const width = 200
+  const height = 100
+  const offsetY = 24
+  const bubbleOffsetX = 12
+  const bubbleHeight = 20
+  const x2 = width * 0.5 + bubbleOffsetX
+  const y2 = height * 0.5 - offsetY
+  const points = [[0, 0], [6 + 1, -3], [6 + 1, 3]].map((n) => [n[0] + x2, n[1] + y2])
+
+  let x
+  let y
+  const station = gameTurn.stations.find((s) => s.id === train.stationId)
+  if (station) {
+    x = station.x - width * 0.5
+    y = station.y - height * 0.5 + offsetY
+  }
+  else {
+    const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)
+    if (hop) {
+      const percent = train.distance / hop.length
+      const result = getGameHopRelativePosition(gameTurn, hop, percent)
+      x = result.x - width * 0.5
+      y = result.y - height * 0.5 + offsetY
+    }
+  }
+  // TODO: Verify conditional
+  if (!x || !y) {
+    return null
+  }
+
+  const agents = gameTurn.agents
+  .filter((a) => a.trainId === train.id)
+  .filter((a) => a.timeout === 0)
+  if (agents.length === 0) {
+    return null
+  }
+
+  return (
+    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle}>
+      <polyline stroke="none" fill="white" points={points.map((n) => n.join(',')).join(' ')} />
+      <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
+      {agents.map((a, i) => {
+        return (
+          <circle key={a.id} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" stroke-width="0.5" />
+        )
+      })}
+    </svg>
+  )
+}
+
 const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
   const radius = options.stationRadius
+  const x = station.x - width * 0.5
+  const y = station.y - height * 0.5 + offsetY
+  const bubbleOffsetX = 12
+  const bubbleHeight = 20
   return (
     <g key={station.id}>
       <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
@@ -95,11 +186,12 @@ const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnRespons
         )
         : null
       }
-      <svg width={width} height={height} x={station.x - width * 0.5} y={station.y - height * 0.5 + offsetY}>
+      <svg width={width} height={height} x={x} y={y}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         {/* TODO: Options */}
-        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em">{station.title}</text>    
+        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em" style={dropShadowStyle}>{station.title}</text>
       </svg>
+      <StationBubble gameTurn={gameTurn} station={station} options={options} />
     </g>
   )
 }
@@ -120,18 +212,31 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)!
   const percent = train.distance / hop.length
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
+  const points = [[1, 0], [2, 2], [0, 2]]
+  .map(([x, y]) => [x - 1, y - 1])
+  .map(([x, y]) => [x * 10 * 0.9, y * 10 * 0.9])
+  .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
-      <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
+      {/* <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
+      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} />
+      <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
 }
 
 const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
-  const station = gameTurn.stations.find((station) => station.id === train.stationId)!;
+  const station = gameTurn.stations.find((station) => station.id === train.stationId)!
+  const { x, y } = station
+  const points = [[1, 0], [2, 2], [0, 2]]
+  .map(([x, y]) => [x - 1, y - 1])
+  .map(([x, y]) => [x * 10 * 0.9, y * 10 * 0.9])
+  .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
-      <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} />
+      {/* <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
+      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} />
+      <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
 }
@@ -146,10 +251,15 @@ const Hazard = ({ gameTurn, hazard, options }: { gameTurn: GameTurnResponse, haz
   const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)!
   const percent = hazard.distance / hop.length
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
+  const points = [[1, 0], [2, 0], [3, 1], [3, 2], [2, 3], [1, 3], [0, 2], [0, 1]]
+  .map(([x, y]) => [x - 1.5, y - 1.5])
+  .map(([x, y]) => [x * 10 * 0.67, y * 10 * 0.67])
+  .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
       {/* TODO: Add to options */}
-      <circle cx={x} cy={y} r={options.trainRadius} fill={hazard.color} />
+      {/* <circle cx={x} cy={y} r={options.trainRadius} fill={hazard.color} style={dropShadowStyle} /> */}
+      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={hazard.color} style={dropShadowStyle} />
     </>
   )
 }
@@ -188,13 +298,13 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
           ))}
         </g>
         <g>
-          {gameTurn?.trains.map((train) => (
-            <Train key={train.id} gameTurn={gameTurn} train={train} options={options} />
+          {gameTurn?.hazards.map((hazard) => (
+            <Hazard key={hazard.id} gameTurn={gameTurn} hazard={hazard} options={options} />
           ))}
         </g>
         <g>
-          {gameTurn?.hazards.map((hazard) => (
-            <Hazard key={hazard.id} gameTurn={gameTurn} hazard={hazard} options={options} />
+          {gameTurn?.trains.map((train) => (
+            <Train key={train.id} gameTurn={gameTurn} train={train} options={options} />
           ))}
         </g>
         {/* <g>

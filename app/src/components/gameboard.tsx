@@ -136,44 +136,52 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
               <table className="table-fixed w-full mb-2 text-xs opacity-60 bg-slate-800">
                 <thead>
                   <tr>
-                    <th className="p-1">Init.</th>
-                    <th className="p-1">HP</th>
-                    <th className="p-1">Str.</th>
-                    <th className="p-1">Dex.</th>
-                    <th className="p-1">Wil.</th>
+                    <th className="p-1 text-center">Init.</th>
+                    <th className="p-1 text-center">HP</th>
+                    <th className="p-1 text-center">Str.</th>
+                    <th className="p-1 text-center">Dex.</th>
+                    <th className="p-1 text-center">Wil.</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="p-1 pt-0">{agent.initiative}</td>
-                    <td className="p-1 pt-0">{agent.currentHp} / {agent.maxHp}</td>
-                    <td className="p-1 pt-0">{agent.strength}</td>
-                    <td className="p-1 pt-0">{agent.dexterity}</td>
-                    <td className="p-1 pt-0">{agent.willpower}</td>
+                    <td className="p-1 pt-0 text-center">{agent.initiative}</td>
+                    <td className="p-1 pt-0 text-center">{agent.currentHp} / {agent.maxHp}</td>
+                    <td className="p-1 pt-0 text-center">{agent.strength}</td>
+                    <td className="p-1 pt-0 text-center">{agent.dexterity}</td>
+                    <td className="p-1 pt-0 text-center">{agent.willpower}</td>
                   </tr>
                 </tbody>
               </table>
 
               <ul className="opacity-60 text-xs">
-                {station ? <li>Waiting at {station.title}</li> : null}
                 {
-                  train
-                  ? (
-                    trainStation
-                    ? <li>Traveling on {train.title} train, stopped at {trainStation?.title}</li>
-                    : <li>Traveling on {train.title} train</li>
+                  agent.timeout > 0
+                  ? <li>Agent is in time-out for {agent.timeout} more turns</li>
+                  : (
+                    <>
+                      {station ? <li>Waiting at {station.title}</li> : null}
+                      {
+                        train
+                        ? (
+                          trainStation
+                          ? <li>Traveling on {train.title} train, stopped at {trainStation?.title}</li>
+                          : <li>Traveling on {train.title} train</li>
+                        )
+                        : null
+                      }
+                      {
+                        estimatedDistance
+                        ? <li>An estimated {estimatedDistance} stations away</li>
+                        : null
+                      }
+                      {
+                        agent.stationId && otherAgents.length > 0
+                        ? <li>Currently locked in combat</li>
+                        : null
+                      }
+                    </>
                   )
-                  : null
-                }
-                {
-                  estimatedDistance
-                  ? <li>An estimated {estimatedDistance} stations away</li>
-                  : null
-                }
-                {
-                  agent.stationId && otherAgents.length > 0
-                  ? <li>Currently locked in combat</li>
-                  : null
                 }
               </ul>
             </li>

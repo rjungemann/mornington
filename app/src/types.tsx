@@ -64,6 +64,7 @@ type AgentResponse = {
   maxHp: number
   initiative: number
   timeout: number
+  stunTimeout: number
   stationId: number
   trainId: number
 }

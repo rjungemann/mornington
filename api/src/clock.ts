@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import db, { Agent, Game, Hazard, Hop, Line, Station, Train } from './models';
 import { Model, Op, Sequelize } from 'sequelize';
 import { logger } from './logging'
+import { isNull } from 'util';
 
 dotenv.config();
 
@@ -38,6 +39,11 @@ const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 //   * Each roll for damage (assume 1d6 to start)
 //   * If an agent reaches 0 HP, they respawn from a starting point
 //   * Agents will not board trains until combat is finished
+//
+// Ideas for stunts
+// * A Withering Gaze: If in combat: Roll against willpower to attempt to stun enemy for 1d4 turns.
+// * A Flashback: If in combat: Roll against strength to throw an opponent to a neighboring disadvantageous station
+// * The Ol' Slip: If in combat: Roll against dex to attempt to board nearest train
 
 async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
@@ -488,9 +494,216 @@ async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Tr
   return false
 }
 
+async function tickStationedAgentFightingPullStunt(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+
+  const otherAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)]
+  if (!otherAgent) {
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Stationed agent in combat tried to pull a stunt, but could not find someone to fight!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.title} in combat tried to pull a stunt, but could not find someone to fight!`
+    })
+    return
+  }
+
+  const stuntIndex = Math.floor(Math.random() * 3.0)
+  if (stuntIndex === 0) {
+    // A Withering Gaze: If in combat: Other agent rolls against willpower or is stunned for 1d4 turns.
+    const roll = Math.floor(Math.random() * 20.0) + 1 < otherAgent.dataValues.willpower
+    if (!roll) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name
+        },
+        'Stationed agent in combat failed to pull A Withering Gaze!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Withering Gaze.`
+      })
+      return
+    }
+
+    const turns = Math.floor(Math.random() * 4.0) + 1
+    otherAgent.set('stunTimeout', turns)
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Stationed agent in combat pulled A Withering Gaze!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.title} in combat pulled A Withering Gaze. ${otherAgent.dataValues.title} is stunned for ${turns} turns!`
+    })
+  }
+  else if (stuntIndex === 1) {
+    // A Flashback: If in combat: Other agent rolls against strength or get thrown to a neighboring disadvantageous station
+    const roll = Math.floor(Math.random() * 20.0) + 1 < otherAgent.dataValues.strength
+    if (!roll) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name
+        },
+        'Stationed agent in combat failed to pull A Flashback!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback.`
+      })
+      return
+    }
+
+    const nextHops = hops
+    .filter((h) => h.dataValues.headId === station.dataValues.id)
+    const nextStations = stations
+    .filter((s) => nextHops.find((h) => s.dataValues.id === h.dataValues.tailId))
+
+    const idToDistances: Record<number, number | undefined> = {}
+    for (let s of nextStations) {
+      idToDistances[s.dataValues.id] = (await findRandomPath(station, s, context))?.length
+    }
+
+    const nextPairs = nextStations
+    .sort((a, b) => {
+      const distanceA = idToDistances[a.dataValues.id]
+      const distanceB = idToDistances[b.dataValues.id]
+      if(!distanceA || !distanceB) {
+        return 0
+      }
+      return distanceB - distanceA // reverse order, high-to-low
+    })
+    const nextStation = nextStations[0]
+    if (!nextStation) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name
+        },
+        'Stationed agent in combat failed to pull A Flashback because a station could not be found!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback because a station could not be found.`
+      })
+      return
+    }
+
+    otherAgent.set('stationId', nextStation.dataValues.id)
+    otherAgent.set('trainId', null)
+    otherAgent.save()
+
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Stationed agent in combat pulled A Flashback!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.title} in combat pulled A Flashback. ${otherAgent.dataValues.title} was knocked to ${nextStation.dataValues.title}!`
+    })
+  }
+  else {
+    // The Ol' Slip: If in combat: Roll against dex to attempt to board a train on a line connecting to this station
+    const roll = Math.floor(Math.random() * 20.0) + 1 < agent.dataValues.dexterity
+    if (!roll) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name
+        },
+        'Stationed agent in combat failed to pull The Ol\' Slip!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip.`
+      })
+      return
+    }
+
+    const lineIds = hops.filter((h) => h.dataValues.headId === station.dataValues.id).map((h) => h.dataValues.lineId)
+    const nextTrains = trains
+    .filter((t) => lineIds.find((li) => li === t.dataValues.lineId))
+    const nextTrain = nextTrains[Math.floor(Math.random() * nextTrains.length)]
+    if (!nextTrain) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name
+        },
+        'Stationed agent in combat failed to pull The Ol\' Slip because no train could be found!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip because no train could be found.`
+      })
+      return
+    }
+
+    otherAgent.set('stationId', null)
+    otherAgent.set('trainId', nextTrain.dataValues.id)
+    otherAgent.save()
+
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Stationed agent in combat pulled The Ol\' Slip!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.title} in combat pulled The Ol' Slip. ${agent.dataValues.title} jumped to ${nextTrain.dataValues.title}!`
+    })
+  }
+}
+
 // TODO: Add more logic
+// TODO: Roll a dice to figure out action in turn
+// TODO: Defense?
+// Ideas for stunts
+// * A Withering Gaze: If in combat: Roll against willpower to attempt to stun enemy for 1d4 turns.
+// * A Flashback: If in combat: Roll against strength to throw an opponent to a neighboring disadvantageous station
+// * The Ol' Slip: If in combat: Roll against dex to attempt to board nearest train
+// More hazard types
 async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+
+  const pullStunt = Math.random() < 0.2
+  if (pullStunt) {
+    await tickStationedAgentFightingPullStunt(agent, station, otherAgents, context)
+    return
+  }
 
   const otherAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)]
   if (!otherAgent) {
@@ -505,13 +718,12 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
     await db.models.Message.create({
       gameId,
       turnNumber,
-      message: `Stationed agent ${agent.dataValues.name} in combat tried to fight someone, but could not find someone to fight!`
+      message: `Stationed agent ${agent.dataValues.title} in combat tried to fight someone, but could not find someone to fight!`
     })
     return
   }
 
   // TODO: Make damage dynamic
-  // TODO: Add reincarnation timeout
   const damage = Math.floor(Math.random() * 6.0 + 1.0)
   otherAgent.dataValues.currentHp = otherAgent.dataValues.currentHp - damage
   if (otherAgent.dataValues.currentHp <= 0) {
@@ -531,7 +743,7 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
       await db.models.Message.create({
         gameId,
         turnNumber,
-        message: `Stationed agent ${agent.dataValues.name} in combat knocked ${otherAgent.dataValues.name} out, and they could not be reincarnated!`
+        message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they could not be reincarnated!`
       })
       return
     }
@@ -550,10 +762,12 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
     await db.models.Message.create({
       gameId,
       turnNumber,
-      message: `Stationed agent ${agent.dataValues.name} in combat knocked ${otherAgent.dataValues.name} out, and they are being reincarnated at ${startingStation.dataValues.name}!`
+      message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they are being reincarnated at ${startingStation.dataValues.title}!`
     })
 
     otherAgent.set('currentHp', otherAgent.dataValues.maxHp)
+    // TODO: Make this dynamic
+    otherAgent.set('timeout', 5)
     otherAgent.set('stationId', startingStation.dataValues.id)
     otherAgent.set('trainId', null)
     await otherAgent.save()
@@ -573,7 +787,7 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
   await db.models.Message.create({
     gameId,
     turnNumber,
-    message: `Stationed agent ${agent.dataValues.name} in combat struck ${otherAgent.dataValues.name}!`
+    message: `Stationed agent ${agent.dataValues.title} in combat struck ${otherAgent.dataValues.title}!`
   })
   otherAgent.set('currentHp', otherAgent.dataValues.currentHp - damage)
   await otherAgent.save()
@@ -839,11 +1053,17 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
   agent.set('trainId', trainToBoard.dataValues.id)
 }
 
+function getRandomInt(min: number, max: number) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+}
+
 async function tickHazards(context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
   if (Math.random() < 0.05 && hazards.length < 5) {
     const hop = hops[Math.floor(Math.random() * hops.length)]
-    const distance = Math.max( Math.floor(Math.random() * hop.dataValues.length), 1.0 )
+    const distance = getRandomInt(1, hop.dataValues.length - 1)
     const hazard = await db.models.Hazard.create({
       name: 'mystery-slime:1',
       title: 'Mystery Slime',
@@ -866,7 +1086,7 @@ async function tickHazards(context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
-      message: `A new hazard ${hazard.dataValues.name} appeared!`
+      message: `A new hazard ${hazard.dataValues.title} appeared!`
     })
   }
   if (Math.random() < 0.05) {
@@ -883,7 +1103,7 @@ async function tickHazards(context: ClockContext) {
       await db.models.Message.create({
         gameId,
         turnNumber,
-        message: `The hazard ${hazard.dataValues.name} went away!`
+        message: `The hazard ${hazard.dataValues.title} went away!`
       })
       await hazard.destroy()
     }
@@ -926,8 +1146,30 @@ async function tickGameTurn(game: Model<Game>) {
 
   // Agent phase
   for (let agent of agents) {
+    // Handle time-out
+    if (agent.dataValues.timeout > 0) {
+      agent.set('timeout', agent.dataValues.timeout - 1)
+      await agent.save()
+      logger.warn({ gameName, turnNumber, agentName: agent.dataValues.name, timeout: agent.dataValues.timeout }, 'Agent is in time-out!')
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Agent ${agent.dataValues.title} is in time-out!`
+      })
+    }
+    // Handle Stun
+    if (agent.dataValues.stunTimeout > 0) {
+      agent.set('stunTimeout', agent.dataValues.stunTimeout - 1)
+      await agent.save()
+      logger.warn({ gameName, turnNumber, agentName: agent.dataValues.name, stunTimeout: agent.dataValues.stunTimeout }, 'Agent is stunned!')
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Agent ${agent.dataValues.title} is stunned!`
+      })
+    }
     // Traveling agent
-    if (agent.dataValues.trainId) {
+    else if (agent.dataValues.trainId) {
       await tickTravelingAgent(agent, context)
       await agent.save()
     }

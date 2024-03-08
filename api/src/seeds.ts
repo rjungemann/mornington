@@ -467,6 +467,7 @@ export async function seed(db: Sequelize) {
       maxHp: hp1,
       initiative: 10,
       timeout: 0,
+      stunTimeout: 0,
       gameId: game.dataValues.id,
       stationId: null,
       trainId: trainBlue1.dataValues.id,
@@ -484,6 +485,7 @@ export async function seed(db: Sequelize) {
       maxHp: hp1,
       initiative: 10,
       timeout: 0,
+      stunTimeout: 0,
       gameId: game.dataValues.id,
       stationId: stationI.dataValues.id,
       trainId: null,
@@ -501,6 +503,7 @@ export async function seed(db: Sequelize) {
       maxHp: hp1,
       initiative: 10,
       timeout: 0,
+      stunTimeout: 0,
       gameId: game.dataValues.id,
       stationId: stationJ.dataValues.id,
       trainId: null
@@ -511,7 +514,6 @@ export async function seed(db: Sequelize) {
     // -------
 
     const hop = await db.models.Hop.findOne({ where: { name: 'b:c' } })
-    const distance = Math.floor(Math.random() * hop!.dataValues.length)
     const hazard1 = await db.models.Hazard.create({
       name: 'mystery-slime:1',
       title: 'Mystery Slime',
@@ -519,7 +521,7 @@ export async function seed(db: Sequelize) {
       color: '#d76cff',
       kind: 'stop',
       age: 0,
-      distance,
+      distance: 1,
       hopId: hop!.dataValues.id,
       gameId: game.dataValues.id
     })

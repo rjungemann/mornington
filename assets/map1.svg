@@ -220,7 +220,8 @@
        currentHp="4"
        maxHp="4"
        initiative="10"
-       timeout="0" />
+       timeout="0"
+       stunTimeout="0" />
   </g>
   <g
      inkscape:groupmode="layer"
