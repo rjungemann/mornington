@@ -61,12 +61,25 @@ type AgentResponse = {
   trainId: number
 }
 
+type HazardResponse = {
+  id: number
+  name: string
+  title: string
+  label: string
+  color: string
+  kind: string
+  distance: number
+  age: number
+  hopId: number
+}
+
 type GameTurnResponse = {
   stations: StationResponse[]
   lines: LineResponse[]
   hops: HopResponse[]
   trains: TrainResponse[]
   agents: AgentResponse[]
+  hazards: HazardResponse[]
   createdAt: string
   updatedAt: string
 }

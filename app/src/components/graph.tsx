@@ -142,6 +142,18 @@ const Train = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train
   : <StationTrain gameTurn={gameTurn} train={train} options={options} />
 )
 
+const Hazard = ({ gameTurn, hazard, options }: { gameTurn: GameTurnResponse, hazard: HazardResponse, options: GraphOptions }) => {
+  const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)!
+  const percent = hazard.distance / hop.length
+  const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
+  return (
+    <>
+      {/* TODO: Add to options */}
+      <circle cx={x} cy={y} r={options.trainRadius} fill={hazard.color} />
+    </>
+  )
+}
+
 // TODO: Use this to show possible paths, etc.
 const Traversal = ({ gameTurn, traversal }: { gameTurn: GameTurnResponse, traversal: string[] }) => {
   let paths = []
@@ -178,6 +190,11 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
         <g>
           {gameTurn?.trains.map((train) => (
             <Train key={train.id} gameTurn={gameTurn} train={train} options={options} />
+          ))}
+        </g>
+        <g>
+          {gameTurn?.hazards.map((hazard) => (
+            <Hazard key={hazard.id} gameTurn={gameTurn} hazard={hazard} options={options} />
           ))}
         </g>
         {/* <g>

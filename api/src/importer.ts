@@ -136,6 +136,7 @@ type LineItem = {
     ['inkscape:label']: string
     title: string
     label: string
+    kind: string
     style: string
   }
 }
@@ -144,6 +145,28 @@ type LineTransformed = {
   name: string
   title: string
   label: string
+  color: string
+}
+
+type HazardItem = {
+  ['$']: {
+    ['inkscape:label']: string
+    title: string
+    label: string
+    kind: string
+    distance: string
+    age: string
+    style: string
+  }
+}
+
+type HazardTransformed = {
+  name: string
+  title: string
+  label: string
+  kind: string
+  age: number
+  distance: number
   color: string
 }
 
@@ -244,6 +267,24 @@ const parseLines = (result: ResultItem): LineTransformed[] => {
   return lines
 }
 
+const parseHazards = (result: ResultItem): HazardTransformed[] => {
+  const layer = getLayer(result, 'Hazards')
+  if (!layer.circle) {
+    return []
+  }
+  const hazards = layer.circle.map((hazard: HazardItem) => {
+    const name = hazard.$['inkscape:label']
+    const title = hazard.$.title
+    const label = hazard.$.label
+    const kind = hazard.$.kind
+    const age = parseInt(hazard.$.age, 10)
+    const distance = parseInt(hazard.$.distance, 10)
+    const color = hazard.$.style.match(/fill:\s*(#[^;]*)/)![1]
+    return { name, title, label, kind, age, distance, color }
+  })
+  return hazards
+}
+
 async function main() {
   console.info('Importer starting...')
 
@@ -273,6 +314,7 @@ async function main() {
   const stationsData = parseStations(result)
   const hopsData = parseHops(result)
   const linesData = parseLines(result)
+  const hazardsData = parseHazards(result)
 
   await db.transaction(async (t) => {
     // Remove existing game first
@@ -332,6 +374,8 @@ async function main() {
         trainId: null
       }
     }))
+    const hazards = await db.models.Hazard
+    .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
   })
 
   process.exit()

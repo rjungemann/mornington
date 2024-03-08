@@ -25,14 +25,14 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="299.04229"
+     inkscape:cx="298.40738"
      inkscape:cy="384.75505"
      inkscape:window-width="1392"
      inkscape:window-height="1027"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-x="472"
+     inkscape:window-y="34"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer1">
+     inkscape:current-layer="layer7">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -59,6 +59,10 @@
        height="40"
        id="rect1" />
   </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Hazards" />
   <g
      inkscape:groupmode="layer"
      id="layer2"

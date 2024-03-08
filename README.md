@@ -108,4 +108,4 @@ A NextJS app which renders games using React and SVG. Designed to be fast and li
 
 ## Credits
 
-Subway icon from [SVG Repo](https://www.svgrepo.com/svg/488698/subway).
+Subway icon from [SVG Repo](https://www.svgrepo.com/svg/488698/subway). Generated favicon with [RealFaviconGenerator](https://realfavicongenerator.net/).

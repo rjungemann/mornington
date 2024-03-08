@@ -11,7 +11,7 @@ export async function seed(db: Sequelize) {
     // Truncate
     // --------
 
-    await sequelize.query(`truncate games, "gameTurns", stations, lines, hops, trains, agents, messages`);
+    await sequelize.query(`truncate games, "gameTurns", stations, lines, hops, trains, agents, hazards, messages`);
 
     // ----
     // Game
@@ -476,6 +476,24 @@ export async function seed(db: Sequelize) {
       gameId: game.dataValues.id,
       stationId: stationJ.dataValues.id,
       trainId: null
+    })
+
+    // -------
+    // Hazards
+    // -------
+
+    const hop = await db.models.Hop.findOne({ where: { name: 'b:c' } })
+    const distance = Math.floor(Math.random() * hop!.dataValues.length)
+    const hazard1 = await db.models.Hazard.create({
+      name: 'mystery-slime:1',
+      title: 'Mystery Slime',
+      label: 'Some sort of mystery slime',
+      color: '#d76cff',
+      kind: 'stop',
+      age: 0,
+      distance,
+      hopId: hop!.dataValues.id,
+      gameId: game.dataValues.id
     })
   })
 }

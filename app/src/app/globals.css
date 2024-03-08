@@ -4,14 +4,16 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 244, 243, 242;
+  /* --background-start-rgb: 244, 243, 242; */
+  --background-start-rgb: 228, 225, 224;
   --background-end-rgb: 228, 225, 224;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 244, 243, 242;
-    --background-start-rgb: 27, 24, 23;
+    /* --background-start-rgb: 27, 24, 23; */
+    --background-start-rgb: 15, 12, 11;
     --background-end-rgb: 15, 12, 11;
   }
 }
