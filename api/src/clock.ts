@@ -21,6 +21,34 @@ type ClockContext = {
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
+// currentHp 6
+// maxHp 6
+// stress 0
+// armor 10
+// strength 12
+//   bonus: (strength - 10) / 2
+// dexterity 12
+//   bonus: (dexterity - 10) / 2
+// willpower 12
+//   bonus: (willpower - 10) / 2
+//
+// Melee
+//   you.strengthBonus + Math.floor(Math.random() * 20.0) > them.armor
+// Projectile
+//   you.dexterityBonus + Math.floor(Math.random() * 20.0) > them.armor
+//
+// Skill Check Example
+//   you.willpowerBonus + Math.floor(Math.random() * 20.0) > difficulty
+//
+// Multiple agents in the same station
+// * Roll for initiative
+// * Each
+//   * Roll to hit
+//   * Roll for damage
+// * If an agent reaches 0 HP, they respawn from a starting point
+// * Agents will not board trains until combat is finished
+// * Future functionality may allow for dexterity saves to avoid detection, etc.
+
 async function findRandomPath(source: Model<Station>, destination: Model<Station>, context: ClockContext): Promise<Model<Station>[] | undefined> {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
   const maxTries = 10
