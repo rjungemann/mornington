@@ -44,6 +44,12 @@ type AgentItem = {
     ['inkscape:label']: string
     title: string
     label: string
+    strength: string
+    dexterity: string
+    willpower: string
+    currentHp: string
+    maxHp: string
+    initiative: string
     stationName: string
     trainName: string
     style: string
@@ -55,6 +61,12 @@ type AgentTransformed = {
   title: string
   label: string
   color: string
+  strength: number
+  dexterity: number
+  willpower: number
+  currentHp: number
+  maxHp: number
+  initiative: number
   stationName: string | null
   trainName: string | null
 }
@@ -200,9 +212,15 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const title = agent.$.title
     const label = agent.$.label
     const color = agent.$.style.match(/fill:\s*(#[^;]*)/)![1]
+    const strength = parseInt(agent.$.strength, 10)
+    const dexterity = parseInt(agent.$.dexterity, 10)
+    const willpower = parseInt(agent.$.willpower, 10)
+    const currentHp = parseInt(agent.$.currentHp, 10)
+    const maxHp = parseInt(agent.$.maxHp, 10)
+    const initiative = parseInt(agent.$.initiative, 10)
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, color, stationName, trainName }
+    return { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, stationName, trainName }
   })
   return agents
 }
@@ -364,11 +382,18 @@ async function main() {
     .bulkCreate(agentsData.map((agent) => {
       const startingStations = stations.filter((station) => station.dataValues.start)
       const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
+      const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative } = agent
       return {
-        name: agent.name,
-        title: agent.title,
-        label: agent.label,
-        color: agent.color,
+        name,
+        title,
+        label,
+        color,
+        strength,
+        dexterity,
+        willpower,
+        currentHp,
+        maxHp,
+        initiative,
         gameId: game.dataValues.id,
         stationId: startingStation.dataValues.id,
         trainId: null

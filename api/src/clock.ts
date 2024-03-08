@@ -38,6 +38,7 @@ const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 //   * If an agent reaches 0 HP, they respawn from a starting point
 //   * Agents will not board trains until combat is finished
 
+// TODO: Add "depth" option
 async function findRandomPath(source: Model<Station>, destination: Model<Station>, context: ClockContext): Promise<Model<Station>[] | undefined> {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
   const maxTries = 10

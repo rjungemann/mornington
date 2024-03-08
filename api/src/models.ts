@@ -187,6 +187,12 @@ export class Agent extends Model<
   declare title: string;
   declare label: string;
   declare color: string;
+  declare strength: number;
+  declare dexterity: number;
+  declare willpower: number;
+  declare currentHp: number;
+  declare maxHp: number;
+  declare initiative: number;
 
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']> | null;
@@ -476,6 +482,30 @@ Agent.init(
     },
     color: {
       type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    strength: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    dexterity: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    willpower: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    currentHp: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    maxHp: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    initiative: {
+      type: new DataTypes.INTEGER,
       allowNull: false
     },
     createdAt: DataTypes.DATE,

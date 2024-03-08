@@ -57,6 +57,12 @@ type AgentResponse = {
   title: string
   label: string
   color: string
+  strength: number
+  dexterity: number
+  willpower: number
+  currentHp: number
+  maxHp: number
+  initiative: number
   stationId: number
   trainId: number
 }

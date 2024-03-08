@@ -25,14 +25,14 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="297.13756"
-     inkscape:cy="384.75505"
+     inkscape:cx="22.221826"
+     inkscape:cy="511.73691"
      inkscape:window-width="1392"
-     inkscape:window-height="1027"
-     inkscape:window-x="407"
+     inkscape:window-height="847"
+     inkscape:window-x="48"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg1">
+     inkscape:current-layer="layer4">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -213,7 +213,13 @@
        title="Alice"
        label="Alice"
        stationName="a"
-       trainName="null" />
+       trainName="null"
+       strength="12"
+       dexterity="12"
+       willpower="12"
+       currentHp="4"
+       maxHp="4"
+       initiative="10" />
   </g>
   <g
      inkscape:groupmode="layer"

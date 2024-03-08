@@ -5,6 +5,10 @@
 import { Sequelize } from "sequelize";
 import sequelize from "./models";
 
+function d6() {
+  return Math.floor(Math.random() * 6.0 + 1.0)
+}
+
 export async function seed(db: Sequelize) {
   await db.transaction(async (t) => {
     // --------
@@ -450,29 +454,50 @@ export async function seed(db: Sequelize) {
     // Agents
     // ------
 
+    const hp1 = d6()
     const agent1 = await db.models.Agent.create({
       name: 'alice',
       title: 'Alice',
       label: 'Started on a train',
       color: '#3366cc',
+      strength: d6() + d6() + d6(),
+      dexterity: d6() + d6() + d6(),
+      willpower: d6() + d6() + d6(),
+      currentHp: hp1,
+      maxHp: hp1,
+      initiative: 10,
       gameId: game.dataValues.id,
       stationId: null,
       trainId: trainBlue1.dataValues.id,
     })
+    const hp2 = d6()
     const agent2 = await db.models.Agent.create({
       name: 'bob',
       title: 'Bob',
       label: 'Started in a station',
       color: '#99cc33',
+      strength: d6() + d6() + d6(),
+      dexterity: d6() + d6() + d6(),
+      willpower: d6() + d6() + d6(),
+      currentHp: hp1,
+      maxHp: hp1,
+      initiative: 10,
       gameId: game.dataValues.id,
       stationId: stationI.dataValues.id,
       trainId: null,
     })
+    const hp3 = d6()
     const agent3 = await db.models.Agent.create({
       name: 'eve',
       title: 'Eve',
       label: 'Started in a station',
       color: '#ff9900',
+      strength: d6() + d6() + d6(),
+      dexterity: d6() + d6() + d6(),
+      willpower: d6() + d6() + d6(),
+      currentHp: hp1,
+      maxHp: hp1,
+      initiative: 10,
       gameId: game.dataValues.id,
       stationId: stationJ.dataValues.id,
       trainId: null
