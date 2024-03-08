@@ -126,27 +126,30 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const train = gameTurn.trains.find((train) => train.id === agent.trainId)
           const trainStation = train?.stationId && gameTurn.stations.find((station) => station.id === train?.stationId)
           const estimatedDistance = agentNamesToDistances?.[agent.name]
+          const otherAgents = gameTurn.agents
+          .filter((a) => a.id !== agent.id)
+          .filter((a) => a.stationId === agent.stationId)
           return (
             <li key={agent.id} className="mb-4">
               <h3 className="mb-2" style={{ color: agent.color }}>{agent.title}</h3>
 
-              <table className="table-fixed w-full mb-2 text-xs opacity-60">
+              <table className="table-fixed w-full mb-2 text-xs opacity-60 bg-slate-800">
                 <thead>
                   <tr>
-                    <th>Init.</th>
-                    <th>HP</th>
-                    <th>Str.</th>
-                    <th>Dex.</th>
-                    <th>Wil.</th>
+                    <th className="p-1">Init.</th>
+                    <th className="p-1">HP</th>
+                    <th className="p-1">Str.</th>
+                    <th className="p-1">Dex.</th>
+                    <th className="p-1">Wil.</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{agent.initiative}</td>
-                    <td>{agent.currentHp} / {agent.maxHp}</td>
-                    <td>{agent.strength}</td>
-                    <td>{agent.dexterity}</td>
-                    <td>{agent.willpower}</td>
+                    <td className="p-1 pt-0">{agent.initiative}</td>
+                    <td className="p-1 pt-0">{agent.currentHp} / {agent.maxHp}</td>
+                    <td className="p-1 pt-0">{agent.strength}</td>
+                    <td className="p-1 pt-0">{agent.dexterity}</td>
+                    <td className="p-1 pt-0">{agent.willpower}</td>
                   </tr>
                 </tbody>
               </table>
@@ -167,10 +170,43 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                   ? <li>An estimated {estimatedDistance} stations away</li>
                   : null
                 }
+                {
+                  agent.stationId && otherAgents.length > 0
+                  ? <li>Currently locked in combat</li>
+                  : null
+                }
               </ul>
             </li>
           )
         })}
+      </ul>
+    </>
+  )
+}
+
+const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
+  return (
+    <>
+      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Hazards</h2>
+      <ul className="text-xs mb-4">
+        {
+          gameTurn?.hazards?.length
+          ? (
+            gameTurn?.hazards.map((hazard) => {
+              const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)
+              const headStation = hop ? gameTurn.stations.find((station) => station.id === hop.headId) : null
+              const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
+              return (
+                <li key={hazard.id} className="mb-2">
+                  <span>{hazard.title} between {headStation!.title} and {tailStation!.title}</span>
+                </li>
+              )
+            })
+          )
+          : (
+            <li>There are no hazards currently.</li>
+          )
+        }
       </ul>
     </>
   )
@@ -267,15 +303,12 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
-      <p className="text-xs mb-4 bg-sky-200 text-slate-800 p-2 opacity-60">
+      <p className="text-xs mb-4 bg-slate-200 text-slate-800 p-2 opacity-60">
         <span className="font-bold">Note</span>: Events are listed most recent first.
       </p>
       {turnNumbers.map((turnNumber, i) => {
-        const classNames = [
-          ...(i !== 0 ? ['border-solid', 'border-slate-200', 'border-opacity-60', 'border-t-2', 'pt-2'] : [])
-        ]
         return (
-          <div key={turnNumber} className={classNames.join(' ')}>
+          <div key={turnNumber}>
             <h3 className="opacity-100 font-md mb-2">Turn #{turnNumber}</h3>
             <ul className="opacity-60 text-xs mb-4">
               {groupedMessages[turnNumber].map((message: MessageResponse) => (
@@ -325,22 +358,27 @@ export function Gameboard({ name }: { name: string }) {
   }
 
   return (
-    <div className="grid grid-cols-4 gap-4 m-2 p-4">
-      <div className="col-span-2">
-        {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
-        {currentMessage ? <div className="truncate p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
+    <div className="p-4 m-2">
+      <h1 className="mb-4 font-semibold text-xl">{game.title}</h1>
 
-        <BasicInfo game={game} gameTurn={gameTurn} />
-      </div>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-2">
+          {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
+          {currentMessage ? <div className="truncate p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
 
-      <div className="col-span-1">
-        <AgentsInfo game={game} gameTurn={gameTurn} />
-        <TrainsInfo game={game} gameTurn={gameTurn} />
-        <StationsInfo game={game} gameTurn={gameTurn} />
-      </div>
+          <BasicInfo game={game} gameTurn={gameTurn} />
+        </div>
 
-      <div className="col-span-1">
-        <MessagesInfo game={game} gameTurn={gameTurn} messages={messages} />
+        <div className="col-span-1">
+          <AgentsInfo game={game} gameTurn={gameTurn} />
+          <HazardsInfo game={game} gameTurn={gameTurn} />
+          <TrainsInfo game={game} gameTurn={gameTurn} />
+          <StationsInfo game={game} gameTurn={gameTurn} />
+        </div>
+
+        <div className="col-span-1">
+          <MessagesInfo game={game} gameTurn={gameTurn} messages={messages} />
+        </div>
       </div>
     </div>
   );

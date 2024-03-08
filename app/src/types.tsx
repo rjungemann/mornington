@@ -134,7 +134,7 @@ type GraphOptions = {
   size: Position
 }
 
-type GameContextData {
+type GameContextData = {
   game: GameResponse
   gameTurn: GameTurnResponse
   messages: MessageResponse[]

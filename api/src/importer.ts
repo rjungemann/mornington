@@ -4,10 +4,10 @@ import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
 import xml2js from 'xml2js'
 import destroyGameByName from './services/destroyGameByName';
+import { logger } from './logging';
 
 type Args = {
   file: string
-  name: string
 }
 
 type ResultItem = {
@@ -318,14 +318,9 @@ async function main() {
       description: 'Map file to import',
       demandOption: true
   })
-  .option('name', {
-    alias: 'n',
-    description: 'Name of game to create',
-    demandOption: true
-  })
   .argv as Args;
 
-  const { file, name } = args
+  const { file } = args
   const data = (await readFile(file)).toLocaleString()
   const result = await parseXml(data);
 
@@ -339,8 +334,10 @@ async function main() {
 
   await db.transaction(async (t) => {
     // Remove existing game first
-    await destroyGameByName(db)(name)
+    logger.warn({ gameName: gameData.name }, 'Destroying existing games with same name')
+    await destroyGameByName(db)(gameData.name)
 
+    logger.info({ gameName: gameData.name }, 'Importing game')
     const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
     const stations = await db.models.Station
     .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))

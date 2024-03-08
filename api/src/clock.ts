@@ -488,6 +488,97 @@ async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Tr
   return false
 }
 
+// TODO: Add more logic
+async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+
+  const otherAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)]
+  if (!otherAgent) {
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Stationed agent in combat tried to fight someone, but could not find someone to fight!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.name} in combat tried to fight someone, but could not find someone to fight!`
+    })
+    return
+  }
+
+  // TODO: Make damage dynamic
+  // TODO: Add reincarnation timeout
+  const damage = Math.floor(Math.random() * 6.0 + 1.0)
+  otherAgent.dataValues.currentHp = otherAgent.dataValues.currentHp - damage
+  if (otherAgent.dataValues.currentHp <= 0) {
+    const startingStations = stations.filter((s) => s.dataValues.start)
+    const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]
+    if (!startingStation) {
+      logger.error(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name,
+          otherAgentName: otherAgent.dataValues.name,
+          damage
+        },
+        'Stationed agent in combat knocked someone out, and they could not be reincarnated!'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.name} in combat knocked ${otherAgent.dataValues.name} out, and they could not be reincarnated!`
+      })
+      return
+    }
+
+    logger.warn(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name,
+        otherAgentName: otherAgent.dataValues.name,
+        stationName: station.dataValues.name,
+        damage
+      },
+      'Stationed agent in combat knocked someone out, and they are being reincarnated!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      message: `Stationed agent ${agent.dataValues.name} in combat knocked ${otherAgent.dataValues.name} out, and they are being reincarnated at ${startingStation.dataValues.name}!`
+    })
+
+    otherAgent.set('currentHp', otherAgent.dataValues.maxHp)
+    otherAgent.set('stationId', startingStation.dataValues.id)
+    otherAgent.set('trainId', null)
+    await otherAgent.save()
+    return
+  }
+
+  logger.warn(
+    {
+      gameName,
+      turnNumber,
+      agentName: agent.dataValues.name,
+      otherAgentName: otherAgent.dataValues.name,
+      damage
+    },
+    'Stationed agent in combat struck someone!'
+  )
+  await db.models.Message.create({
+    gameId,
+    turnNumber,
+    message: `Stationed agent ${agent.dataValues.name} in combat struck ${otherAgent.dataValues.name}!`
+  })
+  otherAgent.set('currentHp', otherAgent.dataValues.currentHp - damage)
+  await otherAgent.save()
+}
+
 async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
 
@@ -637,6 +728,15 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     return
   }
 
+  // If there are other agents in station, they will fight instead of other actions
+  const otherAgents = agents
+  .filter((a) => a.dataValues.id !== agent.dataValues.id)
+  .filter((a) => a.dataValues.stationId === agent.dataValues.stationId)
+  if (!station.dataValues.start && !station.dataValues.end && otherAgents.length > 0) {
+    await tickStationedAgentFighting(agent, station, otherAgents, context)
+    return
+  }
+
   if (station.dataValues.end) {
     // Stationed agent in a station with no trains, is waiting
     logger.info(
@@ -741,9 +841,9 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
 
 async function tickHazards(context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-  if (Math.random() < 0.05) {
+  if (Math.random() < 0.05 && hazards.length < 5) {
     const hop = hops[Math.floor(Math.random() * hops.length)]
-    const distance = Math.floor(Math.random() * hop.dataValues.length)
+    const distance = Math.max( Math.floor(Math.random() * hop.dataValues.length), 1.0 )
     const hazard = await db.models.Hazard.create({
       name: 'mystery-slime:1',
       title: 'Mystery Slime',
@@ -907,7 +1007,7 @@ async function tick() {
     where: { finished: false }
   })
   
-  if (true) {
+  if (parallel) {
     const promises = games.map((game) => tickGame(game))
     await Promise.allSettled(promises)
   }

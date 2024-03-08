@@ -30,8 +30,8 @@ yarn db:seed
 yarn db:all
 
 # Import an SVG map
-yarn game:import --file=../assets/map1.svg --name=two
-yarn game:import --file=../assets/map2.svg --name=three
+yarn game:import --file=../assets/map1.svg
+yarn game:import --file=../assets/map2.svg
 
 popd
 
