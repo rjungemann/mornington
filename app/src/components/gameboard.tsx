@@ -136,7 +136,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
             <li key={agent.id} className="mb-4">
               <h3 className="mb-2" style={{ color: agent.color }}>{agent.title}</h3>
 
-              <table className="table-fixed w-full mb-2 text-xs opacity-60 bg-slate-800">
+              <table className="table-fixed mb-2 text-xs opacity-60 bg-slate-800">
                 <thead>
                   <tr>
                     <th className="p-1 text-center">Init.</th>

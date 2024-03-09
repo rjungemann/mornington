@@ -36,7 +36,7 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
   return (
     <>
       {
-        Object.values(keysToHops).map((hops) => {
+        Object.values(keysToHops).map((hops, index) => {
           const hop = hops[0]
           const colors = hops.map((hop) => gameTurn.lines.find((line) => hop.lineId === line.id)?.color)
           const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
@@ -45,7 +45,7 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
           const magnitude = options.hopStrokeWidth
 
           return (
-            <g key={hop.id}>
+            <g key={index}>
               {colors.map((color, i) => {
                 const [hx2, hy2, tx2, ty2] = [
                   ...projectPoint(hx, hy, angle, magnitude * (i - colors.length * 0.5)),
@@ -102,7 +102,7 @@ const StationBubble = ({ gameTurn, station, options }: { gameTurn: GameTurnRespo
       <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
       {agents.map((a, i) => {
         return (
-          <circle key={a.id} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
+          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
         )
       })}
     </svg>
@@ -153,7 +153,7 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
       <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
       {agents.map((a, i) => {
         return (
-          <circle key={a.id} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
+          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
         )
       })}
     </svg>
@@ -293,18 +293,18 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
           {<Hops gameTurn={gameTurn} options={options} />}
         </g>
         <g>
-          {gameTurn?.stations.map((station) => (
-            <Station key={station.id} gameTurn={gameTurn} station={station} options={options} />
+          {gameTurn?.stations.map((station, index) => (
+            <Station key={index} gameTurn={gameTurn} station={station} options={options} />
           ))}
         </g>
         <g>
-          {gameTurn?.hazards.map((hazard) => (
-            <Hazard key={hazard.id} gameTurn={gameTurn} hazard={hazard} options={options} />
+          {gameTurn?.hazards.map((hazard, index) => (
+            <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
           ))}
         </g>
         <g>
-          {gameTurn?.trains.map((train) => (
-            <Train key={train.id} gameTurn={gameTurn} train={train} options={options} />
+          {gameTurn?.trains.map((train, index) => (
+            <Train key={index} gameTurn={gameTurn} train={train} options={options} />
           ))}
         </g>
         {/* <g>
