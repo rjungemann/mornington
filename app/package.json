@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint",
     "notes": "egrep -rnI 'TODO|NOTE|XXX|FIXME' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.next"
   },

@@ -1,7 +1,8 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 export function useGamesHook() {
-  const url = `http://localhost:3001/games`;
+  const host = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+  const url = `${host}/games` || `${host}/games`
   const [games, setGames] = useState<GameListItemResponse[]>([])
 
   useEffect(() => {

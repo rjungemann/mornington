@@ -1,10 +1,9 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 export function useGameHook(name: string) {
-  // TODO: Put this in config
-  const updateInterval = 5000
-  // TODO: Put this in config
-  const url = `http://localhost:3001/games/${name}`
+  const updateInterval = parseInt(process.env.NEXT_PUBLIC_TICK_INTERVAL || '5000', 10)
+  const host = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+  const url = `${host}/games/${name}` || `${host}/games/${name}`
   const [gameContext, setGameContext] = useState<GameContextData | null>(null)
 
   useEffect(() => {
