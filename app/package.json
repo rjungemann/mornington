@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "notes": "egrep -rnI 'TODO|NOTE|XXX|FIXME' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.next"
   },
   "dependencies": {
     "@types/react-cytoscapejs": "^1.2.5",

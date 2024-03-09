@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="500"
+   height="500"
+   viewBox="0 0 500 500"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   sodipodi:docname="map0.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="3.16"
+     inkscape:cx="117.87975"
+     inkscape:cy="314.24051"
+     inkscape:window-width="1120"
+     inkscape:window-height="847"
+     inkscape:window-x="898"
+     inkscape:window-y="173"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer2">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="10"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <rect
+       x="40"
+       y="60"
+       width="160"
+       height="40"
+       id="rect1" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Hazards" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Hops">
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 140,180 H 60"
+       id="b:c"
+       line="red"
+       length="3"
+       label="Hop from A to B"
+       sodipodi:nodetypes="cc"
+       inkscape:label="a:b" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 300,100 H 240"
+       id="b:c-8"
+       line="red"
+       length="3"
+       label="Hop from Z to D"
+       sodipodi:nodetypes="cc"
+       inkscape:label="z:d" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 180,100 -40,80"
+       id="b:c-6"
+       line="red"
+       length="3"
+       label="Hop from B to C"
+       sodipodi:nodetypes="cc"
+       inkscape:label="b:c" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 340,180 300,100"
+       id="b:c-2"
+       line="red"
+       length="3"
+       label="Hop from D to E"
+       sodipodi:nodetypes="cc"
+       inkscape:label="d:e" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 300,260 40,-80"
+       id="b:c-23"
+       line="blue"
+       length="3"
+       label="Hop from E to F"
+       sodipodi:nodetypes="cc"
+       inkscape:label="e:f" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 300,260 H 240"
+       id="b:c-9"
+       line="blue"
+       length="3"
+       label="Hop from F to X"
+       sodipodi:nodetypes="cc"
+       inkscape:label="f:x" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 240,260 H 180"
+       id="b:c-27"
+       line="blue"
+       length="3"
+       label="Hop from X to H"
+       sodipodi:nodetypes="cc"
+       inkscape:label="x:h" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 180,260 140,180"
+       id="b:c-1"
+       line="blue"
+       length="3"
+       label="Hop from H to B"
+       sodipodi:nodetypes="cc"
+       inkscape:label="h:b" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 187.61891,102.21115 -40,80"
+       id="b:c-1-1"
+       line="blue"
+       length="3"
+       label="Hop from B to C"
+       sodipodi:nodetypes="cc"
+       inkscape:label="b:c" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 100,340 60,180"
+       id="b:c-58"
+       line="red"
+       length="3"
+       label="Hop from J to A"
+       sodipodi:nodetypes="cc"
+       inkscape:label="j:a" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 380,340 H 100"
+       id="b:c-84"
+       line="red"
+       length="3"
+       label="Hop from I to J"
+       sodipodi:nodetypes="cc"
+       inkscape:label="i:j" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 420,180 380,340"
+       id="b:c-3"
+       line="red"
+       length="3"
+       label="Hop from K to I"
+       sodipodi:nodetypes="cc"
+       inkscape:label="k:i" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 420,180 H 340"
+       id="b:c-37"
+       line="red"
+       length="3"
+       label="Hop from E to K"
+       sodipodi:nodetypes="cc"
+       inkscape:label="e:k" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 240,100 H 180"
+       id="b:c-5"
+       line="red"
+       length="3"
+       label="Hop from C to Z"
+       sodipodi:nodetypes="cc"
+       inkscape:label="c:z" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 240,107.61891 H 180"
+       id="b:c-1-3"
+       line="blue"
+       length="3"
+       label="Hop from C to Z"
+       sodipodi:nodetypes="cc"
+       inkscape:label="c:z" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 300,107.61891 H 240"
+       id="b:c-1-5"
+       line="blue"
+       length="3"
+       label="Hop from Z to D"
+       sodipodi:nodetypes="cc"
+       inkscape:label="z:d" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 332.38109,182.21115 -40,-80"
+       id="b:c-1-55"
+       line="blue"
+       length="3"
+       label="Hop from D to E"
+       sodipodi:nodetypes="cc"
+       inkscape:label="d:e" />
+  </g>
+  <g
+     inkscape:label="Stations"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="fill:#ffffff;stroke:#ff6600;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8"
+       cx="420.31851"
+       cy="180"
+       r="20"
+       inkscape:label="k"
+       end="true"
+       title="Cowstone East"
+       label="Cowstone East"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6-5-8"
+       cx="100"
+       cy="340"
+       r="20"
+       inkscape:label="j"
+       title="Rivermouth Mount"
+       label="Rivermouth Mount"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6-5-0"
+       cx="380"
+       cy="340"
+       r="20"
+       inkscape:label="i"
+       title="Fayre Holt"
+       label="Fayre Holt"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6-5"
+       cx="180"
+       cy="260"
+       r="20"
+       inkscape:label="h"
+       title="Lefting Cross"
+       label="Lefting Cross"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-0-5"
+       cx="240"
+       cy="260"
+       r="20"
+       inkscape:label="x"
+       title="X"
+       label="X"
+       virtual="true" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-0-7-8"
+       cx="300"
+       cy="260"
+       r="20"
+       inkscape:label="f"
+       title="Badgers Mare"
+       label="Badgers Mare"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6-8-4"
+       cx="340"
+       cy="180"
+       r="20"
+       inkscape:label="e"
+       title="Minstowe North"
+       label="Minstowe North"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-0-7"
+       cx="300"
+       cy="100"
+       r="20"
+       inkscape:label="d"
+       title="Diplo East"
+       label="Diplo East"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6-8"
+       cx="140"
+       cy="180"
+       r="20"
+       inkscape:label="b"
+       title="Wolford Moor"
+       label="Wolford Moor"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#3366cc;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1"
+       cx="60"
+       cy="180"
+       r="20"
+       inkscape:label="a"
+       start="true"
+       title="Greedon Way"
+       label="Greedon Way"
+       virtual="false" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-0"
+       cx="240"
+       cy="100"
+       r="20"
+       inkscape:label="z"
+       title="Z"
+       label="Z"
+       virtual="true" />
+    <circle
+       style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-8-5-6"
+       cx="180"
+       cy="100"
+       r="20"
+       inkscape:label="c"
+       title="Grunham Vale"
+       label="Grunham Vale"
+       virtual="false" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Trains">
+    <rect
+       style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="rect2"
+       width="40"
+       height="40"
+       x="-60"
+       y="540"
+       inkscape:label="red:1"
+       title="Red #1"
+       label="Red #1"
+       stationName="b"
+       hopName="null"
+       distance="0"
+       speed="1"
+       maxWaitTime="3"
+       currentWaitTime="0"
+       line="red" />
+    <rect
+       style="fill:#6699ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="rect2-0"
+       width="40"
+       height="40"
+       x="-120"
+       y="540"
+       inkscape:label="blue:1"
+       title="Blue #1"
+       label="Blue #1"
+       stationName="x"
+       hopName="null"
+       distance="0"
+       speed="1"
+       maxWaitTime="3"
+       currentWaitTime="0"
+       line="blue" />
+    <rect
+       style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none;fill-opacity:1"
+       id="rect2-0-2"
+       width="40"
+       height="40"
+       x="-180"
+       y="540"
+       inkscape:label="red:1"
+       title="Red #2"
+       label="Red #2"
+       stationName="e"
+       hopName="null"
+       distance="0"
+       speed="1"
+       maxWaitTime="3"
+       currentWaitTime="0"
+       line="red" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Agents">
+    <circle
+       style="fill:#ff9900;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="path8"
+       cx="-40"
+       cy="500"
+       r="20"
+       inkscape:label="alice"
+       title="Alice"
+       label="Alice"
+       stationName="a"
+       trainName="null"
+       strength="12"
+       dexterity="12"
+       willpower="12"
+       currentHp="4"
+       maxHp="4"
+       initiative="10"
+       timeout="0"
+       stunTimeout="0" />
+    <circle
+       style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="path8-8"
+       cx="-100"
+       cy="500"
+       r="20"
+       inkscape:label="bob"
+       title="Bob"
+       label="Bob"
+       stationName="a"
+       trainName="null"
+       strength="12"
+       dexterity="12"
+       willpower="12"
+       currentHp="4"
+       maxHp="4"
+       initiative="10"
+       timeout="0"
+       stunTimeout="0" />
+    <circle
+       style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="path8-8-8"
+       cx="-160"
+       cy="500"
+       r="20"
+       inkscape:label="eve"
+       title="Eve"
+       label="Eve"
+       stationName="a"
+       trainName="null"
+       strength="12"
+       dexterity="12"
+       willpower="12"
+       currentHp="4"
+       maxHp="4"
+       initiative="10"
+       timeout="0"
+       stunTimeout="0" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g3"
+     inkscape:label="Lines"
+     style="display:inline">
+    <rect
+       style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="rect3"
+       width="40"
+       height="40"
+       x="-60"
+       y="60"
+       inkscape:label="red"
+       title="Red"
+       label="Red Line" />
+    <rect
+       style="display:inline;fill:#6699ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="rect3-4"
+       width="40"
+       height="40"
+       x="-120"
+       y="60"
+       inkscape:label="blue"
+       title="Blue"
+       label="Blue Line" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Game">
+    <rect
+       style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
+       id="rect2-4"
+       width="40"
+       height="40"
+       x="-60"
+       y="0"
+       inkscape:label="one"
+       title="Game #1"
+       label="Game #1" />
+  </g>
+</svg>

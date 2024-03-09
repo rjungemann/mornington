@@ -1,10 +1,11 @@
 import dotenv from 'dotenv'
-import db from './models'
+import db from '../models'
 import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
 import xml2js from 'xml2js'
-import destroyGameByName from './services/destroyGameByName';
-import { logger } from './logging';
+import destroyGameByName from './destroyGameByName';
+import { logger } from '../logging';
+import { Sequelize } from 'sequelize';
 
 type Args = {
   file: string
@@ -309,22 +310,8 @@ const parseHazards = (result: ResultItem): HazardTransformed[] => {
   return hazards
 }
 
-async function main() {
-  console.info('Importer starting...')
-
-  // Initialize DB
-  await db.sync({ force: false });
-
-  const args: Args = yargs
-  .option('file', {
-      alias: 'f',
-      description: 'Map file to import',
-      demandOption: true
-  })
-  .argv as Args;
-
-  const { file } = args
-  const data = (await readFile(file)).toLocaleString()
+const importGameFromSvg = (db: Sequelize) => async (path: string) => {
+  const data = (await readFile(path)).toLocaleString()
   const result = await parseXml(data);
 
   const gameData = parseGame(result)
@@ -351,7 +338,6 @@ async function main() {
       const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
       const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
       const line = lines.find((line) => line.dataValues.name === hop.lineName)!
-      console.log(hop)
       return {
         name: hop.name,
         label: hop.label,
@@ -408,8 +394,6 @@ async function main() {
     const hazards = await db.models.Hazard
     .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
   })
-
-  process.exit()
 }
 
-main()
+export default importGameFromSvg
