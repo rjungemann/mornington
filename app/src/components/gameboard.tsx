@@ -44,23 +44,26 @@ function findRandomPath(game: GameTurnResponse, sourceName: string, destinationN
 const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
-      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Basic Info</h2>
-      <div className="w-full text-sm mb-4">
-        <div className="grid grid-cols-4 mb-2">
-          <div className="font-bold whitespace-nowrap">Game Title</div>
-          <div className="col-span-3">{game.title}</div>
+      <div className="text-sm mt-4 mb-4">
+        <div className="mb-2">
+          <span className="font-semibold text-sky-400">Game Title</span>
+          {' '}
+          <span>{game.title}</span>
         </div>
-        <div className="grid grid-cols-4 mb-2">
-          <div className="font-bold whitespace-nowrap">Turn Number</div>
-          <div className="col-span-3">#{game.turnNumber}</div>
+        <div className="mb-2">
+          <span className="font-semibold text-sky-400">Turn Number</span>
+          {' '}
+          <span>#{game.turnNumber}</span>
         </div>
-        <div className="grid grid-cols-4 mb-2">
-          <div className="font-bold whitespace-nowrap">Started At</div>
-          <div className="col-span-3">{formatDate(new Date(game.createdAt))}</div>
+        <div className="mb-2">
+          <span className="font-semibold text-sky-400">Started At</span>
+          {' '}
+          <span>{formatDate(new Date(game.createdAt))}</span>
         </div>
-        <div className="grid grid-cols-4 mb-2">
-          <div className="font-bold whitespace-nowrap">Last Turn At</div>
-          <div className="col-span-3">{formatDate(new Date(gameTurn.createdAt))}</div>
+        <div className="mb-2">
+          <span className="font-semibold text-sky-400">Last Turn At</span>
+          {' '}
+          <span>{formatDate(new Date(gameTurn.createdAt))}</span>
         </div>
       </div>
     </>
