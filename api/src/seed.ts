@@ -10,7 +10,7 @@ async function main() {
   await truncateAllGameData(db)()
 
   // TODO: Make this an option
-  const paths = await glob('../assets/maps/**/*.svg')
+  const paths = await glob('maps/**/*.svg')
   for (let path of paths) {
     await importGameFromSvg(db)(path)
   }
