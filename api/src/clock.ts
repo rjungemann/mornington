@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import db, { Agent, Game, Hazard, Hop, Line, Station, Train } from './models';
 import { Model, Op, Sequelize } from 'sequelize';
 import { logger } from './logging'
-import { isNull } from 'util';
 
 dotenv.config();
 
@@ -20,16 +19,8 @@ type ClockContext = {
 }
 
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
-const parallel: boolean = Boolean( process.env.PARALLEL && process.env.PARALLEL.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
-// currentHp
-// maxHp 1d6
-// armor 1
-// strength 3d6
-// dexterity 3d6
-// willpower 3d6
-//
 // Skill Check Example
 //   you.willpower <= Math.floor(Math.random() * 20.0)
 //
@@ -40,63 +31,47 @@ const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 //   * If an agent reaches 0 HP, they respawn from a starting point
 //   * Agents will not board trains until combat is finished
 //
-// Ideas for stunts
-// * A Withering Gaze: If in combat: Roll against willpower to attempt to stun enemy for 1d4 turns.
-// * A Flashback: If in combat: Roll against strength to throw an opponent to a neighboring disadvantageous station
-// * The Ol' Slip: If in combat: Roll against dex to attempt to board nearest train
+// Agents in combat are handled separately before other agents
+
+// TODO: Add "depth" option
+async function findRandomPath(source: Model<Station>, destination: Model<Station>, context: ClockContext): Promise<Model<Station>[] | undefined> {
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const maxTries = 10
+  for (let i = 0; i < maxTries; i++) {
+    let current: Model<Station> | undefined = source
+    let path: Model<Station>[] = []
+    while (true) {
+      if (!current) {
+        break
+      }
+      path.push(current)
+      if (current.dataValues.id === destination.dataValues.id) {
+        return path
+      }
+      const nextHops = hops.filter((hop) => hop.dataValues.headId === current!.dataValues.id)
+      const nextHop = nextHops[Math.floor(Math.random() * nextHops.length)]
+      if (nextHop) {
+        current = stations
+          .filter((station) => !path.some((s) => s.dataValues.id === station.dataValues.id))
+          .find((station) => station.dataValues.id === nextHop.dataValues.tailId)
+      }
+      else {
+        break
+      }
+    }
+  }
+  return
+}
 
 async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  // If a traveling train has no hop, hold position
   const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
-  if (!hop) {
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        trainName: train.dataValues.name
-      },
-      'Traveling train has no hop to travel on!',
-      train.dataValues.name
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling train ${train.dataValues.title} has no hop to travel on!`
-    })
-    return
-  }
-
-  // If there's a hazard, hold position
-  const hazard = hazards
-  .filter((hazard) => hazard.dataValues.hopId === hop.dataValues.id)
-  .find((hazard) => train.dataValues.distance >= hazard.dataValues.distance)
-  if (hazard) {
-    // Encountered hazard. Hold position.
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        hopName: hop.dataValues.name,
-        trainName: train.dataValues.name
-      },
-      'Traveling train has encountered a hazard. Holding...'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling train ${train.dataValues.title} has encountered a ${hazard.dataValues.title}! Holding...`
-    })
-    return
-  }
-
-  // If reached end of hop, transfer to station
-  if (train.dataValues.distance >= hop.dataValues.length) {
-    // Train has reached end of hop
-    const station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)
-    if (!station) {
-      // Could not find station to transfer to. Hold position.
+  if (hop) {
+    const hazard = hazards
+    .filter((hazard) => hazard.dataValues.hopId === hop.dataValues.id)
+    .find((hazard) => train.dataValues.distance >= hazard.dataValues.distance)
+    if (hazard) {
+      // Encountered hazard. Hold position.
       logger.warn(
         {
           gameName,
@@ -104,251 +79,302 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
           hopName: hop.dataValues.name,
           trainName: train.dataValues.name
         },
-        'Traveling train could not find a station to transfer to. Holding...'
+        'Traveling train has encountered a hazard. Holding...'
       )
       await db.models.Message.create({
         gameId,
         turnNumber,
-        message: `Traveling train ${train.dataValues.title} could not find station to transfer to! Holding...`
+        message: `Traveling train ${train.dataValues.title} has encountered a ${hazard.dataValues.title}! Holding...`
       })
-      return
     }
-
-    // Filter out current train
-    // Only consider trains of the same line
-    // Filter down to trains in current station
-    const otherTrain = trains
-      .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-      .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
-      .find((otherTrain) => otherTrain.dataValues.stationId === station.dataValues.id)
-    if (otherTrain) {
-      // There's another train of the same line already in the station
-      logger.warn(
-        {
-          gameName,
-          turnNumber,
-          trainName: train.dataValues.name,
-          otherTrainName: otherTrain.dataValues.name,
-          stationName: station.dataValues.name,
-          hopName: hop.dataValues.name
-        },
-        'Traveling train is attempting to stop in station, but there is another train! Holding...'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Traveling train ${train.dataValues.title} is attempting to stop at ${station.dataValues.title}, but ${train.dataValues.title} is in the way!`
-      })
-      return
+    else {
+      if (train.dataValues.distance >= hop.dataValues.length) {
+        // Train has reached end of hop
+        const station = stations.find((station) => station.dataValues.id === hop.dataValues.tailId)
+        if (station) {
+          // Filter out current train
+          // Only consider trains of the same line
+          // Filter down to trains in current station
+          const otherTrain = trains
+            .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+            .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
+            .find((otherTrain) => otherTrain.dataValues.stationId === station.dataValues.id)
+          if (otherTrain) {
+            // There's another train of the same line already in the station
+            logger.warn(
+              {
+                gameName,
+                turnNumber,
+                trainName: train.dataValues.name,
+                otherTrainName: otherTrain.dataValues.name,
+                stationName: station.dataValues.name,
+                hopName: hop.dataValues.name
+              },
+              'Traveling train is attempting to stop in station, but there is another train! Holding...'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Traveling train ${train.dataValues.title} is attempting to stop at ${station.dataValues.title}, but ${train.dataValues.title} is in the way!`
+            })
+          }
+          else {
+            // Found a station to transfer to. Will transfer
+            logger.info(
+              {
+                gameName,
+                turnNumber,
+                trainName: train.dataValues.name,
+                stationName: station.dataValues.name,
+                hopName: hop.dataValues.name
+              },
+              'Traveling train is stopping in station.'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Traveling train ${train.dataValues.title} is stopping at ${station.dataValues.title}.`
+            })
+            train.set('hopId', null)
+            train.set('stationId', station.dataValues.id)
+            train.set('currentWaitTime', 0)
+            train.set('distance', 0)
+          }
+        }
+        else {
+          // Could not find station to transfer to. Hold position.
+          logger.warn(
+            {
+              gameName,
+              turnNumber,
+              hopName: hop.dataValues.name,
+              trainName: train.dataValues.name
+            },
+            'Traveling train could not find a station to transfer to. Holding...'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Traveling train ${train.dataValues.title} could not find station to transfer to! Holding...`
+          })
+        }
+      }
+      else {
+        // Traveling normally
+  
+        // Filter out current train
+        // Only consider trains of the same line
+        // Filter down to trains in the same hop
+        // Filter down to trains ahead of current train
+        // Filter down to trains which *would be behind* of current train, if it moves
+        const overtakenTrain = trains
+          .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+          .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
+          .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
+          .filter((otherTrain) => train.dataValues.distance < otherTrain.dataValues.distance)
+          .find((otherTrain) => train.dataValues.distance + train.dataValues.speed >= otherTrain.dataValues.distance)
+        if (overtakenTrain) {
+          // Train would overtake another train. Holding position
+          logger.warn(
+            {
+              gameName,
+              turnNumber,
+              hopName: hop.dataValues.name,
+              trainName: train.dataValues.name,
+              otherTrainName: overtakenTrain.dataValues.name,
+            },
+            'Traveling train would overtake another train. Holding...'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Traveling train ${train.dataValues.title} would overtake ${overtakenTrain.dataValues.title}! Holding...`
+          })
+        }
+        else {
+          // Train traveling normally
+          train.set('distance', train.dataValues.distance + train.dataValues.speed)
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              trainName: train.dataValues.name,
+              hopName: hop.dataValues.name
+            },
+            'Traveling train traveling normally'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Traveling train ${train.dataValues.title} is traveling normally.`
+          })
+        }
+      }
     }
-
-    // Found a station to transfer to. Will transfer
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        trainName: train.dataValues.name,
-        stationName: station.dataValues.name,
-        hopName: hop.dataValues.name
-      },
-      'Traveling train is stopping in station.'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling train ${train.dataValues.title} is stopping at ${station.dataValues.title}.`
-    })
-    train.set('hopId', null)
-    train.set('stationId', station.dataValues.id)
-    train.set('currentWaitTime', 0)
-    train.set('distance', 0)
-    return
-  }
-
-  // If there's a train that'd be overtaken, hold position.
-  //
-  // Filter out current train
-  // Only consider trains of the same line
-  // Filter down to trains in the same hop
-  // Filter down to trains ahead of current train
-  // Filter down to trains which *would be behind* of current train, if it moves
-  const overtakenTrain = trains
-    .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-    .filter((otherTrain) => otherTrain.dataValues.lineId !== train.dataValues.lineId)
-    .filter((otherTrain) => otherTrain.dataValues.hopId === train.dataValues.hopId)
-    .filter((otherTrain) => train.dataValues.distance < otherTrain.dataValues.distance)
-    .find((otherTrain) => train.dataValues.distance + train.dataValues.speed >= otherTrain.dataValues.distance)
-  if (overtakenTrain) {
-    // Train would overtake another train. Holding position
+  } else {
     logger.warn(
       {
         gameName,
         turnNumber,
-        hopName: hop.dataValues.name,
-        trainName: train.dataValues.name,
-        otherTrainName: overtakenTrain.dataValues.name,
+        trainName: train.dataValues.name
       },
-      'Traveling train would overtake another train. Holding...'
+      'Traveling train has no hops to hop on!',
+      train.dataValues.name
     )
     await db.models.Message.create({
       gameId,
       turnNumber,
-      message: `Traveling train ${train.dataValues.title} would overtake ${overtakenTrain.dataValues.title}! Holding...`
+      message: `Traveling train ${train.dataValues.title} has no hops to transfer to!`
     })
-
-    return
   }
-
-  // Train traveling normally
-  train.set('distance', train.dataValues.distance + train.dataValues.speed)
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      trainName: train.dataValues.name,
-      hopName: hop.dataValues.name
-    },
-    'Traveling train traveling normally'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Traveling train ${train.dataValues.title} is traveling normally.`
-  })
-}
-
-async function tickStationedTrainInVirtualStation(train: Model<Train>, station: Model<Station>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  // Trains depart virtual stations immediately
-
-  // Filter down to hops heading from this station
-  // Filter down to hops of same line as train
-  // Filter out other hops which have trains at distance 0
-  const nextHops = hops
-    .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-    .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-    .filter((hop) => (
-      // Find all trains that *don't* match the criteria:
-      // * Filter out current train
-      // * Only consider trains of the same line
-      // * Filter down to trains in the same hop
-      // * Filter down to trains that haven't moved in the hop
-      !trains
-        .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-        .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-        .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
-        .some((otherTrain) => otherTrain.dataValues.distance === 0)
-    ))
-  const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
-  if (!hop) {
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        trainName: train.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Stationed train has no hops to depart from in this virtual station!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed train ${train.dataValues.title} has no hops to transfer to from ${station.dataValues.title}!`
-    })
-    return
-  }
-
-  train.set('hopId', hop.dataValues.id)
-  train.set('stationId', null)
-  train.set('currentWaitTime', 0)
-  train.set('distance', 0)
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      trainName: train.dataValues.name,
-      stationName: station.dataValues.name,
-      hopName: hop.dataValues.name
-    },
-    'Stationed train deparating virtual station!'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Stationed train ${train.dataValues.title} is departing service station ${station.dataValues.title}.`
-  })
-}
-
-async function tickStationedTrainDepartingStation(train: Model<Train>, station: Model<Station>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  // Train is departing
-
-  // Filter down to hops heading from this station
-  // Filter down to hops of same line as train
-  // Filter out other hops which have trains at distance 0
-  const nextHops = hops
-    .filter((hop) => hop.dataValues.headId === station.dataValues.id)
-    .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
-    .filter((hop) => (
-      // Find all trains that *don't* match the criteria:
-      // * Filter out current train
-      // * Only consider trains of the same line
-      // * Filter down to trains in the same hop
-      // * Filter down to trains that haven't moved in the hop
-      !trains
-        .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
-        .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
-        .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
-        .some((otherTrain) => otherTrain.dataValues.distance === 0)
-    ))
-  const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
-  if (!hop) {
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        trainName: train.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Stationed train wants to depart but has no hops to depart on!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed train ${train.dataValues.title} wants to depart ${station.dataValues.title} but there are no hops to depart from!`
-    })
-    return
-  }
-
-  train.set('hopId', hop.dataValues.id)
-  train.set('stationId', null)
-  train.set('currentWaitTime', 0)
-  train.set('distance', 0)
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      trainName: train.dataValues.name,
-      stationName: train.dataValues.name,
-      hopName: hop.dataValues.name
-    },
-    'Departing train jumped to hop from station!'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Stationed train ${train.dataValues.title} is departing from ${station.dataValues.title}.`
-  })
 }
 
 async function tickStationedTrain(train: Model<Train>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  // If stationed train has no station, hold position
   const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
-  if (!station) {
+  if (station) {
+    if (station.dataValues.virtual) {
+      // Trains depart virtual stations immediately
+
+      // Filter down to hops heading from this station
+      // Filter down to hops of same line as train
+      // Filter out other hops which have trains at distance 0
+      const nextHops = hops
+        .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+        .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+        .filter((hop) => (
+          // Find all trains that *don't* match the criteria:
+          // * Filter out current train
+          // * Only consider trains of the same line
+          // * Filter down to trains in the same hop
+          // * Filter down to trains that haven't moved in the hop
+          !trains
+            .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+            .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
+            .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
+            .some((otherTrain) => otherTrain.dataValues.distance === 0)
+        ))
+      const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
+      if (hop) {
+        train.set('hopId', hop.dataValues.id)
+        train.set('stationId', null)
+        train.set('currentWaitTime', 0)
+        train.set('distance', 0)
+        logger.info(
+          {
+            gameName,
+            turnNumber,
+            trainName: train.dataValues.name,
+            stationName: station.dataValues.name,
+            hopName: hop.dataValues.name
+          },
+          'Stationed train deparating virtual station!'
+        )
+        await db.models.Message.create({
+          gameId,
+          turnNumber,
+          message: `Stationed train ${train.dataValues.title} is departing service station ${station.dataValues.title}.`
+        })
+      }
+      else {
+        logger.warn(
+          {
+            gameName,
+            turnNumber,
+            trainName: train.dataValues.name,
+            stationName: station.dataValues.name
+          },
+          'Stationed train has no hops to depart from in this virtual station!'
+        )
+        await db.models.Message.create({
+          gameId,
+          turnNumber,
+          message: `Stationed train ${train.dataValues.title} has no hops to transfer to from ${station.dataValues.title}!`
+        })
+      }
+    }
+    else {
+      if (train.dataValues.currentWaitTime >= train.dataValues.maxWaitTime) {
+        // Train is departing
+
+        // Filter down to hops heading from this station
+        // Filter down to hops of same line as train
+        // Filter out other hops which have trains at distance 0
+        const nextHops = hops
+          .filter((hop) => hop.dataValues.headId === station.dataValues.id)
+          .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+          .filter((hop) => (
+            // Find all trains that *don't* match the criteria:
+            // * Filter out current train
+            // * Only consider trains of the same line
+            // * Filter down to trains in the same hop
+            // * Filter down to trains that haven't moved in the hop
+            !trains
+              .filter((otherTrain) => otherTrain.dataValues.id !== train.dataValues.id)
+              .filter((otherTrain) => otherTrain.dataValues.lineId !== hop.dataValues.lineId)
+              .filter((otherTrain) => otherTrain.dataValues.hopId === hop.dataValues.id)
+              .some((otherTrain) => otherTrain.dataValues.distance === 0)
+          ))
+        const hop = nextHops[Math.floor(Math.random() * nextHops.length)]
+        if (hop) {
+          train.set('hopId', hop.dataValues.id)
+          train.set('stationId', null)
+          train.set('currentWaitTime', 0)
+          train.set('distance', 0)
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              trainName: train.dataValues.name,
+              stationName: train.dataValues.name,
+              hopName: hop.dataValues.name
+            },
+            'Departing train jumped to hop from station!'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Stationed train ${train.dataValues.title} is departing from ${station.dataValues.title}.`
+          })
+        }
+        else {
+          logger.warn(
+            {
+              gameName,
+              turnNumber,
+              trainName: train.dataValues.name,
+              stationName: station.dataValues.name
+            },
+            'Stationed train wants to depart but has no hops to depart on!'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Stationed train ${train.dataValues.title} wants to depart ${station.dataValues.title} but there are no hops to depart from!`
+          })
+        }
+      }
+      else {
+        // Train is waiting
+        train.set('currentWaitTime', train.dataValues.currentWaitTime + 1)
+        logger.info(
+          {
+            gameName,
+            turnNumber,
+            trainName: train.dataValues.name,
+            stationName: station.dataValues.name
+          },
+          'Stationed train is waiting in station'
+        )
+        await db.models.Message.create({
+          gameId,
+          turnNumber,
+          message: `Stationed train ${train.dataValues.title} is waiting in ${station.dataValues.title}.`
+        })
+      }
+    }
+  }
+  else {
     logger.error(
       {
         gameName,
@@ -362,68 +388,7 @@ async function tickStationedTrain(train: Model<Train>, context: ClockContext) {
       turnNumber,
       message: `Stationed train ${train.dataValues.title} has no station!`
     })
-    return
   }
-
-  // If stationed train is in a virtual station, transfer immediately
-  if (station.dataValues.virtual) {
-    await tickStationedTrainInVirtualStation(train, station, context)
-    return
-  }
-
-  // If stationed train has waited for its max wait time, it should transfer
-  if (train.dataValues.currentWaitTime >= train.dataValues.maxWaitTime) {
-    await tickStationedTrainDepartingStation(train, station, context)
-    return
-  }
-
-  // Train is waiting
-  train.set('currentWaitTime', train.dataValues.currentWaitTime + 1)
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      trainName: train.dataValues.name,
-      stationName: station.dataValues.name
-    },
-    'Stationed train is waiting in station'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Stationed train ${train.dataValues.title} is waiting in ${station.dataValues.title}.`
-  })
-}
-
-async function findRandomPath(source: Model<Station>, destination: Model<Station>, context: ClockContext): Promise<Model<Station>[] | undefined> {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-  const maxTries = 10
-  const maxDepth = 15
-  for (let i = 0; i < maxTries; i++) {
-    let current: Model<Station> | undefined = source
-    let path: Model<Station>[] = []
-    while (true) {
-      if (!current) {
-        break
-      }
-      if (path.length > maxDepth) {
-        break
-      }
-      path.push(current)
-      if (current.dataValues.id === destination.dataValues.id) {
-        return path
-      }
-      const nextHops = hops.filter((hop) => hop.dataValues.headId === current!.dataValues.id)
-      const nextHop = nextHops[Math.floor(Math.random() * nextHops.length)]
-      if (!nextHop) {
-        break
-      }
-      current = stations
-      .filter((station) => !path.some((s) => s.dataValues.id === station.dataValues.id))
-      .find((station) => station.dataValues.id === nextHop.dataValues.tailId)
-    }
-  }
-  return
 }
 
 async function willTravelingAgentDisembark(agent: Model<Agent>, context: ClockContext) {
@@ -494,310 +459,115 @@ async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Tr
   return false
 }
 
-async function tickStationedAgentFightingPullStunt(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
+async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  const otherAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)]
-  if (!otherAgent) {
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name
-      },
-      'Stationed agent in combat tried to pull a stunt, but could not find someone to fight!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat tried to pull a stunt, but could not find someone to fight!`
-    })
-    return
-  }
-
-  const stuntIndex = Math.floor(Math.random() * 3.0)
-  if (stuntIndex === 0) {
-    // A Withering Gaze: If in combat: Other agent rolls against willpower or is stunned for 1d4 turns.
-    const roll = Math.floor(Math.random() * 20.0) + 1 < otherAgent.dataValues.willpower
-    if (!roll) {
-      logger.error(
-        {
-          gameName,
+  const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
+  if (train) {
+    const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
+    if (station) {
+      if (station.dataValues.end) {
+        // Agent on stationed train has reached destination and disembarks train
+        logger.info(
+          {
+            gameName,
+            turnNumber,
+            agentName: agent.dataValues.name,
+            trainName: train.dataValues.name,
+            stationName: station.dataValues.name
+          },
+          'Traveling agent has found their destination! Disembarking...'
+        )
+        await db.models.Message.create({
+          gameId,
           turnNumber,
-          agentName: agent.dataValues.name
-        },
-        'Stationed agent in combat failed to pull A Withering Gaze!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Withering Gaze.`
-      })
-      return
-    }
-
-    const turns = Math.floor(Math.random() * 4.0) + 1
-    otherAgent.set('stunTimeout', turns)
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name
-      },
-      'Stationed agent in combat pulled A Withering Gaze!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat pulled A Withering Gaze. ${otherAgent.dataValues.title} is stunned for ${turns} turns!`
-    })
-  }
-  else if (stuntIndex === 1) {
-    // A Flashback: If in combat: Other agent rolls against strength or get thrown to a neighboring disadvantageous station
-    const roll = Math.floor(Math.random() * 20.0) + 1 < otherAgent.dataValues.strength
-    if (!roll) {
-      logger.error(
-        {
-          gameName,
-          turnNumber,
-          agentName: agent.dataValues.name
-        },
-        'Stationed agent in combat failed to pull A Flashback!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback.`
-      })
-      return
-    }
-
-    const nextHops = hops
-    .filter((h) => h.dataValues.headId === station.dataValues.id)
-    const nextStations = stations
-    .filter((s) => nextHops.find((h) => s.dataValues.id === h.dataValues.tailId))
-
-    const idToDistances: Record<number, number | undefined> = {}
-    for (let s of nextStations) {
-      idToDistances[s.dataValues.id] = (await findRandomPath(station, s, context))?.length
-    }
-
-    const nextPairs = nextStations
-    .sort((a, b) => {
-      const distanceA = idToDistances[a.dataValues.id]
-      const distanceB = idToDistances[b.dataValues.id]
-      if(!distanceA || !distanceB) {
-        return 0
+          message: `Traveling agent ${agent.dataValues.title} has found their destination, ${station.dataValues.title} and is disembarking from train ${station.dataValues.title}.`
+        })
+        agent.set('trainId', null)
+        agent.set('stationId', station.dataValues.id)
       }
-      return distanceB - distanceA // reverse order, high-to-low
-    })
-    const nextStation = nextStations[0]
-    if (!nextStation) {
-      logger.error(
-        {
-          gameName,
-          turnNumber,
-          agentName: agent.dataValues.name
-        },
-        'Stationed agent in combat failed to pull A Flashback because a station could not be found!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback because a station could not be found.`
-      })
-      return
+      else {
+        // TODO: Some sort of strategy
+        // Agent on stationed train has not yet reached destination
+        const mightDisembarkTrain = await willTravelingAgentDisembark(agent, context);
+        if (mightDisembarkTrain) {
+          // Agent on stationed train is disembarking at station
+          if (station.dataValues.virtual) {
+            // Agents will not disembark from virtual stations
+            logger.warn({
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              trainName: train.dataValues.name,
+              stationName: station.dataValues.name
+            },
+              'Traveling agent will not be disembarking train to virtual station'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`
+            })
+          } else {
+            // TODO: Have better logic for this
+            // Agent disembarks train
+            logger.info(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                trainName: train.dataValues.name,
+                stationName: station.dataValues.name
+              },
+              'Traveling agent is disembarking train to station'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`
+            })
+            agent.set('trainId', null)
+            agent.set('stationId', station.dataValues.id)
+          }
+        }
+        else {
+          // Agent on stationed train is staying put
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              trainName: train.dataValues.name,
+              stationName: station.dataValues.name
+            },
+            'Traveling agent is staying on stationed train'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`
+          })
+        }
+      }
     }
-
-    otherAgent.set('stationId', nextStation.dataValues.id)
-    otherAgent.set('trainId', null)
-    otherAgent.save()
-
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name
-      },
-      'Stationed agent in combat pulled A Flashback!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat pulled A Flashback. ${otherAgent.dataValues.title} was knocked to ${nextStation.dataValues.title}!`
-    })
-  }
-  else {
-    // The Ol' Slip: If in combat: Roll against dex to attempt to board a train on a line connecting to this station
-    const roll = Math.floor(Math.random() * 20.0) + 1 < agent.dataValues.dexterity
-    if (!roll) {
-      logger.error(
-        {
-          gameName,
-          turnNumber,
-          agentName: agent.dataValues.name
-        },
-        'Stationed agent in combat failed to pull The Ol\' Slip!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip.`
-      })
-      return
-    }
-
-    const lineIds = hops.filter((h) => h.dataValues.headId === station.dataValues.id).map((h) => h.dataValues.lineId)
-    const nextTrains = trains
-    .filter((t) => lineIds.find((li) => li === t.dataValues.lineId))
-    const nextTrain = nextTrains[Math.floor(Math.random() * nextTrains.length)]
-    if (!nextTrain) {
-      logger.error(
-        {
-          gameName,
-          turnNumber,
-          agentName: agent.dataValues.name
-        },
-        'Stationed agent in combat failed to pull The Ol\' Slip because no train could be found!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip because no train could be found.`
-      })
-      return
-    }
-
-    otherAgent.set('stationId', null)
-    otherAgent.set('trainId', nextTrain.dataValues.id)
-    otherAgent.save()
-
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name
-      },
-      'Stationed agent in combat pulled The Ol\' Slip!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat pulled The Ol' Slip. ${agent.dataValues.title} jumped to ${nextTrain.dataValues.title}!`
-    })
-  }
-}
-
-// TODO: Add more logic
-// TODO: Roll a dice to figure out action in turn
-// TODO: Defense?
-// Ideas for stunts
-// * A Withering Gaze: If in combat: Roll against willpower to attempt to stun enemy for 1d4 turns.
-// * A Flashback: If in combat: Roll against strength to throw an opponent to a neighboring disadvantageous station
-// * The Ol' Slip: If in combat: Roll against dex to attempt to board nearest train
-// More hazard types
-async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  const pullStunt = Math.random() < 0.2
-  if (pullStunt) {
-    await tickStationedAgentFightingPullStunt(agent, station, otherAgents, context)
-    return
-  }
-
-  const otherAgent = otherAgents[Math.floor(Math.random() * otherAgents.length)]
-  if (!otherAgent) {
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name
-      },
-      'Stationed agent in combat tried to fight someone, but could not find someone to fight!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat tried to fight someone, but could not find someone to fight!`
-    })
-    return
-  }
-
-  // TODO: Make damage dynamic
-  const damage = Math.floor(Math.random() * 6.0 + 1.0)
-  otherAgent.dataValues.currentHp = otherAgent.dataValues.currentHp - damage
-  if (otherAgent.dataValues.currentHp <= 0) {
-    const startingStations = stations.filter((s) => s.dataValues.start)
-    const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]
-    if (!startingStation) {
-      logger.error(
+    else {
+      // Agent on traveling train is traveling
+      logger.info(
         {
           gameName,
           turnNumber,
           agentName: agent.dataValues.name,
-          otherAgentName: otherAgent.dataValues.name,
-          damage
+          trainName: train.dataValues.name
         },
-        'Stationed agent in combat knocked someone out, and they could not be reincarnated!'
+        'Traveling agent is traveling on train'
       )
       await db.models.Message.create({
         gameId,
         turnNumber,
-        message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they could not be reincarnated!`
+        message: `Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`
       })
-      return
     }
-
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        otherAgentName: otherAgent.dataValues.name,
-        stationName: station.dataValues.name,
-        damage
-      },
-      'Stationed agent in combat knocked someone out, and they are being reincarnated!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they are being reincarnated at ${startingStation.dataValues.title}!`
-    })
-
-    otherAgent.set('currentHp', otherAgent.dataValues.maxHp)
-    // TODO: Make this dynamic
-    otherAgent.set('timeout', 5)
-    otherAgent.set('stationId', startingStation.dataValues.id)
-    otherAgent.set('trainId', null)
-    await otherAgent.save()
-    return
   }
-
-  logger.warn(
-    {
-      gameName,
-      turnNumber,
-      agentName: agent.dataValues.name,
-      otherAgentName: otherAgent.dataValues.name,
-      damage
-    },
-    'Stationed agent in combat struck someone!'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Stationed agent ${agent.dataValues.title} in combat struck ${otherAgent.dataValues.title}!`
-  })
-  otherAgent.set('currentHp', otherAgent.dataValues.currentHp - damage)
-  await otherAgent.save()
-}
-
-async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
-  const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
-  if (!train) {
+  else {
     // Error state. Traveling agent without a train
     logger.error(
       {
@@ -812,120 +582,115 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
       turnNumber,
       message: `Traveling agent ${agent.dataValues.title} is traveling without a train!`
     })
-    return
   }
-
-  const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
-  if (!station) {
-    // Agent on traveling train is traveling
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        trainName: train.dataValues.name
-      },
-      'Traveling agent is traveling on train'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`
-    })
-    return
-  }
-
-  if (station.dataValues.end) {
-    // Agent on stationed train has reached destination and disembarks train
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        trainName: train.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Traveling agent has found their destination! Disembarking...'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling agent ${agent.dataValues.title} has found their destination, ${station.dataValues.title} and is disembarking from train ${station.dataValues.title}.`
-    })
-    agent.set('trainId', null)
-    agent.set('stationId', station.dataValues.id)
-    return
-  }
-
-  // TODO: Some sort of strategy
-  // Agent on stationed train has not yet reached destination
-  const mightDisembarkTrain = await willTravelingAgentDisembark(agent, context)
-  if (!mightDisembarkTrain) {
-    // Agent on stationed train is staying put
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        trainName: train.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Traveling agent is staying on stationed train'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`
-    })
-    return
-  }
-
-  // Agent on stationed train is disembarking at station
-  if (station.dataValues.virtual) {
-    // Agents will not disembark from virtual stations
-    logger.warn({
-      gameName,
-      turnNumber,
-      agentName: agent.dataValues.name,
-      trainName: train.dataValues.name,
-      stationName: station.dataValues.name
-    },
-      'Traveling agent will not be disembarking train to virtual station'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`
-    })
-    return
-  }
-  
-  // TODO: Have better logic for this
-  // Agent disembarks train
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      agentName: agent.dataValues.name,
-      trainName: train.dataValues.name,
-      stationName: station.dataValues.name
-    },
-    'Traveling agent is disembarking train to station'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`
-  })
-  agent.set('trainId', null)
-  agent.set('stationId', station.dataValues.id)
 }
 
 async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
-  if (!station) {
+  if (station) {
+    if (station.dataValues.end) {
+      // Stationed agent in a station with no trains, is waiting
+      logger.info(
+        {
+          gameName,
+          turnNumber,
+          agentName: agent.dataValues.name,
+          stationName: station.dataValues.name
+        },
+        'Stationed agent is waiting at destination'
+      )
+      await db.models.Message.create({
+        gameId,
+        turnNumber,
+        message: `Stationed agent ${agent.dataValues.title} is waiting at their destination, ${station.dataValues.title}.`
+      })
+    }
+    else {
+      const trainsInStation = trains.filter((train) => station.dataValues.id === train.dataValues.stationId)
+      const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
+      if (trainsInStation.length > 0) {
+        // TODO: Some sort of strategy
+        const mightBoardTrain = await willStationedAgentBoardTrain(agent, trainToBoard, context)
+        if (mightBoardTrain) {
+          // Stationed agent choosing to board a train
+          if (station.dataValues.virtual) {
+            // If station is virtual, agent will not board train
+            logger.error(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                stationName: station.dataValues.name,
+                trainName: trainToBoard.dataValues.name
+              },
+              'Stationed agent attempted to board train, but is trapped in virtual station'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`
+            })
+          }
+          else {
+            // Stationed agent in a station with trains, will board a train
+            logger.info(
+              {
+                gameName,
+                turnNumber,
+                agentName: agent.dataValues.name,
+                stationName: station.dataValues.name,
+                trainName: trainToBoard.dataValues.name
+              },
+              'Stationed agent at station is boarding train'
+            )
+            await db.models.Message.create({
+              gameId,
+              turnNumber,
+              message: `Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`
+            })
+            agent.set('stationId', null)
+            agent.set('trainId', trainToBoard.dataValues.id)
+          }
+        }
+        else {
+          // Stationed agent in a station with trains, is waiting
+          logger.info(
+            {
+              gameName,
+              turnNumber,
+              agentName: agent.dataValues.name,
+              stationName: station.dataValues.name
+            },
+            'Stationed agent is waiting at station with waiting trains'
+          )
+          await db.models.Message.create({
+            gameId,
+            turnNumber,
+            message: `Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`
+          })
+        }
+      }
+      else {
+        // Stationed agent in a station with no trains, is waiting
+        logger.info(
+          {
+            gameName,
+            turnNumber,
+            agentName: agent.dataValues.name,
+            stationName: station.dataValues.name
+          },
+          'Stationed agent is waiting at station'
+        )
+        await db.models.Message.create({
+          gameId,
+          turnNumber,
+          message: `Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`
+        })
+      }
+    }
+  }
+  else {
     logger.error(
       {
         gameName,
@@ -939,131 +704,14 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
       turnNumber,
       message: `Stationed agent ${agent.dataValues.title} is without a station!`
     })
-    return
   }
-
-  // If there are other agents in station, they will fight instead of other actions
-  const otherAgents = agents
-  .filter((a) => a.dataValues.id !== agent.dataValues.id)
-  .filter((a) => a.dataValues.stationId === agent.dataValues.stationId)
-  if (!station.dataValues.start && !station.dataValues.end && otherAgents.length > 0) {
-    await tickStationedAgentFighting(agent, station, otherAgents, context)
-    return
-  }
-
-  if (station.dataValues.end) {
-    // Stationed agent in a station with no trains, is waiting
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Stationed agent is waiting at destination'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} is waiting at their destination, ${station.dataValues.title}.`
-    })
-    return
-  }
-
-  const trainsInStation = trains.filter((train) => station.dataValues.id === train.dataValues.stationId)
-  const trainToBoard = trainsInStation[Math.floor(Math.random() * trainsInStation.length)]
-  if (trainsInStation.length === 0) {
-    // Stationed agent in a station with no trains, is waiting
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Stationed agent is waiting at station'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`
-    })
-    return
-  }
-
-  // TODO: Some sort of strategy
-  const mightBoardTrain = await willStationedAgentBoardTrain(agent, trainToBoard, context)
-  if (!mightBoardTrain) {
-    // Stationed agent in a station with trains, is waiting
-    logger.info(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        stationName: station.dataValues.name
-      },
-      'Stationed agent is waiting at station with waiting trains'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`
-    })
-    return
-  }
-
-  // Stationed agent choosing to board a train
-  if (station.dataValues.virtual) {
-    // If station is virtual, agent will not board train
-    logger.error(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        stationName: station.dataValues.name,
-        trainName: trainToBoard.dataValues.name
-      },
-      'Stationed agent attempted to board train, but is trapped in virtual station'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      message: `Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`
-    })
-    return
-  }
-
-  // Stationed agent in a station with trains, will board a train
-  logger.info(
-    {
-      gameName,
-      turnNumber,
-      agentName: agent.dataValues.name,
-      stationName: station.dataValues.name,
-      trainName: trainToBoard.dataValues.name
-    },
-    'Stationed agent at station is boarding train'
-  )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    message: `Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`
-  })
-  agent.set('stationId', null)
-  agent.set('trainId', trainToBoard.dataValues.id)
-}
-
-function getRandomInt(min: number, max: number) {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
 }
 
 async function tickHazards(context: ClockContext) {
   const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
-  if (Math.random() < 0.05 && hazards.length < 5) {
+  if (Math.random() < 0.05) {
     const hop = hops[Math.floor(Math.random() * hops.length)]
-    const distance = getRandomInt(1, hop.dataValues.length - 1)
+    const distance = Math.floor(Math.random() * hop.dataValues.length)
     const hazard = await db.models.Hazard.create({
       name: 'mystery-slime:1',
       title: 'Mystery Slime',
@@ -1086,7 +734,7 @@ async function tickHazards(context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
-      message: `A new hazard ${hazard.dataValues.title} appeared!`
+      message: `A new hazard ${hazard.dataValues.name} appeared!`
     })
   }
   if (Math.random() < 0.05) {
@@ -1103,7 +751,7 @@ async function tickHazards(context: ClockContext) {
       await db.models.Message.create({
         gameId,
         turnNumber,
-        message: `The hazard ${hazard.dataValues.title} went away!`
+        message: `The hazard ${hazard.dataValues.name} went away!`
       })
       await hazard.destroy()
     }
@@ -1118,7 +766,7 @@ async function tickGameTurn(game: Model<Game>) {
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const stations = await db.models.Station.findAll({ where: { gameId: { [Op.eq]: gameId } } })
-  const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } }, order: [['initiative', 'DESC']] })
+  const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hazards = await db.models.Hazard.findAll({ where: { gameId: { [Op.eq]: gameId } } })
 
   const context = { db, gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards }
@@ -1146,30 +794,8 @@ async function tickGameTurn(game: Model<Game>) {
 
   // Agent phase
   for (let agent of agents) {
-    // Handle time-out
-    if (agent.dataValues.timeout > 0) {
-      agent.set('timeout', agent.dataValues.timeout - 1)
-      await agent.save()
-      logger.warn({ gameName, turnNumber, agentName: agent.dataValues.name, timeout: agent.dataValues.timeout }, 'Agent is in time-out!')
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Agent ${agent.dataValues.title} is in time-out!`
-      })
-    }
-    // Handle Stun
-    if (agent.dataValues.stunTimeout > 0) {
-      agent.set('stunTimeout', agent.dataValues.stunTimeout - 1)
-      await agent.save()
-      logger.warn({ gameName, turnNumber, agentName: agent.dataValues.name, stunTimeout: agent.dataValues.stunTimeout }, 'Agent is stunned!')
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        message: `Agent ${agent.dataValues.title} is stunned!`
-      })
-    }
     // Traveling agent
-    else if (agent.dataValues.trainId) {
+    if (agent.dataValues.trainId) {
       await tickTravelingAgent(agent, context)
       await agent.save()
     }
@@ -1248,16 +874,8 @@ async function tick() {
   const games: Model<Game>[] = await db.models.Game.findAll({
     where: { finished: false }
   })
-  
-  if (parallel) {
-    const promises = games.map((game) => tickGame(game))
-    await Promise.allSettled(promises)
-  }
-  else {
-    for (let game of games) {
-      await tickGame(game)
-    }
-  }
+  const promises = games.map((game) => tickGame(game))
+  await Promise.allSettled(promises)
   logger.info('Ticker finished!')
 }
 

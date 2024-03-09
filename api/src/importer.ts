@@ -4,10 +4,10 @@ import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
 import xml2js from 'xml2js'
 import destroyGameByName from './services/destroyGameByName';
-import { logger } from './logging';
 
 type Args = {
   file: string
+  name: string
 }
 
 type ResultItem = {
@@ -50,8 +50,6 @@ type AgentItem = {
     currentHp: string
     maxHp: string
     initiative: string
-    timeout: string
-    stunTimeout: string
     stationName: string
     trainName: string
     style: string
@@ -69,8 +67,6 @@ type AgentTransformed = {
   currentHp: number
   maxHp: number
   initiative: number
-  timeout: number
-  stunTimeout: number
   stationName: string | null
   trainName: string | null
 }
@@ -222,11 +218,9 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const currentHp = parseInt(agent.$.currentHp, 10)
     const maxHp = parseInt(agent.$.maxHp, 10)
     const initiative = parseInt(agent.$.initiative, 10)
-    const timeout = parseInt(agent.$.timeout, 10)
-    const stunTimeout = parseInt(agent.$.stunTimeout, 10)
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, stationName, trainName }
+    return { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, stationName, trainName }
   })
   return agents
 }
@@ -321,9 +315,14 @@ async function main() {
       description: 'Map file to import',
       demandOption: true
   })
+  .option('name', {
+    alias: 'n',
+    description: 'Name of game to create',
+    demandOption: true
+  })
   .argv as Args;
 
-  const { file } = args
+  const { file, name } = args
   const data = (await readFile(file)).toLocaleString()
   const result = await parseXml(data);
 
@@ -337,10 +336,8 @@ async function main() {
 
   await db.transaction(async (t) => {
     // Remove existing game first
-    logger.warn({ gameName: gameData.name }, 'Destroying existing games with same name')
-    await destroyGameByName(db)(gameData.name)
+    await destroyGameByName(db)(name)
 
-    logger.info({ gameName: gameData.name }, 'Importing game')
     const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
     const stations = await db.models.Station
     .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
@@ -351,7 +348,6 @@ async function main() {
       const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
       const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
       const line = lines.find((line) => line.dataValues.name === hop.lineName)!
-      console.log(hop)
       return {
         name: hop.name,
         label: hop.label,
@@ -384,9 +380,11 @@ async function main() {
     }))
     const agents = await db.models.Agent
     .bulkCreate(agentsData.map((agent) => {
-      const startingStations = stations.filter((station) => station.dataValues.start)
-      const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-      const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
+      // const startingStations = stations.filter((station) => station.dataValues.start)
+      // const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
+      const station = stations.find((station) => station.dataValues.name === agent.stationName)
+      const train = trains.find((train) => train.dataValues.name === agent.trainName)
+      const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative } = agent
       return {
         name,
         title,
@@ -398,11 +396,9 @@ async function main() {
         currentHp,
         maxHp,
         initiative,
-        timeout,
-        stunTimeout,
         gameId: game.dataValues.id,
-        stationId: startingStation.dataValues.id,
-        trainId: null
+        stationId: station ? station.dataValues.id : null,
+        trainId: train ? train.dataValues.id : null
       }
     }))
     const hazards = await db.models.Hazard

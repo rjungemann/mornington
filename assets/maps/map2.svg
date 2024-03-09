@@ -25,7 +25,7 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="205.07571"
+     inkscape:cx="206.98044"
      inkscape:cy="435.5478"
      inkscape:window-width="1392"
      inkscape:window-height="847"
@@ -342,16 +342,14 @@
        inkscape:label="alice"
        title="Alice"
        label="Alice"
-       stationName="a"
+       stationName="b"
        trainName="null"
        strength="12"
        dexterity="12"
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10"
-       timeout="0"
-       stunTimeout="0" />
+       initiative="10" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -361,16 +359,14 @@
        inkscape:label="bob"
        title="Bob"
        label="Bob"
-       stationName="a"
+       stationName="b"
        trainName="null"
        strength="12"
        dexterity="12"
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10"
-       timeout="0"
-       stunTimeout="0" />
+       initiative="10" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -380,16 +376,14 @@
        inkscape:label="eve"
        title="Eve"
        label="Eve"
-       stationName="a"
+       stationName="b"
        trainName="null"
        strength="12"
        dexterity="12"
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10"
-       timeout="0"
-       stunTimeout="0" />
+       initiative="10" />
   </g>
   <g
      inkscape:groupmode="layer"
