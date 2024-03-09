@@ -1,2 +1,2 @@
-web: yarn start:api
-clock: yarn run start:clock
+web: yarn api:start
+clock: yarn run clock:start

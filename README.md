@@ -106,6 +106,14 @@ A NextJS app which renders games using React and SVG. Designed to be fast and li
   * `src/index.ts` is the primary script for the API service
   * `src/clock.ts` is the primary script for the Clock
 
+## Deployment
+
+### Heroku
+
+```sh
+git subtree push --prefix api backend main
+```
+
 ## Credits
 
 Subway icon from [SVG Repo](https://www.svgrepo.com/svg/488698/subway). Generated favicon with [RealFaviconGenerator](https://realfavicongenerator.net/).
