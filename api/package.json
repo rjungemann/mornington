@@ -3,20 +3,23 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "engines": {
+    "node": "21.x"
+  },
   "devDependencies": {
     "@types/cls-hooked": "^4.3.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.5",
     "@types/pino": "^7.0.5",
+    "@types/glob": "^8.1.0",
+    "@types/xml2js": "^0.4.14",
+    "@types/yargs": "^17.0.32",
     "pino-pretty": "^10.3.1",
     "sequelize-cli": "^6.6.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/xml2js": "^0.4.14",
-    "@types/yargs": "^17.0.32",
     "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.2",

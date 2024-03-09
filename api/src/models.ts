@@ -12,7 +12,8 @@ const namespace = cls.createNamespace('default');
 Sequelize.useCLS(namespace);
 
 // TODO: Read from dotenv
-const sequelize = new Sequelize('postgres://localhost/mornington_development', {
+const databaseUrl = process.env.DATABASE_URL || 'postgres://localhost/mornington_development'
+const sequelize = new Sequelize(databaseUrl, {
   logging: (sql, timing) => {
     logger.debug(sql, typeof timing === 'number' ? `Elapsed time: ${timing}ms` : '')
   }
