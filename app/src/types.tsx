@@ -84,6 +84,15 @@ type HazardResponse = {
   hopId: number
 }
 
+type ItemResponse = {
+  id: number
+  name: string
+  title: string
+  label: string
+  kind: string
+  damage: string
+}
+
 type GameTurnResponse = {
   stations: StationResponse[]
   lines: LineResponse[]
@@ -91,6 +100,7 @@ type GameTurnResponse = {
   trains: TrainResponse[]
   agents: AgentResponse[]
   hazards: HazardResponse[]
+  items: ItemResponse[]
   createdAt: string
   updatedAt: string
 }

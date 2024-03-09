@@ -7,6 +7,8 @@ const destroyGameByName = (db: Sequelize) => async (name: string) => {
   }
 
   await db.models.Message.destroy({ where: { gameId: game.dataValues.id } })
+  await db.models.Hazard.destroy({ where: { gameId: game.dataValues.id } })
+  await db.models.Item.destroy({ where: { gameId: game.dataValues.id } })
   await db.models.Agent.destroy({ where: { gameId: game.dataValues.id } })
   await db.models.Hazard.destroy({ where: { gameId: game.dataValues.id } })
   await db.models.Train.destroy({ where: { gameId: game.dataValues.id } })

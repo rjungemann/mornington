@@ -25,14 +25,14 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="0.78751403"
-     inkscape:cx="206.98044"
-     inkscape:cy="435.5478"
+     inkscape:cx="-76.824028"
+     inkscape:cy="605.70349"
      inkscape:window-width="1392"
      inkscape:window-height="847"
      inkscape:window-x="48"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer4">
+     inkscape:current-layer="layer5">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -430,6 +430,47 @@
   <g
      inkscape:groupmode="layer"
      id="layer5"
+     inkscape:label="Items">
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80"
+       cx="-41.512444"
+       cy="619.26984"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="barnaby" />
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80-3"
+       cx="-102.06104"
+       cy="620.50848"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="dorothy" />
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80-3-6"
+       cx="-162.38109"
+       cy="620.10938"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="lettice" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
      inkscape:label="Game">
     <rect
        style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none"

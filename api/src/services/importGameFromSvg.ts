@@ -175,6 +175,7 @@ type HazardItem = {
     distance: string
     age: string
     style: string
+    hopName: string
   }
 }
 
@@ -186,6 +187,27 @@ type HazardTransformed = {
   age: number
   distance: number
   color: string
+  hopName: string
+}
+
+type ItemItem = {
+  ['$']: {
+    ['inkscape:label']: string
+    title: string
+    label: string
+    kind: string
+    damage: string
+    agentName: string
+  }
+}
+
+type ItemTransformed = {
+  name: string
+  title: string
+  label: string
+  kind: string
+  damage: string
+  agentName: string
 }
 
 dotenv.config();
@@ -303,12 +325,30 @@ const parseHazards = (result: ResultItem): HazardTransformed[] => {
     const title = hazard.$.title
     const label = hazard.$.label
     const kind = hazard.$.kind
+    const hopName = hazard.$.hopName
     const age = parseInt(hazard.$.age, 10)
     const distance = parseInt(hazard.$.distance, 10)
     const color = hazard.$.style.match(/fill:\s*(#[^;]*)/)![1]
-    return { name, title, label, kind, age, distance, color }
+    return { name, title, label, kind, age, distance, color, hopName }
   })
   return hazards
+}
+
+const parseItems = (result: ResultItem): ItemTransformed[] => {
+  const layer = getLayer(result, 'Items')
+  if (!layer.circle) {
+    return []
+  }
+  const items = layer.circle.map((item: ItemItem) => {
+    const name = item.$['inkscape:label']
+    const title = item.$.title
+    const label = item.$.label
+    const kind = item.$.kind
+    const damage = item.$.damage
+    const agentName = item.$.agentName
+    return { name, title, label, kind, damage, agentName }
+  })
+  return items
 }
 
 const importGameFromSvg = (db: Sequelize) => async (path: string) => {
@@ -322,6 +362,7 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   const hopsData = parseHops(result)
   const linesData = parseLines(result)
   const hazardsData = parseHazards(result)
+  const itemsData = parseItems(result)
 
   // Remove existing game first
   logger.warn({ gameName: gameData.name }, 'Destroying existing games with same name')
@@ -392,7 +433,32 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
     }
   }))
   const hazards = await db.models.Hazard
-  .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
+  .bulkCreate(hazardsData.map((hazard) => {
+    const hop = hops.find((hop) => hop.dataValues.name === hazard.hopName)
+    return {
+      name: hazard.name,
+      title: hazard.title,
+      label: hazard.label,
+      color: hazard.color,
+      age: hazard.age,
+      distance: hazard.distance,
+      hopId: hop!.dataValues.id,
+      gameId: game.dataValues.id
+    }
+  }))
+  const items = await db.models.Item
+  .bulkCreate(itemsData.map((item) => {
+    const agent = agents.find((agent) => agent.dataValues.name === item.agentName)
+    return {
+      name: item.name,
+      title: item.title,
+      label: item.label,
+      kind: item.kind,
+      damage: item.damage,
+      agentId: agent?.dataValues.id,
+      gameId: game.dataValues.id
+    }
+  }))
 
   await createGameTurn(db)(gameData.name)
 }

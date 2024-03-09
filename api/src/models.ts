@@ -238,6 +238,25 @@ export class Hazard extends Model<
   declare updatedAt: CreationOptional<Date>;
 }
 
+export class Item extends Model<
+  InferAttributes<Item>,
+  InferCreationAttributes<Item>
+> {
+  declare id: CreationOptional<number>;
+
+  declare name: string;
+  declare title: string;
+  declare label: string;
+  declare kind: string;
+  declare damage: string | null;
+
+  declare gameId: ForeignKey<Game['id']>;
+  declare agentId: ForeignKey<Agent['id']> | null;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+}
+
 // --------------------
 // Model Initialization
 // --------------------
@@ -584,6 +603,42 @@ Hazard.init(
   }
 );
 
+Item.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    title: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    label: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    kind: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    damage: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+  },
+  {
+    sequelize,
+    tableName: 'items'
+  }
+);
+
 // ------------------
 // Model Associations
 // ------------------
@@ -596,6 +651,7 @@ Game.hasMany(Hop, { as: 'hops', foreignKey: 'gameId' });
 Game.hasMany(Train, { as: 'trains', foreignKey: 'gameId' });
 Game.hasMany(Agent, { as: 'agents', foreignKey: 'gameId' });
 Game.hasMany(Hazard, { as: 'hazards', foreignKey: 'gameId' });
+Game.hasMany(Item, { as: 'items', foreignKey: 'gameId' });
 GameTurn.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Message.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Line.hasMany(Hop, { as: 'hops', foreignKey: 'lineId' });
@@ -617,10 +673,13 @@ Train.belongsTo(Station, { as: 'station', foreignKey: 'stationId' });
 Train.belongsTo(Hop, { as: 'hop', foreignKey: 'hopId' });
 Train.belongsTo(Line, { as: 'line', foreignKey: 'lineId' });
 Train.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
+Agent.hasMany(Item, { as: 'items', foreignKey: 'agentId' });
 Agent.belongsTo(Station, { as: 'station', foreignKey: 'stationId' });
 Agent.belongsTo(Train, { as: 'train', foreignKey: 'trainId' });
 Agent.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Hazard.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
 Hazard.belongsTo(Hop, { as: 'hop', foreignKey: 'hopId' });
+Item.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
+Item.belongsTo(Agent, { as: 'agent', foreignKey: 'agentId' });
 
 export default sequelize

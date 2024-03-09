@@ -24,15 +24,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="3.16"
-     inkscape:cx="117.87975"
-     inkscape:cy="314.24051"
+     inkscape:zoom="2.1036305"
+     inkscape:cx="-109.0971"
+     inkscape:cy="619.88071"
      inkscape:window-width="1120"
      inkscape:window-height="847"
-     inkscape:window-x="898"
-     inkscape:window-y="173"
+     inkscape:window-x="320"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer2">
+     inkscape:current-layer="layer5">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -495,6 +495,47 @@
   <g
      inkscape:groupmode="layer"
      id="layer5"
+     inkscape:label="Items">
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80"
+       cx="-40.453915"
+       cy="620.11121"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="theophilus" />
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80-3"
+       cx="-101.00251"
+       cy="621.34985"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="elias" />
+    <circle
+       style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
+       id="path8-80-3-6"
+       cx="-161.32256"
+       cy="620.95074"
+       r="20"
+       inkscape:label="tonfa"
+       title="Tonfa"
+       label="Tonfa"
+       kind="weapon"
+       damage="1d6"
+       agentName="patience" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
      inkscape:label="Game">
     <rect
        style="fill:#dc3545;stroke:#721c24;stroke-width:0;stroke-dasharray:none"

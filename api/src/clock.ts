@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import db, { Agent, Game, Hazard, Hop, Line, Station, Train } from './models';
+import db, { Agent, Game, Hazard, Hop, Item, Line, Station, Train } from './models';
 import { Model, Op, Sequelize } from 'sequelize';
 import { logger } from './logging'
 import createGameTurn from './services/createGameTurn';
@@ -17,6 +17,7 @@ type ClockContext = {
   stations: Model<Station>[]
   agents: Model<Agent>[]
   hazards: Model<Hazard>[]
+  items: Model<Item>[]
 }
 
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
@@ -37,7 +38,7 @@ const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
 // TODO: Add "depth" option
 async function findRandomPath(source: Model<Station>, destination: Model<Station>, context: ClockContext): Promise<Model<Station>[] | undefined> {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   const maxTries = 10
   for (let i = 0; i < maxTries; i++) {
     let current: Model<Station> | undefined = source
@@ -66,7 +67,7 @@ async function findRandomPath(source: Model<Station>, destination: Model<Station
 }
 
 async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
   if (hop) {
     const hazard = hazards
@@ -232,7 +233,7 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
 }
 
 async function tickStationedTrain(train: Model<Train>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
   if (station) {
     if (station.dataValues.virtual) {
@@ -394,7 +395,7 @@ async function tickStationedTrain(train: Model<Train>, context: ClockContext) {
 }
 
 async function willTravelingAgentDisembark(agent: Model<Agent>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   logger.warn('Traveling agent determining whether to disembark')
 
   const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
@@ -434,7 +435,7 @@ async function willTravelingAgentDisembark(agent: Model<Agent>, context: ClockCo
 }
 
 async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Train>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   logger.warn('Stationed agent determining whether to hop on train')
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (!station) {
@@ -462,7 +463,7 @@ async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Tr
 }
 
 async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
   if (train) {
     const station = stations.find((station) => station.dataValues.id === train.dataValues.stationId)
@@ -588,7 +589,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
 }
 
 async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
-  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards } = context
+  const { gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items } = context
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (station) {
     if (station.dataValues.end) {
@@ -770,8 +771,9 @@ async function tickGameTurn(game: Model<Game>) {
   const stations = await db.models.Station.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const agents = await db.models.Agent.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hazards = await db.models.Hazard.findAll({ where: { gameId: { [Op.eq]: gameId } } })
+  const items = await db.models.Item.findAll({ where: { gameId: { [Op.eq]: gameId } } })
 
-  const context = { db, gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards }
+  const context = { db, gameId, gameName, turnNumber, lines, trains, hops, stations, agents, hazards, items }
 
   // Hazard phase
   tickHazards(context)

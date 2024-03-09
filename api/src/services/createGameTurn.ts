@@ -13,6 +13,7 @@ const createGameTurn = (db: Sequelize) => async (gameName: string) => {
       { model: db.models.Train, as: 'trains' },
       { model: db.models.Agent, as: 'agents' },
       { model: db.models.Hazard, as: 'hazards' },
+      { model: db.models.Item, as: 'items' },
     ],
     where: { name: gameName }
   })
