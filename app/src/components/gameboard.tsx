@@ -124,7 +124,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
       <ul className="text-sm mb-4">
-        {gameTurn?.agents.map((agent) => {
+        {gameTurn?.agents.map((agent, index) => {
           const station = gameTurn.stations.find((station) => station.id === agent.stationId)
           const train = gameTurn.trains.find((train) => train.id === agent.trainId)
           const trainStation = train?.stationId && gameTurn.stations.find((station) => station.id === train?.stationId)
@@ -133,10 +133,10 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           .filter((a) => a.id !== agent.id)
           .filter((a) => a.stationId === agent.stationId)
           return (
-            <li key={agent.id} className="mb-4">
+            <li key={index} className="mb-4">
               <h3 className="mb-2" style={{ color: agent.color }}>{agent.title}</h3>
 
-              <table className="table-fixed mb-2 text-xs opacity-60 bg-slate-800">
+              <table className="table-fixed mb-2 text-xs opacity-60 bg-slate-800 sm:w-auto lg:w-full">
                 <thead>
                   <tr>
                     <th className="p-1 text-center">Init.</th>
@@ -203,12 +203,12 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
         {
           gameTurn?.hazards?.length
           ? (
-            gameTurn?.hazards.map((hazard) => {
+            gameTurn?.hazards.map((hazard, index) => {
               const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)
               const headStation = hop ? gameTurn.stations.find((station) => station.id === hop.headId) : null
               const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
               return (
-                <li key={hazard.id} className="mb-2">
+                <li key={index} className="mb-2">
                   <span>{hazard.title} between {headStation!.title} and {tailStation!.title}</span>
                 </li>
               )
@@ -228,14 +228,14 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
       <ul className="text-sm mb-4">
-        {gameTurn?.trains.map((train) => {
+        {gameTurn?.trains.map((train, index) => {
           const station = gameTurn.stations.find((station) => station.id === train.stationId)
           const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)
           const headStation = hop ? gameTurn.stations.find((station) => station.id === hop.headId) : null
           const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
           const agents = gameTurn.agents.filter((agent) => agent.trainId === train.id)
           return (
-            <li key={train.id} className="mb-2">
+            <li key={index} className="mb-2">
               <span style={{ color: train.color }}>{train.title}</span> train
               <ul className="opacity-60 text-xs">
                 {station ? <li>Stopped at: {station.title}</li> : null}
@@ -246,7 +246,7 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                     <li>
                       Carrying passengers:
                       &nbsp;
-                      {agents.map((a) => <span key={a.id}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
+                      {agents.map((a, i) => <span key={i}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
                     </li>
                   )
                   : null
@@ -265,11 +265,11 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
       <ul className="text-sm mb-4">
-        {gameTurn?.stations.filter((station) => !station.virtual).map((station) => {
+        {gameTurn?.stations.filter((station) => !station.virtual).map((station, index) => {
           const trains = gameTurn.trains.filter((train) => train.stationId === station.id)
           const agents = gameTurn.agents.filter((agent) => agent.stationId === station.id)
           return (
-            <li key={station.id} className="mb-2">
+            <li key={index} className="mb-2">
               {station.title}
               <ul className="opacity-60 text-xs">
                 {
@@ -278,7 +278,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
                     <li>
                       Stopped trains:
                       &nbsp;
-                      {trains.map((t) => <span key={t.id}><span style={{ color: t.color }}>{t.title}</span>&nbsp;</span>)}
+                      {trains.map((t, i) => <span key={i}><span style={{ color: t.color }}>{t.title}</span>&nbsp;</span>)}
                     </li>
                   )
                   : null
@@ -289,7 +289,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
                     <li>
                       Waiting passengers:
                       &nbsp;
-                      {agents.map((a) => <span key={a.id}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
+                      {agents.map((a, i) => <span key={i}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
                     </li>
                   )
                   : null
@@ -319,11 +319,11 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
       </p>
       {turnNumbers.map((turnNumber, i) => {
         return (
-          <div key={turnNumber}>
+          <div key={i}>
             <h3 className="opacity-100 font-md mb-2">Turn #{turnNumber}</h3>
             <ul className="opacity-60 text-xs mb-4">
-              {groupedMessages[turnNumber].map((message: MessageResponse) => (
-                <li key={message.id} className="mb-2">
+              {groupedMessages[turnNumber].map((message: MessageResponse, i) => (
+                <li key={i} className="mb-2">
                   <span className="opacity-60">{formatDate(new Date(message.createdAt))}</span>
                   &nbsp;
                   {message.message}
@@ -379,7 +379,7 @@ export function Gameboard({ name }: { name: string }) {
       <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="sm:col-span-1 lg:col-span-2">
           {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
-          {currentMessage ? <div className="truncate p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
+          {currentMessage ? <div className="p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
 
           <BasicInfo game={game} gameTurn={gameTurn} />
         </div>
