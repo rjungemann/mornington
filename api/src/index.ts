@@ -29,7 +29,8 @@ async function main() {
     const db = res.locals!.db
     const games = await db.models.Game.findAll({
       order: [['createdAt', 'DESC']],
-      where: { finished: false },
+      include: ['agents'],
+      // where: { finished: false },
       limit: 10
     })
     res.json({ games })

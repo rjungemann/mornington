@@ -3,7 +3,9 @@
 import { Graph } from '@/components/graph';
 import { useGameHook } from '@/hooks/useGameHook';
 import { useGraphOptions } from '@/hooks/useGraphOptions';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import TimeAgo from 'react-timeago'
 
 const formatDate = (d: Date) => {
   const year = d.getFullYear().toString().padStart(4, '0')
@@ -39,35 +41,6 @@ function findRandomPath(game: GameTurnResponse, sourceName: string, destinationN
     }
   }
   return
-}
-
-const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
-  return (
-    <>
-      <div className="text-sm mt-4 mb-4">
-        <div className="mb-2">
-          <span className="font-semibold text-sky-400">Game Title</span>
-          {' '}
-          <span>{game.title}</span>
-        </div>
-        <div className="mb-2">
-          <span className="font-semibold text-sky-400">Turn Number</span>
-          {' '}
-          <span>#{game.turnNumber}</span>
-        </div>
-        <div className="mb-2">
-          <span className="font-semibold text-sky-400">Started At</span>
-          {' '}
-          <span>{formatDate(new Date(game.createdAt))}</span>
-        </div>
-        <div className="mb-2">
-          <span className="font-semibold text-sky-400">Last Turn At</span>
-          {' '}
-          <span>{formatDate(new Date(gameTurn.createdAt))}</span>
-        </div>
-      </div>
-    </>
-  )
 }
 
 const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
@@ -134,7 +107,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           .filter((a) => a.stationId === agent.stationId)
           return (
             <li key={index} className="mb-4">
-              <h3 className="mb-2" style={{ color: agent.color }}>{agent.title}</h3>
+              <h3 className="mb-2" style={{ color: agent.color }}>{agent.label}</h3>
 
               <table className="table-fixed mb-2 text-xs opacity-60 bg-slate-800 sm:w-auto lg:w-full">
                 <thead>
@@ -209,7 +182,7 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
               const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
               return (
                 <li key={index} className="mb-2">
-                  <span>{hazard.title} between {headStation!.title} and {tailStation!.title}</span>
+                  <span>{hazard.label} between {headStation!.title} and {tailStation!.title}</span>
                 </li>
               )
             })
@@ -236,7 +209,7 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const agents = gameTurn.agents.filter((agent) => agent.trainId === train.id)
           return (
             <li key={index} className="mb-2">
-              <span style={{ color: train.color }}>{train.title}</span> train
+              <span style={{ color: train.color }}>{train.label}</span>
               <ul className="opacity-60 text-xs">
                 {station ? <li>Stopped at: {station.title}</li> : null}
                 {headStation && tailStation ? <li>Traveling from {headStation!.title} to {tailStation!.title}</li> : null}
@@ -246,7 +219,17 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                     <li>
                       Carrying passengers:
                       &nbsp;
-                      {agents.map((a, i) => <span key={i}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
+                      {
+                        agents.map((a, i) => {
+                          return (
+                            <span key={i}>
+                              <span style={{ color: a.color }}>{a.title}</span>
+                              {i < agents.length - 1 ? ', ' : null}
+                              {i === agents.length - 2 ? 'and ' : null}
+                            </span>
+                          )
+                        })
+                      }
                     </li>
                   )
                   : null
@@ -270,15 +253,25 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
           const agents = gameTurn.agents.filter((agent) => agent.stationId === station.id)
           return (
             <li key={index} className="mb-2">
-              {station.title}
+              {station.label}
               <ul className="opacity-60 text-xs">
                 {
                   trains.length
                   ? (
                     <li>
                       Stopped trains:
-                      &nbsp;
-                      {trains.map((t, i) => <span key={i}><span style={{ color: t.color }}>{t.title}</span>&nbsp;</span>)}
+                      {' '}
+                      {
+                        trains.map((t, i) => {
+                          return (
+                            <span key={i}>
+                              <span style={{ color: t.color }}>{t.title}</span>
+                              {i < agents.length - 1 ? ', ' : null}
+                              {i === agents.length - 2 ? 'and ' : null}
+                            </span>
+                          )
+                        })
+                      }
                     </li>
                   )
                   : null
@@ -288,8 +281,18 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
                   ? (
                     <li>
                       Waiting passengers:
-                      &nbsp;
-                      {agents.map((a, i) => <span key={i}><span style={{ color: a.color }}>{a.title}</span>&nbsp;</span>)}
+                      {' '}
+                      {
+                        agents.map((a, i) => {
+                          return (
+                            <span key={i}>
+                              <span style={{ color: a.color }}>{a.title}</span>
+                              {i < agents.length - 1 ? ', ' : null}
+                              {i === agents.length - 2 ? 'and ' : null}
+                            </span>
+                          )
+                        })
+                      }
                     </li>
                   )
                   : null
@@ -317,22 +320,21 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
       <p className="text-xs mb-4 bg-slate-200 text-slate-800 p-2 opacity-60">
         <span className="font-bold">Note</span>: Events are listed most recent first.
       </p>
-      {turnNumbers.map((turnNumber, i) => {
-        return (
-          <div key={i}>
-            <h3 className="opacity-100 font-md mb-2">Turn #{turnNumber}</h3>
-            <ul className="opacity-60 text-xs mb-4">
-              {groupedMessages[turnNumber].map((message: MessageResponse, i) => (
-                <li key={i} className="mb-2">
-                  <span className="opacity-60">{formatDate(new Date(message.createdAt))}</span>
-                  &nbsp;
-                  {message.message}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )
-      })}
+      <ul className="opacity-60 text-xs mb-4">
+        {messages.map((message: MessageResponse, i) => (
+          <li key={i} className="mb-2">
+            <span className="text-sky-400">
+              #{message.turnNumber}
+            </span>
+            {' '}
+            <span className="opacity-60">
+              <TimeAgo date={message.createdAt} live={false} />
+            </span>
+            {' '}
+            {message.message}
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
@@ -381,7 +383,19 @@ export function Gameboard({ name }: { name: string }) {
           {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
           {currentMessage ? <div className="p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
 
-          <BasicInfo game={game} gameTurn={gameTurn} />
+          <div className="mt-4 mb-4">
+            <span>
+              <span className="font-semibold text-sky-400">Started</span>
+              {' '}
+              <span><TimeAgo date={game.createdAt} live={false} /></span>
+            </span>
+            {' '}
+            <span>
+              <span className="font-semibold text-sky-400">Last update</span>
+              {' '}
+              <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
+            </span>
+          </div>
         </div>
 
         <div className="col-span-1">

@@ -3,8 +3,11 @@ type GameListItemResponse = {
   name: string
   title: string
   label: string
+  turnNumber: number
+  finished: boolean
   createdAt: string
   updatedAt: string
+  agents: AgentResponse[]
 }
 
 type StationResponse = {
@@ -97,6 +100,7 @@ type GameResponse = {
   title: string
   label: string
   turnNumber: number
+  finished: boolean
   createdAt: string
   updatedAt: string
 }

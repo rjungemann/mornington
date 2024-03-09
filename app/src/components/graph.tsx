@@ -153,7 +153,7 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
       <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
       {agents.map((a, i) => {
         return (
-          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
+          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} style={dropShadowStyle} />
         )
       })}
     </svg>

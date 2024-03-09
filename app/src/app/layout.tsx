@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Noto_Sans({ subsets: ["latin"] });
+const font = Noto_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Mornington",
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={font.className}>{children}</body>
     </html>
   );
 }
