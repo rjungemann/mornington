@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 
 export function useGamesHook() {
   const host = (process.env.API_URL || 'http://localhost:3001').replace(/\/$/, '')
-  const url = `${host}/games/${name}` || `${host}/games/${name}`
+  const url = `${host}/games` || `${host}/games`
   const [games, setGames] = useState<GameListItemResponse[]>([])
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function useGamesHook() {
     .then((data): void => {
       setGames(data.games)
     })
-  }, [])
+  }, [url])
 
   return games;
 }

@@ -29,7 +29,7 @@ export function useGameHook(name: string) {
     return () => {
       clearInterval(interval)
     }
-  }, []);
+  }, [url]);
 
   return gameContext;
 }
