@@ -367,9 +367,13 @@ export function Gameboard({ name }: { name: string }) {
 
   return (
     <div className="p-4 m-2">
-      <h1 className="mb-4 font-semibold text-xl">{game.title}</h1>
+      <h1 className="mb-4 font-semibold text-xl text-sky-400">
+        {game.title}
+        {' '}
+        <span className="font-normal text-white">Turn #{game.turnNumber}</span>
+      </h1>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="col-span-2">
           {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
           {currentMessage ? <div className="truncate p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
