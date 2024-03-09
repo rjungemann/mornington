@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import db, { Agent, Game, Hazard, Hop, Line, Station, Train } from './models';
 import { Model, Op, Sequelize } from 'sequelize';
 import { logger } from './logging'
+import createGameTurn from './services/createGameTurn';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ type ClockContext = {
 }
 
 const runOnce: boolean = Boolean( process.env.RUN_ONCE && process.env.RUN_ONCE.toLowerCase() !== 'false' )
+const parallel: boolean = Boolean( process.env.PARALLEL && process.env.PARALLEL.toLowerCase() !== 'false' )
 const tickInterval: number = parseInt(process.env.TICK_INTERVAL || '5000', 10)
 
 // Skill Check Example
@@ -839,23 +841,7 @@ async function tickGame(game: Model<Game>) {
       await tickGameTurn(game)
       logger.info({ gameName, turnNumber }, 'Finished processing tick for game!')
       // Pull up the updated game data
-      const newGame = await db.models.Game.findOne({
-        include: [
-          { model: db.models.Station, as: 'stations' },
-          { model: db.models.Line, as: 'lines' },
-          { model: db.models.Hop, as: 'hops' },
-          { model: db.models.Train, as: 'trains' },
-          { model: db.models.Agent, as: 'agents' },
-          { model: db.models.Hazard, as: 'hazards' },
-        ],
-        where: { name: gameName }
-      })
-      // Store pre-digested game turn data
-      await db.models.GameTurn.create({
-        gameId,
-        turnNumber,
-        data: newGame
-      })
+      await createGameTurn(db)(gameName)
       logger.info({ gameName, turnNumber }, 'Finished caching game turn data!')
     });
     logger.info({ gameName }, 'Transaction committed for game!')
@@ -874,8 +860,15 @@ async function tick() {
   const games: Model<Game>[] = await db.models.Game.findAll({
     where: { finished: false }
   })
-  const promises = games.map((game) => tickGame(game))
-  await Promise.allSettled(promises)
+  if (parallel) {
+    const promises = games.map((game) => tickGame(game))
+    await Promise.allSettled(promises)
+  }
+  else {
+    for (let game of games) {
+      await tickGame(game)
+    }
+  }
   logger.info('Ticker finished!')
 }
 

@@ -349,7 +349,9 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0"
+       stunTimeout="10" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -366,7 +368,9 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0"
+       stunTimeout="10" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -383,7 +387,9 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
-       initiative="10" />
+       initiative="10"
+       timeout="0"
+       stunTimeout="10" />
   </g>
   <g
      inkscape:groupmode="layer"

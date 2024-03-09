@@ -3,11 +3,11 @@ import db from './models'
 import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
 import xml2js from 'xml2js'
-import destroyGameByName from './services/destroyGameByName';
+import importGameFromSvg from './services/importGameFromSvg';
+import { Sequelize } from 'sequelize';
 
 type Args = {
   file: string
-  name: string
 }
 
 type ResultItem = {
@@ -315,95 +315,9 @@ async function main() {
       description: 'Map file to import',
       demandOption: true
   })
-  .option('name', {
-    alias: 'n',
-    description: 'Name of game to create',
-    demandOption: true
-  })
   .argv as Args;
-
-  const { file, name } = args
-  const data = (await readFile(file)).toLocaleString()
-  const result = await parseXml(data);
-
-  const gameData = parseGame(result)
-  const agentsData = parseAgents(result)
-  const trainsData = parseTrains(result)
-  const stationsData = parseStations(result)
-  const hopsData = parseHops(result)
-  const linesData = parseLines(result)
-  const hazardsData = parseHazards(result)
-
-  await db.transaction(async (t) => {
-    // Remove existing game first
-    await destroyGameByName(db)(name)
-
-    const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
-    const stations = await db.models.Station
-    .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
-    const lines = await db.models.Line
-    .bulkCreate(linesData.map((line) => ({ ...line, gameId: game.dataValues.id })))
-    const hops = await db.models.Hop
-    .bulkCreate(hopsData.map((hop) => {
-      const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
-      const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
-      const line = lines.find((line) => line.dataValues.name === hop.lineName)!
-      return {
-        name: hop.name,
-        label: hop.label,
-        length: hop.length,
-        headId: headStation.dataValues.id,
-        tailId: tailStation.dataValues.id,
-        lineId: line.dataValues.id,
-        gameId: game.dataValues.id
-      }
-    }))
-    const trains = await db.models.Train
-    .bulkCreate(trainsData.map((train) => {
-      const station = stations.find((station) => station.dataValues.name === train.stationName)
-      const hop = hops.find((hop) => hop.dataValues.name === train.hopName)
-      const line = lines.find((line) => line.dataValues.name === train.lineName)!
-      return {
-        name: train.name,
-        title: train.title,
-        label: train.label,
-        color: train.color,
-        distance: train.distance,
-        speed: train.speed,
-        currentWaitTime: train.currentWaitTime,
-        maxWaitTime: train.maxWaitTime,
-        gameId: game.dataValues.id,
-        stationId: station?.dataValues.id,
-        hopId: hop?.dataValues.id,
-        lineId: line.dataValues.id
-      }
-    }))
-    const agents = await db.models.Agent
-    .bulkCreate(agentsData.map((agent) => {
-      // const startingStations = stations.filter((station) => station.dataValues.start)
-      // const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-      const station = stations.find((station) => station.dataValues.name === agent.stationName)
-      const train = trains.find((train) => train.dataValues.name === agent.trainName)
-      const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative } = agent
-      return {
-        name,
-        title,
-        label,
-        color,
-        strength,
-        dexterity,
-        willpower,
-        currentHp,
-        maxHp,
-        initiative,
-        gameId: game.dataValues.id,
-        stationId: station ? station.dataValues.id : null,
-        trainId: train ? train.dataValues.id : null
-      }
-    }))
-    const hazards = await db.models.Hazard
-    .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
-  })
+  
+  await importGameFromSvg(db)(args.file)
 
   process.exit()
 }

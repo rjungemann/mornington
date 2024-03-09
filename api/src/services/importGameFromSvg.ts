@@ -6,6 +6,7 @@ import xml2js from 'xml2js'
 import destroyGameByName from './destroyGameByName';
 import { logger } from '../logging';
 import { Sequelize } from 'sequelize';
+import createGameTurn from './createGameTurn';
 
 type Args = {
   file: string
@@ -322,78 +323,78 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   const linesData = parseLines(result)
   const hazardsData = parseHazards(result)
 
-  await db.transaction(async (t) => {
-    // Remove existing game first
-    logger.warn({ gameName: gameData.name }, 'Destroying existing games with same name')
-    await destroyGameByName(db)(gameData.name)
+  // Remove existing game first
+  logger.warn({ gameName: gameData.name }, 'Destroying existing games with same name')
+  await destroyGameByName(db)(gameData.name)
 
-    logger.info({ gameName: gameData.name }, 'Importing game')
-    const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
-    const stations = await db.models.Station
-    .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
-    const lines = await db.models.Line
-    .bulkCreate(linesData.map((line) => ({ ...line, gameId: game.dataValues.id })))
-    const hops = await db.models.Hop
-    .bulkCreate(hopsData.map((hop) => {
-      const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
-      const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
-      const line = lines.find((line) => line.dataValues.name === hop.lineName)!
-      return {
-        name: hop.name,
-        label: hop.label,
-        length: hop.length,
-        headId: headStation.dataValues.id,
-        tailId: tailStation.dataValues.id,
-        lineId: line.dataValues.id,
-        gameId: game.dataValues.id
-      }
-    }))
-    const trains = await db.models.Train
-    .bulkCreate(trainsData.map((train) => {
-      const station = stations.find((station) => station.dataValues.name === train.stationName)
-      const hop = hops.find((hop) => hop.dataValues.name === train.hopName)
-      const line = lines.find((line) => line.dataValues.name === train.lineName)!
-      return {
-        name: train.name,
-        title: train.title,
-        label: train.label,
-        color: train.color,
-        distance: train.distance,
-        speed: train.speed,
-        currentWaitTime: train.currentWaitTime,
-        maxWaitTime: train.maxWaitTime,
-        gameId: game.dataValues.id,
-        stationId: station?.dataValues.id,
-        hopId: hop?.dataValues.id,
-        lineId: line.dataValues.id
-      }
-    }))
-    const agents = await db.models.Agent
-    .bulkCreate(agentsData.map((agent) => {
-      const startingStations = stations.filter((station) => station.dataValues.start)
-      const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-      const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
-      return {
-        name,
-        title,
-        label,
-        color,
-        strength,
-        dexterity,
-        willpower,
-        currentHp,
-        maxHp,
-        initiative,
-        timeout,
-        stunTimeout,
-        gameId: game.dataValues.id,
-        stationId: startingStation.dataValues.id,
-        trainId: null
-      }
-    }))
-    const hazards = await db.models.Hazard
-    .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
-  })
+  logger.info({ gameName: gameData.name }, 'Importing game')
+  const game = await db.models.Game.create({ ...gameData, turnNumber: 0, finished: false })
+  const stations = await db.models.Station
+  .bulkCreate(stationsData.map((station) => ({ ...station, gameId: game.dataValues.id })))
+  const lines = await db.models.Line
+  .bulkCreate(linesData.map((line) => ({ ...line, gameId: game.dataValues.id })))
+  const hops = await db.models.Hop
+  .bulkCreate(hopsData.map((hop) => {
+    const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
+    const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
+    const line = lines.find((line) => line.dataValues.name === hop.lineName)!
+    return {
+      name: hop.name,
+      label: hop.label,
+      length: hop.length,
+      headId: headStation.dataValues.id,
+      tailId: tailStation.dataValues.id,
+      lineId: line.dataValues.id,
+      gameId: game.dataValues.id
+    }
+  }))
+  const trains = await db.models.Train
+  .bulkCreate(trainsData.map((train) => {
+    const station = stations.find((station) => station.dataValues.name === train.stationName)
+    const hop = hops.find((hop) => hop.dataValues.name === train.hopName)
+    const line = lines.find((line) => line.dataValues.name === train.lineName)!
+    return {
+      name: train.name,
+      title: train.title,
+      label: train.label,
+      color: train.color,
+      distance: train.distance,
+      speed: train.speed,
+      currentWaitTime: train.currentWaitTime,
+      maxWaitTime: train.maxWaitTime,
+      gameId: game.dataValues.id,
+      stationId: station?.dataValues.id,
+      hopId: hop?.dataValues.id,
+      lineId: line.dataValues.id
+    }
+  }))
+  const agents = await db.models.Agent
+  .bulkCreate(agentsData.map((agent) => {
+    const startingStations = stations.filter((station) => station.dataValues.start)
+    const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
+    const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
+    return {
+      name,
+      title,
+      label,
+      color,
+      strength,
+      dexterity,
+      willpower,
+      currentHp,
+      maxHp,
+      initiative,
+      timeout,
+      stunTimeout,
+      gameId: game.dataValues.id,
+      stationId: startingStation.dataValues.id,
+      trainId: null
+    }
+  }))
+  const hazards = await db.models.Hazard
+  .bulkCreate(hazardsData.map((hazard) => ({ ...hazard, gameId: game.dataValues.id })))
+
+  await createGameTurn(db)(gameData.name)
 }
 
 export default importGameFromSvg
