@@ -41,10 +41,10 @@
     "db:all": "yarn db:drop && yarn db:create && yarn db:sync && yarn db:seed && yarn tick:clock",
     "game:import": "ts-node src/importer.ts",
     "game:destroy": "ts-node src/destroyer.ts",
-    "api:start:dev": "ts-node src/index.ts",
+    "api:start": "ts-node src/index.ts",
+    "api:start:dev": "nodemon src/index.ts",
     "clock:start": "ts-node src/clock.ts",
     "clock:tick": "RUN_ONCE=true ts-node src/clock.ts",
-    "api:start:dev": "nodemon src/index.ts",
     "clock:start:dev": "nodemon src/clock.ts",
     "notes": "egrep -rnI 'TODO|NOTE|XXX|FIXME' . --exclude-dir=node_modules --exclude-dir=.git"
   }
