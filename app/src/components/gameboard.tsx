@@ -6,6 +6,7 @@ import { useGraphOptions } from '@/hooks/useGraphOptions';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import TimeAgo from 'react-timeago'
+import { Gameslist } from './gameslist';
 
 const formatDate = (d: Date) => {
   const year = d.getFullYear().toString().padStart(4, '0')
@@ -172,7 +173,7 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Hazards</h2>
-      <ul className="text-xs mb-4">
+      <ul className="text-sm mb-4">
         {
           gameTurn?.hazards?.length
           ? (
@@ -339,6 +340,25 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
   )
 }
 
+const AboutInfo = () => {
+  return (
+    <div className='bg-slate-800 mt-4 p-4'>
+      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">About Mornington</h2>
+      <div className="opacity-60 mb-4">
+        <p className="mb-2">
+          Mornington is a subway simulator and game inspired by a certain BBC Radio show.
+        </p>
+        <p className="mb-2">
+          It was created by <a className="text-sky-400" href="https://phasor.space">Phasor Space</a>.
+        </p>
+        <p className="mb-2">
+          The code can be found on <a className="text-sky-400" href="https://github.com/rjungemann/mornington">GitHub</a>.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export function Gameboard({ name }: { name: string }) {
   const { gameTurn, game, messages } = useGameHook(name) || {}
   const graphOptions = useGraphOptions()
@@ -375,7 +395,7 @@ export function Gameboard({ name }: { name: string }) {
       <h1 className="mb-4 font-semibold text-xl text-sky-400">
         {game.title}
         {' '}
-        <span className="font-normal text-white">Turn #{game.turnNumber}</span>
+        <span className="font-normal text-slate-200">Turn #{game.turnNumber}</span>
       </h1>
 
       <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">
@@ -383,7 +403,7 @@ export function Gameboard({ name }: { name: string }) {
           {graphOptions ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} /> : null}
           {currentMessage ? <div className="p-4 pb-5 font-semibold text-sm tracking-tight bg-slate-200 text-slate-800">{currentMessage.message}</div> : null}
 
-          <div className="mt-4 mb-4">
+          <div className="mt-6 mb-6 text-sm">
             <span>
               <span className="font-semibold text-sky-400">Started</span>
               {' '}
@@ -395,6 +415,10 @@ export function Gameboard({ name }: { name: string }) {
               {' '}
               <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
             </span>
+          </div>
+
+          <div className="mt-4 mb-4">
+            <Gameslist />
           </div>
         </div>
 
@@ -409,6 +433,8 @@ export function Gameboard({ name }: { name: string }) {
           <MessagesInfo game={game} gameTurn={gameTurn} messages={messages} />
         </div>
       </div>
+
+      <AboutInfo />
     </div>
   );
 }

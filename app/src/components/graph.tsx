@@ -97,12 +97,12 @@ const StationBubble = ({ gameTurn, station, options }: { gameTurn: GameTurnRespo
   }
 
   return (
-    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle}>
+    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle} stroke="black" strokeWidth="0.25">
       <polyline stroke="none" fill="white" points={points.map((n) => n.join(',')).join(' ')} />
       <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
       {agents.map((a, i) => {
         return (
-          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.5" />
+          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.25" style={dropShadowStyle} />
         )
       })}
     </svg>
@@ -148,12 +148,12 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
   }
 
   return (
-    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle}>
+    <svg width={999} height={999} x={x} y={y} style={dropShadowStyle} stroke="black" strokeWidth="0.25">
       <polyline stroke="none" fill="white" points={points.map((n) => n.join(',')).join(' ')} />
       <rect stroke="none" fill="white" rx="5" ry="5" x={x2 + 6} y={y2 - bubbleHeight * 0.5} width={(agents.length + 1) * (8 + 2)} height={bubbleHeight}/>
       {agents.map((a, i) => {
         return (
-          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} style={dropShadowStyle} />
+          <circle key={i} cx={x2 + 6 + (i + 1) * (8 + 2)} cy={y2} r={4} fill={a.color} stroke="black" strokeWidth="0.25" style={dropShadowStyle} />
         )
       })}
     </svg>
@@ -189,7 +189,7 @@ const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnRespons
       <svg width={width} height={height} x={x} y={y}>
         <rect x="0" y="0" width={width} height={height} fill="none"/>
         {/* TODO: Options */}
-        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="0.6em" style={dropShadowStyle}>{station.title}</text>
+        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#e2e8f0" fontSize="0.6em" style={dropShadowStyle}>{station.title}</text>
       </svg>
       <StationBubble gameTurn={gameTurn} station={station} options={options} />
     </g>
@@ -219,7 +219,7 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   return (
     <>
       {/* <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
-      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} />
+      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
@@ -235,7 +235,7 @@ const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse
   return (
     <>
       {/* <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
-      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} />
+      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
@@ -259,7 +259,7 @@ const Hazard = ({ gameTurn, hazard, options }: { gameTurn: GameTurnResponse, haz
     <>
       {/* TODO: Add to options */}
       {/* <circle cx={x} cy={y} r={options.trainRadius} fill={hazard.color} style={dropShadowStyle} /> */}
-      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={hazard.color} style={dropShadowStyle} />
+      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={hazard.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
     </>
   )
 }
