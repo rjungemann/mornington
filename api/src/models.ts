@@ -16,7 +16,19 @@ const databaseUrl = process.env.DATABASE_URL || 'postgres://localhost/mornington
 const sequelize = new Sequelize(databaseUrl, {
   logging: (sql, timing) => {
     logger.debug(sql, typeof timing === 'number' ? `Elapsed time: ${timing}ms` : '')
-  }
+  },
+  ...(
+    process.env.DATABASE_URL
+    ? {
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
+    }
+    : {}
+  )
 });
 
 // ------------------
