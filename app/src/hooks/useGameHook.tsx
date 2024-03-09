@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 
 export function useGameHook(name: string) {
   const updateInterval = parseInt(process.env.TICK_INTERVAL || '5000', 10)
-  const host = process.env.API_URL || 'http://localhost:3001'
+  const host = (process.env.API_URL || 'http://localhost:3001').replace(/\/$/, '')
   const url = `${host}/games/${name}` || `${host}/games/${name}`
   const [gameContext, setGameContext] = useState<GameContextData | null>(null)
 
