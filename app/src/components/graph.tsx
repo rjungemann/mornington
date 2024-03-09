@@ -219,7 +219,7 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   return (
     <>
       {/* <rect x={x - options.trainRadius} y={y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
-      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
+      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
@@ -235,7 +235,7 @@ const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse
   return (
     <>
       {/* <rect x={station.x - options.trainRadius} y={station.y - options.trainRadius} width={options.trainRadius * 2.0} height={options.trainRadius * 2.0} fill={train.color} style={dropShadowStyle} /> */}
-      <polyline stroke="none" points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
+      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={dropShadowStyle} stroke="black" strokeWidth="0.25" />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
