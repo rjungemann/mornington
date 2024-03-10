@@ -91,6 +91,7 @@ type ItemResponse = {
   label: string
   kind: string
   damage: string
+  agentId: number
 }
 
 type GameTurnResponse = {

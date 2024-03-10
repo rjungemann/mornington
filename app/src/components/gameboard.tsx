@@ -106,6 +106,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const otherAgents = gameTurn.agents
           .filter((a) => a.id !== agent.id)
           .filter((a) => a.stationId === agent.stationId)
+          const items = gameTurn.items.filter((i) => i.agentId === agent.id)
           return (
             <li key={index} className="mb-4">
               <h3 className="mb-2" style={{ color: agent.color }}>{agent.label}</h3>
@@ -137,6 +138,20 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                   ? <li>Agent is in time-out for {agent.timeout} more turns</li>
                   : (
                     <>
+                      {
+                        items.map((item, i) => {
+                          if (item.kind === 'weapon') {
+                            return (
+                              <li key={i}>Wielding {item.title} ({item.damage})</li>
+                            )
+                          }
+                          else {
+                            return (
+                              <li key={i}>Holding {item.title}</li>
+                            )
+                          }
+                        })
+                      }
                       {station ? <li>Waiting at {station.title}</li> : null}
                       {
                         train

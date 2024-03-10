@@ -7,7 +7,7 @@ export const Navigation = () => {
     <nav className="p-4 pt-6 pb-6">
       <span className="inline-block font-semibold text-xl text-sky-500 tracking-tight font-semibold text-slate-800">
         {/* Mornington */}
-        <Image priority src={logo} alt="Logo for Mornington" style={{ height: 220/4, width: 920/4 }} />
+        <Image priority src={logo} alt="Logo for Mornington" style={{ height: 220/5, width: 920/5 }} />
       </span>
     </nav>
   )
