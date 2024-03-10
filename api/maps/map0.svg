@@ -545,6 +545,8 @@
        x="-60"
        y="0"
        inkscape:label="one"
+       startingSeed="100"
+       currentSeed="100"
        title="Game #1"
        label="Game #1" />
   </g>

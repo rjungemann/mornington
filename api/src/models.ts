@@ -46,6 +46,8 @@ export class Game extends Model<
   declare label: string;
   declare turnNumber: number;
   declare finished: boolean;
+  declare startingSeed: number;
+  declare currentSeed: number;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -286,6 +288,14 @@ Game.init(
     },
     finished: {
       type: new DataTypes.BOOLEAN,
+      allowNull: false
+    },
+    startingSeed: {
+      type: new DataTypes.DOUBLE,
+      allowNull: false
+    },
+    currentSeed: {
+      type: new DataTypes.DOUBLE,
       allowNull: false
     },
     createdAt: DataTypes.DATE,

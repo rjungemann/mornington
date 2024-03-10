@@ -32,6 +32,8 @@ type GameItem = {
     ['inkscape:label']: string
     title: string
     label: string
+    currentSeed: string
+    startingSeed: string
   }
 }
 
@@ -39,6 +41,8 @@ type GameTransformed = {
   name: string
   title: string
   label: string
+  currentSeed: number
+  startingSeed: number
 }
 
 type AgentItem = {
@@ -230,7 +234,9 @@ const parseGame = (result: ResultItem): GameTransformed => {
   const name = game.$['inkscape:label']
   const title = game.$.title
   const label = game.$.label
-  return { name, title, label }
+  const startingSeed = parseInt(game.$.startingSeed, 10)
+  const currentSeed = parseInt(game.$.currentSeed, 10)
+  return { name, title, label, startingSeed, currentSeed }
 }
 
 const parseAgents = (result: ResultItem): AgentTransformed[] => {

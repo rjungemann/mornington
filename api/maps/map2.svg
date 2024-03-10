@@ -479,6 +479,8 @@
        height="40"
        x="-60"
        y="0"
+       startingSeed="100"
+       currentSeed="100"
        inkscape:label="three"
        title="Game #3"
        label="Game #3" />
