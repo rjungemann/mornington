@@ -19,10 +19,10 @@ export const OtherGamesInfo = () => {
       <h2 className="mb-4 font-semibold text-xl text-sky-400">
         Other Games
       </h2>
-      <ul className="mt-2 mb-2 text-sm">
+      <ul className="border-2 border-slate-600 divide-y-2 divide-slate-600 text-sm">
         {games.map((game, index) => {
           return (
-            <li key={index} className="cursor-pointer mb-6 opacity-80 hover:opacity-100 border-solid border-2 border-slate-600 p-4" onClick={() => router.push(`/games/${game.name}`)}>
+            <li key={index} className="cursor-pointer mb-2 opacity-80 hover:opacity-100 p-4" onClick={() => router.push(`/games/${game.name}`)}>
               <h3 className="mb-2 inline-block font-semibold text-lime-400">
                 {game.title}
               </h3>
@@ -66,7 +66,7 @@ export const OtherGamesInfo = () => {
                 {' '}
                 <span><TimeAgo date={game.createdAt} live={false} /></span>
                 {' '}
-                <span className="font-semibold text-sky-400">Last Update</span>
+                <span className="font-semibold text-sky-400">Updated</span>
                 {' '}
                 <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
               </div>

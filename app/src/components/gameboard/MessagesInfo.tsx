@@ -19,7 +19,7 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
       <div className="mb-4 divide-y-2 divide-slate-600">
         {turnNumbers.map((turnNumber, turnIndex) => {
           return (
-            <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-2 first:pt-0">
+            <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-3 first:pt-0">
               {messages.map((message: MessageResponse, i) => (
                 <li key={i} className="mb-1">
                   <span className="text-sky-400">

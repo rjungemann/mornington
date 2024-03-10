@@ -11,7 +11,6 @@ import { HazardsInfo } from './gameboard/HazardsInfo'
 import { TrainsInfo } from './gameboard/TrainsInfo'
 import { StationsInfo } from './gameboard/StationsInfo'
 import { MessagesInfo } from './gameboard/MessagesInfo'
-import { GameInfo } from './gameboard/GameInfo'
 import { AboutInfo } from './gameboard/AboutInfo'
 import { OtherGamesInfo } from './gameboard/OtherGamesInfo'
 
@@ -68,14 +67,14 @@ export function Gameboard({ name }: { name: string }) {
               currentMessage
               ? (
                 <>
-                  <div className="p-4 mb-4 bg-slate-600">
+                  <div className="p-4 bg-slate-600">
                     <div className="font-semibold text-sm">
                       {currentMessage.message}
                     </div>
                   </div>
 
                   <div className="p-4 bg-slate-800">
-                    <div className="opacity-80 text-sm">
+                    <div className="opacity-80 text-xs">
                       <div className="mb-2">
                         <span className="font-semibold text-sky-500">Weather</span>
                         {' '}
@@ -89,25 +88,31 @@ export function Gameboard({ name }: { name: string }) {
                       </div>
 
                       <div className="mb-2">
-                        <span className="font-semibold text-sky-500">In-Game Start Time</span>
+                        <span className="font-semibold text-sky-500">In-Game Duration</span>
+                        {' '}
+                        <span>{new Date(game.currentTime).getTime() - new Date(game.startTime).getTime()} seconds</span>
+                      </div>
+
+                      <div className="mb-2">
+                        <span className="font-semibold text-sky-500">In-Game Started</span>
                         {' '}
                         <span><TimeAgo date={game.startTime} live={false} /></span>
                       </div>
 
                       <div className="mb-2">
-                        <span className="font-semibold text-sky-500">In-Game Last Update</span>
+                        <span className="font-semibold text-sky-500">In-Game Updated</span>
                         {' '}
                         <span><TimeAgo date={new Date(game.currentTime)} live={false} /></span>
                       </div>
 
                       <div className="mb-2">
-                        <span className="font-semibold text-sky-500">Start Time</span>
+                        <span className="font-semibold text-sky-500">Started</span>
                         {' '}
                         <span><TimeAgo date={game.createdAt} live={false} /></span>
                       </div>
 
                       <div>
-                        <span className="font-semibold text-sky-500">Last Update</span>
+                        <span className="font-semibold text-sky-500">Updated</span>
                         {' '}
                         <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
                       </div>
