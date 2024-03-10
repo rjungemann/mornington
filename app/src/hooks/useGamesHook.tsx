@@ -8,7 +8,7 @@ export function useGamesHook() {
 
   useEffect(() => {
     const requestFn = () => {
-      console.info('Fetching updated game data...')
+      console.info('Fetching updated games data...')
       fetch(url)
       .then((response) => response.json())
       .then((data): void => {
