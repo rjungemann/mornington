@@ -8,8 +8,6 @@ import { tickHazards } from './ticks/hazards';
 
 async function tickGameTurn(game: Model<Game>) {
   const gameId = game.dataValues.id
-  const gameName = game.dataValues.name
-  const turnNumber = game.dataValues.turnNumber
   const lines = await db.models.Line.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const trains = await db.models.Train.findAll({ where: { gameId: { [Op.eq]: gameId } } })
   const hops = await db.models.Hop.findAll({ where: { gameId: { [Op.eq]: gameId } } })
@@ -35,6 +33,7 @@ async function tickGameTurn(game: Model<Game>) {
     await hazard.save()
   }
 
+  // Halt game if it is finished
   const destinations = stations.filter((station) => station.dataValues.end)
   const finishedAgents = agents.filter((agent) => destinations.find((s) => agent.dataValues.stationId === s.dataValues.id))
   if (finishedAgents.length > 0) {
@@ -50,9 +49,15 @@ const tickGame = (db: Sequelize) => async (game: Model<Game>) => {
   try {
     await db.transaction(async (t) => {
       // Calculate current turn number
-      const previousTurnNumber = game.dataValues.turnNumber || 0
+      const previousTurnNumber = game.dataValues.turnNumber
       const turnNumber = previousTurnNumber + 1
       game.set('turnNumber', turnNumber)
+
+      // Calculate current time
+      const turnDurationSeconds = game.dataValues.turnDurationSeconds
+      const previousCurrentTime = game.dataValues.currentTime
+      const currentTime = new Date(previousCurrentTime.getTime() + turnDurationSeconds)
+      game.set('currentTime', currentTime)
 
       // Tick the game
       logger.info({ gameName, turnNumber }, 'Began processing tick for game...')

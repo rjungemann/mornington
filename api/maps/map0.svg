@@ -547,6 +547,15 @@
        inkscape:label="one"
        startingSeed="100"
        currentSeed="100"
+       startTime="2024-03-10T16:45:22.209Z"
+       currentTime="2024-03-10T16:45:22.209Z"
+       turnDurationSeconds="60"
+       weatherName="partly-cloudy"
+       weatherTitle="Partly Cloudy"
+       weatherLabel="Partly Cloudy"
+       moonPhaseName="waxing-gibbous"
+       moonPhaseTitle="Waxing Gibbous"
+       moonPhaseLabel="Waxing Gibbous"
        title="Game #1"
        label="Game #1" />
   </g>

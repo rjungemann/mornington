@@ -34,6 +34,15 @@ type GameItem = {
     label: string
     currentSeed: string
     startingSeed: string
+    startTime: string;
+    currentTime: string;
+    turnDurationSeconds: string;
+    weatherName: string;
+    weatherTitle: string;
+    weatherLabel: string;
+    moonPhaseName: string;
+    moonPhaseTitle: string;
+    moonPhaseLabel: string;
   }
 }
 
@@ -43,6 +52,15 @@ type GameTransformed = {
   label: string
   currentSeed: number
   startingSeed: number
+  startTime: Date;
+  currentTime: Date;
+  turnDurationSeconds: Number;
+  weatherName: string;
+  weatherTitle: string;
+  weatherLabel: string;
+  moonPhaseName: string;
+  moonPhaseTitle: string;
+  moonPhaseLabel: string;
 }
 
 type AgentItem = {
@@ -236,7 +254,16 @@ const parseGame = (result: ResultItem): GameTransformed => {
   const label = game.$.label
   const startingSeed = parseInt(game.$.startingSeed, 10)
   const currentSeed = parseInt(game.$.currentSeed, 10)
-  return { name, title, label, startingSeed, currentSeed }
+  const startTime = new Date(game.$.startTime)
+  const currentTime = new Date(game.$.currentTime)
+  const turnDurationSeconds = parseInt(game.$.turnDurationSeconds, 10)
+  const weatherName = game.$.weatherName
+  const weatherLabel = game.$.weatherLabel
+  const weatherTitle = game.$.weatherTitle
+  const moonPhaseName = game.$.moonPhaseName
+  const moonPhaseLabel = game.$.moonPhaseLabel
+  const moonPhaseTitle = game.$.moonPhaseTitle
+  return { name, title, label, startingSeed, currentSeed, startTime, currentTime, turnDurationSeconds, weatherName, weatherLabel, weatherTitle, moonPhaseName, moonPhaseLabel, moonPhaseTitle }
 }
 
 const parseAgents = (result: ResultItem): AgentTransformed[] => {

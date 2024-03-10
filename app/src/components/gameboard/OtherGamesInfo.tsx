@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TimeAgo from 'react-timeago'
 
-export const Gameslist = () => {
+export const OtherGamesInfo = () => {
   const router = useRouter()
   const games = useGamesHook()
 
@@ -22,7 +22,7 @@ export const Gameslist = () => {
       <ul className="mt-2 mb-2 text-sm">
         {games.map((game, index) => {
           return (
-            <li key={index} className="cursor-pointer mb-6 opacity-80 hover:opacity-100 border-solid border-2 border-slate-600 p-2 pr-4 pl-4 rounded" onClick={() => router.push(`/games/${game.name}`)}>
+            <li key={index} className="cursor-pointer mb-6 opacity-80 hover:opacity-100 border-solid border-2 border-slate-600 p-4" onClick={() => router.push(`/games/${game.name}`)}>
               <h3 className="mb-2 inline-block font-semibold text-lime-400">
                 {game.title}
               </h3>
@@ -66,7 +66,7 @@ export const Gameslist = () => {
                 {' '}
                 <span><TimeAgo date={game.createdAt} live={false} /></span>
                 {' '}
-                <span className="font-semibold text-sky-400">Last update</span>
+                <span className="font-semibold text-sky-400">Last Update</span>
                 {' '}
                 <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
               </div>

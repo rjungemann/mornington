@@ -1,12 +1,26 @@
-type GameListItemResponse = {
+type GameResponse = {
   id: number
   name: string
   title: string
   label: string
   turnNumber: number
   finished: boolean
+  startingSeed: number
+  currentSeed: number
+  startTime: Date
+  currentTime: Date
+  turnDurationSeconds: number
+  weatherName: string
+  weatherTitle: string
+  weatherLabel: string
+  moonPhaseName: string
+  moonPhaseTitle: string
+  moonPhaseLabel: string
   createdAt: string
   updatedAt: string
+}
+
+type GameListItemResponse = GameResponse & {
   agents: AgentResponse[]
 }
 
@@ -102,16 +116,6 @@ type GameTurnResponse = {
   agents: AgentResponse[]
   hazards: HazardResponse[]
   items: ItemResponse[]
-  createdAt: string
-  updatedAt: string
-}
-
-type GameResponse = {
-  name: string
-  title: string
-  label: string
-  turnNumber: number
-  finished: boolean
   createdAt: string
   updatedAt: string
 }

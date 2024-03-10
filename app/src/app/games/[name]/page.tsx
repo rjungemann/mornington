@@ -1,9 +1,9 @@
-import { Gameboards } from '@/components/gameboards';
+import { Gameboard } from '@/components/gameboard';
 
 export default function Page({ params }: { params: { name: string } }) {
   return (
     <main className="m-2">
-      <Gameboards name={params.name} />
+      <Gameboard name={params.name} />
     </main>
   );
 }

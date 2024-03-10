@@ -315,7 +315,7 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
     damage = weapon.dataValues.damage
   }
 
-  const { sum, dice } = rollDice(damage)
+  const { sum, dice } = rollDice(damage, { randomFn: () => gameSeededRandom(game) })
   otherAgent.dataValues.currentHp = otherAgent.dataValues.currentHp - sum
   if (otherAgent.dataValues.currentHp <= 0) {
     const startingStations = stations.filter((s) => s.dataValues.start)

@@ -3,6 +3,7 @@
 const DEFAULT_DICE = '1d6'
 const DEFAULT_FACES = 6
 const DEFAULT_SEPARATOR = 'D'
+const DEFAULT_RANDOM_FN = () => Math.random()
 
 type DiceResult = {
   die: string
@@ -12,16 +13,22 @@ type DiceResult = {
 type Options = {
   separator: string
   defaultFaces: number
+  randomFn: () => number
 }
 
 const defaulOptions = {
   separator: DEFAULT_SEPARATOR,
   defaultFaces: DEFAULT_FACES,
+  randomFn: DEFAULT_RANDOM_FN
 }
 
 export const rollDice = (
   str: string = DEFAULT_DICE,
-  { separator = 'd', defaultFaces = 6 }: Partial<Options> = defaulOptions
+  {
+    separator = DEFAULT_SEPARATOR,
+    defaultFaces = DEFAULT_FACES,
+    randomFn = DEFAULT_RANDOM_FN
+  }: Partial<Options> = defaulOptions
 ) => {
   const tokenizedString = Array.from(str.toLowerCase())
 
@@ -38,6 +45,7 @@ export const rollDice = (
     if (multiplier) {
       const dice = num || defaultFaces
       for (let i = 0; i < multiplier; i++) {
+        const randomValue = randomFn()
         const result = Math.ceil(Math.random() * dice)
         sum += result
 
@@ -54,7 +62,7 @@ export const rollDice = (
     }
   }
 
-  tokenizedString.forEach((c) => {
+  for (let c of tokenizedString) {
     const isNumber = !isNaN(c as any)
 
     if (c === ' ') {
@@ -79,7 +87,7 @@ export const rollDice = (
         `Unknown character in dice string "${str}". Please use only numbers, "+" and "${separator}"`
       )
     }
-  })
+  }
 
   rollOrAdd(parseInt(currentNumber, 10))
 

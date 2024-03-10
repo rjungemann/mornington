@@ -48,6 +48,15 @@ export class Game extends Model<
   declare finished: boolean;
   declare startingSeed: number;
   declare currentSeed: number;
+  declare startTime: Date;
+  declare currentTime: Date;
+  declare turnDurationSeconds: number;
+  declare weatherName: string;
+  declare weatherTitle: string;
+  declare weatherLabel: string;
+  declare moonPhaseName: string;
+  declare moonPhaseTitle: string;
+  declare moonPhaseLabel: string;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -296,6 +305,42 @@ Game.init(
     },
     currentSeed: {
       type: new DataTypes.DOUBLE,
+      allowNull: false
+    },
+    startTime: {
+      type: new DataTypes.DATE,
+      allowNull: false
+    },
+    currentTime: {
+      type: new DataTypes.DATE,
+      allowNull: false
+    },
+    turnDurationSeconds: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    weatherName: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    weatherTitle: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    weatherLabel: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    moonPhaseName: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    moonPhaseTitle: {
+      type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    moonPhaseLabel: {
+      type: new DataTypes.STRING(128),
       allowNull: false
     },
     createdAt: DataTypes.DATE,
