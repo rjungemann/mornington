@@ -3,7 +3,6 @@
 import { Graph } from '@/components/graph';
 import { useGameHook } from '@/hooks/useGameHook';
 import { useGraphOptions } from '@/hooks/useGraphOptions';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import TimeAgo from 'react-timeago'
 import { Gameslist } from './gameslist';
@@ -97,7 +96,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
-      <ul className="text-sm mb-4">
+      <ul className="text-sm mb-6">
         {gameTurn?.agents.map((agent, index) => {
           const station = gameTurn.stations.find((station) => station.id === agent.stationId)
           const train = gameTurn.trains.find((train) => train.id === agent.trainId)
@@ -109,9 +108,9 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const items = gameTurn.items.filter((i) => i.agentId === agent.id)
           return (
             <li key={index} className="mb-4">
-              <h3 className="mb-2" style={{ color: agent.color }}>{agent.label}</h3>
+              <h3 className="mb-2 font-semibold" style={{ color: agent.color }}>{agent.label}</h3>
 
-              <table className="table-fixed mb-2 text-xs opacity-60 bg-slate-800 sm:w-auto lg:w-full">
+              <table className="table-fixed mb-1 text-xs opacity-80 bg-slate-800 sm:w-auto lg:w-full">
                 <thead>
                   <tr>
                     <th className="p-1 text-center">Init.</th>
@@ -132,7 +131,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                 </tbody>
               </table>
 
-              <ul className="opacity-60 text-xs">
+              <ul className="opacity-80 text-xs">
                 {
                   agent.timeout > 0
                   ? <li>Agent is in time-out for {agent.timeout} more turns</li>
@@ -142,33 +141,33 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
                         items.map((item, i) => {
                           if (item.kind === 'weapon') {
                             return (
-                              <li key={i}>Wielding {item.title} ({item.damage})</li>
+                              <li key={i}>Wielding <span className="font-semibold">{item.title}</span> ({item.damage})</li>
                             )
                           }
                           else {
                             return (
-                              <li key={i}>Holding {item.title}</li>
+                              <li key={i}>Holding <span className="font-semibold">{item.title}</span></li>
                             )
                           }
                         })
                       }
-                      {station ? <li>Waiting at {station.title}</li> : null}
+                      {station ? <li>Waiting at <span className="font-semibold">{station.title}</span></li> : null}
                       {
                         train
                         ? (
                           trainStation
-                          ? <li>Traveling on {train.title} train, stopped at {trainStation?.title}</li>
-                          : <li>Traveling on {train.title} train</li>
+                          ? <li>Traveling on <span className="font-semibold">{train.title}</span> train, stopped at <span className="font-semibold">{trainStation.title}</span></li>
+                          : <li>Traveling on <span className="font-semibold">{train.title}</span> train</li>
                         )
                         : null
                       }
                       {
                         estimatedDistance
-                        ? <li>An estimated {estimatedDistance} stations away</li>
+                        ? <li>An estimated <span className="font-semibold">{estimatedDistance}</span> stations away</li>
                         : null
                       }
                       {
-                        agent.stationId && otherAgents.length > 0
+                        station && !station.start && agent.stationId && otherAgents.length > 0
                         ? <li>Currently locked in combat</li>
                         : null
                       }
@@ -188,7 +187,7 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Hazards</h2>
-      <ul className="text-sm mb-4">
+      <ul className="text-sm mb-6">
         {
           gameTurn?.hazards?.length
           ? (
@@ -198,13 +197,21 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
               const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
               return (
                 <li key={index} className="mb-2">
-                  <span>{hazard.label} between {headStation!.title} and {tailStation!.title}</span>
+                  <span className="font-semibold">{hazard.label}</span>
+                  {' '}
+                  between
+                  {' '}
+                  <span className="font-semibold">{headStation!.title}</span>
+                  {' '}
+                  and
+                  {' '}
+                  <span className="font-semibold">{tailStation!.title}</span>
                 </li>
               )
             })
           )
           : (
-            <li>There are no hazards currently.</li>
+            <li>There are no travel advisories currently.</li>
           )
         }
       </ul>
@@ -216,7 +223,7 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
-      <ul className="text-sm mb-4">
+      <ul className="text-sm mb-6">
         {gameTurn?.trains.map((train, index) => {
           const station = gameTurn.stations.find((station) => station.id === train.stationId)
           const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)
@@ -224,22 +231,22 @@ const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
           const agents = gameTurn.agents.filter((agent) => agent.trainId === train.id)
           return (
-            <li key={index} className="mb-2">
-              <span style={{ color: train.color }}>{train.label}</span>
-              <ul className="opacity-60 text-xs">
-                {station ? <li>Stopped at: {station.title}</li> : null}
-                {headStation && tailStation ? <li>Traveling from {headStation!.title} to {tailStation!.title}</li> : null}
+            <li key={index} className="mb-4">
+              <h3 className="font-semibold" style={{ color: train.color }}>{train.label}</h3>
+              <ul className="opacity-80 text-xs">
+                {station ? <li>Stopped at: <span className="font-semibold">{station.title}</span></li> : null}
+                {headStation && tailStation ? <li>Traveling from <span className="font-semibold">{headStation.title}</span> to <span className="font-semibold">{tailStation.title}</span></li> : null}
                 {
                   agents.length
                   ? (
                     <li>
                       Carrying passengers:
-                      &nbsp;
+                      {' '}
                       {
                         agents.map((a, i) => {
                           return (
                             <span key={i}>
-                              <span style={{ color: a.color }}>{a.title}</span>
+                              <span className="font-semibold" style={{ color: a.color }}>{a.title}</span>
                               {i < agents.length - 1 ? ', ' : null}
                               {i === agents.length - 2 ? 'and ' : null}
                             </span>
@@ -263,14 +270,14 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
-      <ul className="text-sm mb-4">
+      <ul className="text-sm mb-6">
         {gameTurn?.stations.filter((station) => !station.virtual).map((station, index) => {
           const trains = gameTurn.trains.filter((train) => train.stationId === station.id)
           const agents = gameTurn.agents.filter((agent) => agent.stationId === station.id)
           return (
             <li key={index} className="mb-2">
-              {station.label}
-              <ul className="opacity-60 text-xs">
+              <h3 className="font-semibold">{station.label}</h3>
+              <ul className="opacity-80 text-xs">
                 {
                   trains.length
                   ? (
@@ -281,7 +288,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
                         trains.map((t, i) => {
                           return (
                             <span key={i}>
-                              <span style={{ color: t.color }}>{t.title}</span>
+                              <span className="font-semibold" style={{ color: t.color }}>{t.title}</span>
                               {i < agents.length - 1 ? ', ' : null}
                               {i === agents.length - 2 ? 'and ' : null}
                             </span>
@@ -302,7 +309,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
                         agents.map((a, i) => {
                           return (
                             <span key={i}>
-                              <span style={{ color: a.color }}>{a.title}</span>
+                              <span className="font-semibold" style={{ color: a.color }}>{a.title}</span>
                               {i < agents.length - 1 ? ', ' : null}
                               {i === agents.length - 2 ? 'and ' : null}
                             </span>
@@ -333,17 +340,17 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
-      <p className="text-xs mb-4 bg-slate-200 text-slate-800 p-2 opacity-60">
+      <p className="text-xs mb-4 bg-slate-200 text-slate-800 p-2 opacity-80">
         <span className="font-bold">Note</span>: Events are listed most recent first.
       </p>
-      <ul className="opacity-60 text-xs mb-4">
+      <ul className="opacity-80 text-xs mb-4">
         {messages.map((message: MessageResponse, i) => (
           <li key={i} className="mb-2">
             <span className="text-sky-400">
               #{message.turnNumber}
             </span>
             {' '}
-            <span className="opacity-60">
+            <span className="opacity-80">
               <TimeAgo date={message.createdAt} live={false} />
             </span>
             {' '}
@@ -359,15 +366,15 @@ const AboutInfo = () => {
   return (
     <div className='bg-slate-800 mt-4 p-4'>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">About Mornington</h2>
-      <div className="opacity-60 mb-4">
+      <div className="opacity-80 mb-4">
         <p className="mb-2">
           Mornington is a subway simulator and game inspired by a certain BBC Radio show.
         </p>
         <p className="mb-2">
-          It was created by <a className="text-sky-400" href="https://phasor.space">Phasor Space</a>.
+          It was created by <a className="text-lime-400" href="https://phasor.space">Phasor Space</a>.
         </p>
         <p className="mb-2">
-          The code can be found on <a className="text-sky-400" href="https://github.com/rjungemann/mornington">GitHub</a>.
+          The code can be found on <a className="text-lime-400" href="https://github.com/rjungemann/mornington">GitHub</a>.
         </p>
       </div>
     </div>
@@ -410,7 +417,7 @@ export function Gameboard({ name }: { name: string }) {
       <h1 className="mb-4 font-semibold text-xl text-sky-400">
         {game.title}
         {' '}
-        <span className="font-normal text-slate-200">Turn #{game.turnNumber}</span>
+        <span className="text-slate-200">Turn #{game.turnNumber}</span>
       </h1>
 
       <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">

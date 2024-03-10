@@ -22,14 +22,16 @@ export const Gameslist = () => {
       <ul className="mt-2 mb-2 text-sm">
         {games.map((game, index) => {
           return (
-            <li key={index} className="cursor-pointer mb-6" onClick={() => router.push(`/games/${game.name}`)}>
-              <h3 className="text-sky-400 mb-2">
+            <li key={index} className="cursor-pointer mb-6 opacity-80 hover:opacity-100 border-solid border-2 border-slate-600 p-2 pr-4 pl-4 rounded" onClick={() => router.push(`/games/${game.name}`)}>
+              <h3 className="mb-2 inline-block font-semibold text-lime-400">
                 {game.title}
-                  {' '}
-                  <span className="font-normal text-slate-200">Turn #{game.turnNumber}</span>
               </h3>
 
-              <div className="opacity-60">
+              <div className="text-xs opacity-80">
+                <span className="text-slate-200">Turn #{game.turnNumber}</span>
+              </div>
+
+              <div className="text-xs opacity-80">
                 {
                   game.finished
                   ? (
@@ -41,7 +43,7 @@ export const Gameslist = () => {
                 }
               </div>
 
-              <div className="mb-2 opacity-60">
+              <div className="text-xs mb-2 opacity-80">
                 Featuring
                 {' '}
                 {
@@ -59,7 +61,7 @@ export const Gameslist = () => {
                 }
               </div>
 
-              <div className="text-xs opacity-60">
+              <div className="text-xs">
                 <span className="font-semibold text-sky-400">Started</span>
                 {' '}
                 <span><TimeAgo date={game.createdAt} live={false} /></span>

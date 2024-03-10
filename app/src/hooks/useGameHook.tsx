@@ -24,12 +24,12 @@ export function useGameHook(name: string) {
         })
       });
     }
-    const interval = setInterval(requestFn, 5000)
+    const interval = setInterval(requestFn, updateInterval)
     requestFn()
     return () => {
       clearInterval(interval)
     }
-  }, [url]);
+  }, [updateInterval, url]);
 
   return gameContext;
 }

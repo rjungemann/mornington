@@ -1,5 +1,6 @@
 export function useGraphOptions() {
-  const graphOptions = {
+  const graphOptions: GraphOptions = {
+    fontFamily: 'Noto Sans, sans-serif',
     hopStrokeWidth: 4,
     stationStroke: '#f5f5f4',
     stationStrokeWidth: 4,

@@ -288,7 +288,7 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
 
   return (
     <div className="border-solid border-2 border-slate-200">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox} fontFamily={options.fontFamily}>
         <g>
           {<Hops gameTurn={gameTurn} options={options} />}
         </g>

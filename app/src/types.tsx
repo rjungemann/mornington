@@ -133,6 +133,7 @@ type Position = {
 }
 
 type GraphOptions = {
+  fontFamily: string,
   hopStrokeWidth: number,
   stationStroke: string,
   stationStrokeWidth: number,
