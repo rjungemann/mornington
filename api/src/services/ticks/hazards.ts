@@ -12,6 +12,7 @@ type BaseHazard = {
 }
 
 // TODO: Move somewhere else
+// TODO: Add more random hazards
 const baseHazards: Record<string, BaseHazard> = {
   'mystery-slime': {
     name: 'mystery-slime',
