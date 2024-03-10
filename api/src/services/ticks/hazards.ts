@@ -5,7 +5,8 @@ import { gameSeededRandom } from '../ticks/shared';
 
 async function tickHazards(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
+
   if (gameSeededRandom(game) < 0.05) {
     const hop = hops[Math.floor(gameSeededRandom(game) * hops.length)]
     const distance = Math.floor(gameSeededRandom(game) * hop.dataValues.length)
@@ -31,6 +32,7 @@ async function tickHazards(context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `A new hazard ${hazard.dataValues.name} appeared!`
     })
   }
@@ -48,6 +50,7 @@ async function tickHazards(context: ClockContext) {
       await db.models.Message.create({
         gameId,
         turnNumber,
+        currentTime,
         message: `The hazard ${hazard.dataValues.name} went away!`
       })
       await hazard.destroy()

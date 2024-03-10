@@ -252,8 +252,8 @@ const parseGame = (result: ResultItem): GameTransformed => {
   const name = game.$['inkscape:label']
   const title = game.$.title
   const label = game.$.label
-  const startingSeed = parseInt(game.$.startingSeed, 10)
-  const currentSeed = parseInt(game.$.currentSeed, 10)
+  const startingSeed = parseFloat(game.$.startingSeed)
+  const currentSeed = parseFloat(game.$.currentSeed)
   const startTime = new Date(game.$.startTime)
   const currentTime = new Date(game.$.currentTime)
   const turnDurationSeconds = parseInt(game.$.turnDurationSeconds, 10)

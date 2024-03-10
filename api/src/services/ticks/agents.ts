@@ -89,7 +89,7 @@ async function willStationedAgentBoardTrain(agent: Model<Agent>, train: Model<Tr
 
 async function tickStationedAgentFightingPullStuntWitheringGaze(agent: Model<Agent>, station: Model<Station>, otherAgent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   // A Withering Gaze: If in combat: Other agent rolls against willpower or is stunned for 1d4 turns.
   const roll = Math.floor(gameSeededRandom(game) * 20.0) + 1 < otherAgent.dataValues.willpower
@@ -105,6 +105,7 @@ async function tickStationedAgentFightingPullStuntWitheringGaze(agent: Model<Age
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Withering Gaze.`
     })
     return
@@ -123,13 +124,14 @@ async function tickStationedAgentFightingPullStuntWitheringGaze(agent: Model<Age
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Stationed agent ${agent.dataValues.title} in combat pulled A Withering Gaze. ${otherAgent.dataValues.title} is stunned for ${turns} turns!`
   })
 }
 
 async function tickStationedAgentFightingPullStuntFlashback(agent: Model<Agent>, station: Model<Station>, otherAgent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   // A Flashback: If in combat: Other agent rolls against strength or get thrown to a neighboring disadvantageous station
   const roll = Math.floor(gameSeededRandom(game) * 20.0) + 1 < otherAgent.dataValues.strength
@@ -145,6 +147,7 @@ async function tickStationedAgentFightingPullStuntFlashback(agent: Model<Agent>,
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback.`
     })
     return
@@ -182,6 +185,7 @@ async function tickStationedAgentFightingPullStuntFlashback(agent: Model<Agent>,
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat failed to pull A Flashback because a station could not be found.`
     })
     return
@@ -202,13 +206,14 @@ async function tickStationedAgentFightingPullStuntFlashback(agent: Model<Agent>,
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Stationed agent ${agent.dataValues.title} in combat pulled A Flashback. ${otherAgent.dataValues.title} was knocked to ${nextStation.dataValues.title}!`
   })
 }
 
 async function tickStationedAgentFightingPullStuntTheOlSlip(agent: Model<Agent>, station: Model<Station>, otherAgent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   // The Ol' Slip: If in combat: Roll against dex to attempt to board a train on a line connecting to this station
   const roll = Math.floor(gameSeededRandom(game) * 20.0) + 1 < agent.dataValues.dexterity
@@ -224,6 +229,7 @@ async function tickStationedAgentFightingPullStuntTheOlSlip(agent: Model<Agent>,
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip.`
     })
     return
@@ -245,6 +251,7 @@ async function tickStationedAgentFightingPullStuntTheOlSlip(agent: Model<Agent>,
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat failed to pull The Ol\' Slip because no train could be found.`
     })
     return
@@ -265,13 +272,14 @@ async function tickStationedAgentFightingPullStuntTheOlSlip(agent: Model<Agent>,
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Stationed agent ${agent.dataValues.title} in combat pulled The Ol' Slip. ${agent.dataValues.title} jumped to ${nextTrain.dataValues.title}!`
   })
 }
 
 async function tickStationedAgentFightingPullStunt(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   const otherAgent = otherAgents[Math.floor(gameSeededRandom(game) * otherAgents.length)]
   if (!otherAgent) {
@@ -286,6 +294,7 @@ async function tickStationedAgentFightingPullStunt(agent: Model<Agent>, station:
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat tried to pull a stunt, but could not find someone to fight!`
     })
     return
@@ -305,7 +314,7 @@ async function tickStationedAgentFightingPullStunt(agent: Model<Agent>, station:
 
 async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Model<Station>, otherAgent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
   
   const weapon = items
   .filter((item) => item.dataValues.agentId === agent.dataValues.id)
@@ -335,6 +344,7 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
       await db.models.Message.create({
         gameId,
         turnNumber,
+        currentTime,
         message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they could not be reincarnated!`
       })
       return
@@ -355,6 +365,7 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they are being reincarnated at ${startingStation.dataValues.title}!`
     })
 
@@ -381,6 +392,7 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Stationed agent ${agent.dataValues.title} in combat struck ${otherAgent.dataValues.title}!`
   })
   otherAgent.set('currentHp', otherAgent.dataValues.currentHp - sum)
@@ -397,7 +409,7 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
 // More hazard types
 async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<Station>, otherAgents: Model<Agent>[], context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   const pullStunt = gameSeededRandom(game) < 0.2
   if (pullStunt) {
@@ -418,6 +430,7 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} in combat tried to fight someone, but could not find someone to fight!`
     })
     return
@@ -428,7 +441,8 @@ async function tickStationedAgentFighting(agent: Model<Agent>, station: Model<St
 
 async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
+
   const train = trains.find((train) => train.dataValues.id === agent.dataValues.trainId)
   if (!train) {
     // Error state. Traveling agent without a train
@@ -443,6 +457,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Traveling agent ${agent.dataValues.title} is traveling without a train!`
     })
     return
@@ -463,6 +478,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`
     })
     return
@@ -483,6 +499,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Traveling agent ${agent.dataValues.title} has found their destination, ${station.dataValues.title} and is disembarking from train ${station.dataValues.title}.`
     })
     agent.set('trainId', null)
@@ -509,6 +526,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
       await db.models.Message.create({
         gameId,
         turnNumber,
+        currentTime,
         message: `Traveling agent ${agent.dataValues.title} will not be disembarking ${train.dataValues.title} at service station ${station.dataValues.title}!`
       })
       return
@@ -529,6 +547,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Traveling agent ${agent.dataValues.title} is disembarking ${train.dataValues.title} at station ${station.dataValues.title}.`
     })
     agent.set('trainId', null)
@@ -550,13 +569,14 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`
   })
 }
 
 async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   const station = stations.find((station) => station.dataValues.id === agent.dataValues.stationId)
   if (!station) {
@@ -571,6 +591,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} is without a station!`
     })
     return
@@ -599,6 +620,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} is waiting at their destination, ${station.dataValues.title}.`
     })
     return
@@ -620,6 +642,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`
     })
     return
@@ -644,6 +667,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
       await db.models.Message.create({
         gameId,
         turnNumber,
+        currentTime,
         message: `Stationed agent ${agent.dataValues.title} attempted to board ${trainToBoard.dataValues.title}, but is trapped at service station ${station.dataValues.title}!`
       })
       return
@@ -663,6 +687,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     await db.models.Message.create({
       gameId,
       turnNumber,
+      currentTime,
       message: `Stationed agent ${agent.dataValues.title} is boarding ${trainToBoard.dataValues.title} from ${station.dataValues.title}!`
     })
     agent.set('stationId', null)
@@ -683,13 +708,14 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
   await db.models.Message.create({
     gameId,
     turnNumber,
+    currentTime,
     message: `Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`
   })
 }
 
 async function tickAgents(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
-  const { id: gameId, name: gameName, turnNumber } = game.dataValues
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   // Agent phase
   for (let agent of agents) {

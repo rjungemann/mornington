@@ -78,6 +78,7 @@ export class GameTurn extends Model<
 > {
   declare id: CreationOptional<number>;
   declare turnNumber: number;
+  declare currentTime: Date;
   declare data: any;
 
   declare gameId: ForeignKey<Game['id']>;
@@ -92,6 +93,7 @@ export class Message extends Model<
 > {
   declare id: CreationOptional<number>;
   declare turnNumber: number;
+  declare currentTime: Date;
   declare message: string;
 
   declare gameId: ForeignKey<Game['id']>;
@@ -363,6 +365,10 @@ GameTurn.init(
       type: new DataTypes.INTEGER,
       allowNull: false
     },
+    currentTime: {
+      type: new DataTypes.DATE,
+      allowNull: false
+    },
     data: {
       type: new DataTypes.JSON(),
       allowNull: false
@@ -389,6 +395,10 @@ Message.init(
     },
     message: {
       type: new DataTypes.TEXT,
+      allowNull: false
+    },
+    currentTime: {
+      type: new DataTypes.DATE,
       allowNull: false
     },
     createdAt: DataTypes.DATE,

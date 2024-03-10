@@ -26,6 +26,7 @@ const createGameTurn = (db: Sequelize) => async (gameName: string) => {
   await db.models.GameTurn.create({
     gameId: game.dataValues.id,
     turnNumber: game.dataValues.turnNumber,
+    currentTime: game.dataValues.currentTime,
     data: game
   })
 }

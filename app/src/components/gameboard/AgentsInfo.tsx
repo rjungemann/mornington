@@ -70,7 +70,7 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
             <li key={index} className="mb-4">
               <h3 className="mb-2 font-semibold" style={{ color: agent.color }}>{agent.label}</h3>
 
-              <table className="table-fixed mb-1 text-xs opacity-80 bg-slate-800 sm:w-auto lg:w-full">
+              <table className="table-fixed mb-2 text-xs opacity-80 bg-slate-800 sm:w-auto lg:w-full">
                 <thead>
                   <tr>
                     <th className="p-1 text-center">Init.</th>

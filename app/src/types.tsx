@@ -123,6 +123,7 @@ type GameTurnResponse = {
 type MessageResponse = {
   id: number
   turnNumber: number
+  currentTime: Date
   message: string
   gameId: number
   createdAt: string

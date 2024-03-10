@@ -27,7 +27,7 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
                   </span>
                   {' '}
                   <span className="opacity-80">
-                    <TimeAgo date={message.createdAt} live={false} />
+                    <TimeAgo date={message.currentTime} live={false} />
                   </span>
                   {' '}
                   {message.message}
