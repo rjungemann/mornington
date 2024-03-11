@@ -221,7 +221,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="0" />
+       stunTimeout="0"
+       description="A bootlegger and partier. Enterprising." />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -279,7 +280,8 @@
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
        inkscape:label="two"
-       title="Game #2"
-       label="Game #2" />
+       title="Game #2: Leyton"
+       label="Game #2: Leyton"
+       description="A simple map with one line and one agent." />
   </g>
 </svg>

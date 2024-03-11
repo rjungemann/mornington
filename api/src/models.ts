@@ -44,6 +44,7 @@ export class Game extends Model<
   declare name: string;
   declare title: string;
   declare label: string;
+  declare description: string;
   declare turnNumber: number;
   declare finished: boolean;
   declare startingSeed: number;
@@ -212,6 +213,7 @@ export class Agent extends Model<
   declare name: string;
   declare title: string;
   declare label: string;
+  declare description: string;
   declare color: string;
   declare strength: number;
   declare dexterity: number;
@@ -291,6 +293,10 @@ Game.init(
     },
     label: {
       type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    description: {
+      type: new DataTypes.TEXT,
       allowNull: false
     },
     turnNumber: {
@@ -573,6 +579,10 @@ Agent.init(
     },
     title: {
       type: new DataTypes.STRING(128),
+      allowNull: false
+    },
+    description: {
+      type: new DataTypes.TEXT,
       allowNull: false
     },
     label: {

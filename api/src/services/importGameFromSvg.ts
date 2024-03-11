@@ -32,6 +32,7 @@ type GameItem = {
     ['inkscape:label']: string
     title: string
     label: string
+    description: string
     currentSeed: string
     startingSeed: string
     startTime: string;
@@ -50,6 +51,7 @@ type GameTransformed = {
   name: string
   title: string
   label: string
+  description: string
   currentSeed: number
   startingSeed: number
   startTime: Date;
@@ -68,6 +70,7 @@ type AgentItem = {
     ['inkscape:label']: string
     title: string
     label: string
+    description: string
     strength: string
     dexterity: string
     willpower: string
@@ -86,6 +89,7 @@ type AgentTransformed = {
   name: string
   title: string
   label: string
+  description: string
   color: string
   strength: number
   dexterity: number
@@ -252,6 +256,7 @@ const parseGame = (result: ResultItem): GameTransformed => {
   const name = game.$['inkscape:label']
   const title = game.$.title
   const label = game.$.label
+  const description = game.$.description
   const startingSeed = parseFloat(game.$.startingSeed)
   const currentSeed = parseFloat(game.$.currentSeed)
   const startTime = new Date(game.$.startTime)
@@ -263,7 +268,7 @@ const parseGame = (result: ResultItem): GameTransformed => {
   const moonPhaseName = game.$.moonPhaseName
   const moonPhaseLabel = game.$.moonPhaseLabel
   const moonPhaseTitle = game.$.moonPhaseTitle
-  return { name, title, label, startingSeed, currentSeed, startTime, currentTime, turnDurationSeconds, weatherName, weatherLabel, weatherTitle, moonPhaseName, moonPhaseLabel, moonPhaseTitle }
+  return { name, title, label, description, startingSeed, currentSeed, startTime, currentTime, turnDurationSeconds, weatherName, weatherLabel, weatherTitle, moonPhaseName, moonPhaseLabel, moonPhaseTitle }
 }
 
 const parseAgents = (result: ResultItem): AgentTransformed[] => {
@@ -272,6 +277,7 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const name = agent.$['inkscape:label']
     const title = agent.$.title
     const label = agent.$.label
+    const description = agent.$.description
     const color = agent.$.style.match(/fill:\s*(#[^;]*)/)![1]
     const strength = parseInt(agent.$.strength, 10)
     const dexterity = parseInt(agent.$.dexterity, 10)
@@ -283,7 +289,7 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const stunTimeout = parseInt(agent.$.stunTimeout, 10)
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, stationName, trainName }
+    return { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, stationName, trainName }
   })
   return agents
 }
@@ -446,11 +452,12 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   .bulkCreate(agentsData.map((agent) => {
     const startingStations = stations.filter((station) => station.dataValues.start)
     const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-    const { name, title, label, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
+    const { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
     return {
       name,
       title,
       label,
+      description,
       color,
       strength,
       dexterity,

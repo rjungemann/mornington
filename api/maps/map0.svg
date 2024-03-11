@@ -426,7 +426,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="0" />
+       stunTimeout="0"
+       description="Film reviewer. Freemason. Nice clothes." />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -445,7 +446,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="0" />
+       stunTimeout="0"
+       description="Animal trainer. High school graduate. Reader of Tarot cards." />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -464,7 +466,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="0" />
+       stunTimeout="0"
+       description="A quick-witted grad student by day, burglar by night." />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -556,7 +559,8 @@
        moonPhaseName="waxing-gibbous"
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
-       title="Game #1"
-       label="Game #1" />
+       title="Game #1: Cowstone East"
+       label="Game #1: Cowstone East"
+       description="Two lines in opposite directions sometimes leads agents astray." />
   </g>
 </svg>

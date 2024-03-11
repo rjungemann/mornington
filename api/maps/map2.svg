@@ -351,7 +351,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="10" />
+       stunTimeout="10"
+       description="A former seminary student turned butler." />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -370,7 +371,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="10" />
+       stunTimeout="10"
+       description="A scientist who has faith in the empirical method." />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -389,7 +391,8 @@
        maxHp="4"
        initiative="10"
        timeout="0"
-       stunTimeout="10" />
+       stunTimeout="10"
+       description="An ambitious lawyer with connections from all walks of society." />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -466,7 +469,8 @@
        label="Tonfa"
        kind="weapon"
        damage="1d6"
-       agentName="lettice" />
+       agentName="lettice"
+       description="An ambitious lawyer with connections from all walks of society." />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -484,14 +488,15 @@
        startTime="2024-03-10T16:45:22.209Z"
        currentTime="2024-03-10T16:45:22.209Z"
        turnDurationSeconds="60"
-       weatherName="partly-cloudy"
-       weatherTitle="Partly Cloudy"
-       weatherLabel="Partly Cloudy"
+       weatherName="rainy"
+       weatherTitle="Rainy"
+       weatherLabel="Rainy"
        moonPhaseName="waxing-gibbous"
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
        inkscape:label="three"
-       title="Game #3"
-       label="Game #3" />
+       title="Game #3: Capchester Town"
+       label="Game #3: Capchester Town"
+       description="A chain of connected rail lines raises the stakes on the trek to Capchester Town." />
   </g>
 </svg>

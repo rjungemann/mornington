@@ -3,6 +3,7 @@ type GameResponse = {
   name: string
   title: string
   label: string
+  description: string
   turnNumber: number
   finished: boolean
   startingSeed: number
@@ -73,6 +74,7 @@ type AgentResponse = {
   name: string
   title: string
   label: string
+  description: string
   color: string
   strength: number
   dexterity: number
