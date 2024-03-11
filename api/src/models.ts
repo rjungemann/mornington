@@ -223,6 +223,7 @@ export class Agent extends Model<
   declare initiative: number;
   declare timeout: number;
   declare stunTimeout: number;
+  declare birthdate: Date;
 
   declare gameId: ForeignKey<Game['id']>;
   declare stationId: ForeignKey<Station['id']> | null;
@@ -623,6 +624,10 @@ Agent.init(
     },
     stunTimeout: {
       type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    birthdate: {
+      type: new DataTypes.DATE,
       allowNull: false
     },
     createdAt: DataTypes.DATE,

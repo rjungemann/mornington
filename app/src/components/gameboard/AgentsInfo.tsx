@@ -3,6 +3,31 @@
 import { useEffect, useState } from 'react'
 import { findRandomPath } from '@/helpers/findRandomPath'
 
+const horoscopeSign = (date: Date) => {
+  const datestamp = `${date.getMonth().toString().padStart(2, '0')}-${date.getDay().toString().padStart(2, '0')}`
+  const pairs: [[string, string], string, string][] = [
+    [['01-01', '01-19'], 'saggitarius', '♑︎'],
+    [['01-20', '02-18'], 'aquarius', '♒︎'],
+    [['02-19', '03-20'], 'pisces', '♓︎'],
+    [['03-21', '04-19'], 'aries', '♈︎'],
+    [['04-20', '05-20'], 'taurus', '♉︎'],
+    [['05-21', '06-20'], 'gemini', '♊︎'],
+    [['06-21', '07-22'], 'cancer', '♋︎'],
+    [['07-23', '08-22'], 'leo', '♌︎'],
+    [['08-23', '09-22'], 'virgo', '♍︎'],
+    [['09-23', '10-22'], 'libra', '♎︎'],
+    [['10-23', '11-21'], 'scorpio', '♏︎'],
+    [['11-22', '12-21'], 'saggitarius', '♐︎'],
+    [['12-22', '12-31'], 'capricorn', '♑︎'],
+  ]
+  for (let i = 0; i < pairs.length; i++) {
+    const [[start, end], name, sign] = pairs[i]
+    if (datestamp > start && datestamp <= end) {
+      return sign
+    }
+  }
+}
+
 const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   const [agentNamesToDistances, setAgentNamesToDistances] = useState<Record<string, number> | null>(null)
   useEffect(() => {
@@ -68,7 +93,11 @@ const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurn
           const items = gameTurn.items.filter((i) => i.agentId === agent.id)
           return (
             <li key={index} className="mb-4">
-              <h3 className="mb-2 font-semibold" style={{ color: agent.color }}>{agent.label}</h3>
+              <h3 className="mb-2 font-semibold" style={{ color: agent.color }}>
+                {agent.label}
+                {' '}
+                {horoscopeSign(new Date(agent.birthdate))}
+              </h3>
 
               <table className="table-fixed mb-2 text-xs opacity-80 bg-slate-800 sm:w-auto lg:w-full">
                 <thead>

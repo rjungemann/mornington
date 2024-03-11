@@ -222,7 +222,8 @@
        initiative="10"
        timeout="0"
        stunTimeout="0"
-       description="A bootlegger and partier. Enterprising." />
+       description="A bootlegger and partier. Enterprising."
+       birthdate="1982-04-21T00:00:00.000Z" />
   </g>
   <g
      inkscape:groupmode="layer"

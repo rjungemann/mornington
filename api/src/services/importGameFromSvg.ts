@@ -79,6 +79,7 @@ type AgentItem = {
     initiative: string
     timeout: string
     stunTimeout: string
+    birthdate: string
     stationName: string
     trainName: string
     style: string
@@ -99,6 +100,7 @@ type AgentTransformed = {
   initiative: number
   timeout: number
   stunTimeout: number
+  birthdate: Date
   stationName: string | null
   trainName: string | null
 }
@@ -287,9 +289,10 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const initiative = parseInt(agent.$.initiative, 10)
     const timeout = parseInt(agent.$.timeout, 10)
     const stunTimeout = parseInt(agent.$.stunTimeout, 10)
+    const birthdate = new Date(agent.$.birthdate)
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, stationName, trainName }
+    return { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, birthdate, stationName, trainName }
   })
   return agents
 }
@@ -452,7 +455,7 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   .bulkCreate(agentsData.map((agent) => {
     const startingStations = stations.filter((station) => station.dataValues.start)
     const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-    const { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout } = agent
+    const { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, birthdate } = agent
     return {
       name,
       title,
@@ -467,6 +470,7 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
       initiative,
       timeout,
       stunTimeout,
+      birthdate,
       gameId: game.dataValues.id,
       stationId: startingStation.dataValues.id,
       trainId: null

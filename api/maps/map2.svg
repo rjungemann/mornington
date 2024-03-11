@@ -352,7 +352,8 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A former seminary student turned butler." />
+       description="A former seminary student turned butler."
+       birthdate="1964-06-16T00:00:00.000Z" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8"
@@ -372,7 +373,8 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A scientist who has faith in the empirical method." />
+       description="A scientist who has faith in the empirical method."
+       birthdate="1992-08-08T00:00:00.000Z" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
        id="path8-8-8"
@@ -392,7 +394,8 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="An ambitious lawyer with connections from all walks of society." />
+       description="An ambitious lawyer with connections from all walks of society."
+       birthdate="1988-05-30T00:00:00.000Z" />
   </g>
   <g
      inkscape:groupmode="layer"

@@ -5,6 +5,7 @@ import createGameTurn from '../services/createGameTurn';
 import { tickTrains } from './ticks/trains';
 import { tickAgents } from './ticks/agents';
 import { tickHazards } from './ticks/hazards';
+import { tickWeather } from './ticks/weather';
 
 async function tickGameTurn(game: Model<Game>) {
   const gameId = game.dataValues.id
@@ -17,6 +18,9 @@ async function tickGameTurn(game: Model<Game>) {
   const items = await db.models.Item.findAll({ where: { gameId: { [Op.eq]: gameId } } })
 
   const context = { db, game, lines, trains, hops, stations, agents, hazards, items }
+
+  // Weather phase
+  await tickWeather(context)
 
   // Hazard phase
   await tickHazards(context)

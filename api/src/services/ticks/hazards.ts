@@ -2,6 +2,7 @@ import db from '../../models';
 import { logger } from '../../logging'
 import { ClockContext } from '../../types';
 import { gameSeededRandom } from '../ticks/shared';
+import { rollDice } from '../../diceparser';
 
 type BaseHazard = {
   name: string
@@ -138,9 +139,11 @@ async function tickHazards(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards } = context
   const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
+  // Chance to generate a persistent hazard
   if (gameSeededRandom(game) < 0.05) {
     await createRandomHazard(context)
   }
+  // Chance to destroy a persistent hazard
   if (gameSeededRandom(game) < 0.05) {
     await destroyRandomHazard(context)
   }
