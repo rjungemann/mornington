@@ -1,5 +1,8 @@
 'use client';
 
+import { findRandomPath } from "@/helpers/findRandomPath";
+import { Dispatch, SetStateAction, useState } from "react";
+
 const dropShadowStyle = { filter: 'drop-shadow(0px 2px 1px rgb(0 0 0 / 0.6))' }
 
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
@@ -59,18 +62,6 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
           )
         })
       }
-    </>
-  )
-}
-
-const VirtualStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
-  const width = 200
-  const height = 100
-  const offsetY = 24
-  const radius = options.virtualStationRadius
-  return (
-    <>
-      <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
     </>
   )
 }
@@ -160,51 +151,61 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
   )
 }
 
-const RealStation = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
-  const width = 200
-  const height = 100
-  const offsetY = 24
-  const radius = options.stationRadius
-  const x = station.x - width * 0.5
-  const y = station.y - height * 0.5 + offsetY
-  const bubbleOffsetX = 12
-  const bubbleHeight = 20
-  return (
-    <g key={station.id}>
-      <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
-      {
-        station.start
-        ? (
-          <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={0.5} />
-        )
-        : null
-      }
-      {
-        station.end
-        ? (
-          <circle cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={0.5} />
-        )
-        : null
-      }
-      <svg width={width} height={height} x={x} y={y}>
-        <rect x="0" y="0" width={width} height={height} fill="none"/>
-        {/* TODO: Options */}
-        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#e2e8f0" fontSize="0.6em" style={dropShadowStyle}>{station.title}</text>
-      </svg>
-      <StationBubble gameTurn={gameTurn} station={station} options={options} />
-    </g>
-  )
-}
-
-const Station = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
+const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameTurnResponse, station: StationResponse, setTraversal: Dispatch<SetStateAction<string[]>>, options: GraphOptions }) => {
   const width = 200
   const height = 100
   const offsetY = 24
   const radius = station.virtual ? options.virtualStationRadius : options.stationRadius
+  const bubbleX = station.x - width * 0.5
+  const bubbleY = station.y - height * 0.5 + offsetY
+
+  const mouseOver = () => {
+    const destination = gameTurn.stations.find((s) => s.end)
+    if (!destination) {
+      return
+    }
+    const path = findRandomPath(gameTurn, station.name, destination.name)
+    if (path) {
+      // setTraversal(path)
+    }
+  }
+
+  const mouseOut = () => {
+    // setTraversal([])
+  }
+
   return (
     station.virtual
-    ? <VirtualStation gameTurn={gameTurn} station={station} options={options} />
-    : <RealStation gameTurn={gameTurn} station={station} options={options} />
+    ? (
+      <>
+        <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+      </>
+    )
+    : (
+      <g key={station.id} onMouseOver={mouseOver} onMouseOut={mouseOut}>
+        <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+        {
+          station.start
+          ? (
+            <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={0.5} />
+          )
+          : null
+        }
+        {
+          station.end
+          ? (
+            <circle cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={0.5} />
+          )
+          : null
+        }
+        <svg width={width} height={height} x={bubbleX} y={bubbleY}>
+          <rect x="0" y="0" width={width} height={height} fill="none"/>
+          {/* TODO: Options */}
+          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#e2e8f0" fontSize="0.6em" style={dropShadowStyle}>{station.title}</text>
+        </svg>
+        <StationBubble gameTurn={gameTurn} station={station} options={options} />
+      </g>
+    )
   )
 }
 
@@ -274,17 +275,24 @@ const Traversal = ({ gameTurn, traversal }: { gameTurn: GameTurnResponse, traver
     const head = gameTurn.stations.find((station) => station.name === traversal[i - 1])!
     const tail = gameTurn.stations.find((station) => station.name === traversal[i])!
     const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
-    const magnitude = 40
+    const magnitude = 20
+    const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 1.5
     const [cx, cy, dx, dy] = [hx, hy - magnitude, tx, ty - magnitude]
+    // const [cx, cy, dx, dy] = [
+    //   ...projectPoint(hx, hy, angle, magnitude),
+    //   ...projectPoint(tx, ty, angle, magnitude)
+    // ]
     const path = `M ${hx} ${hy} C ${cx} ${cy}, ${dx} ${dy}, ${tx} ${ty}`
     // TODO: Options
-    paths.push(<path key={`${head.name}:${tail.name}`} d={path} stroke="yellow" strokeWidth={2} opacity={0.6} fill="transparent"/>)
+    paths.push(<path key={`${head.name}:${tail.name}`} d={path} stroke="yellow" strokeWidth={4} opacity={0.8} fill="transparent"/>)
   }
   return paths
 }
 
-export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResponse, traversal: string[] | undefined, options: GraphOptions }) => {
+export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: GraphOptions }) => {
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
+
+  const [traversal, setTraversal] = useState<string[]>([])
 
   return (
     <div className="border-solid border-2 border-slate-600">
@@ -293,8 +301,11 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
           {<Hops gameTurn={gameTurn} options={options} />}
         </g>
         <g>
+          {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} /> : null}
+        </g>
+        <g>
           {gameTurn?.stations.map((station, index) => (
-            <Station key={index} gameTurn={gameTurn} station={station} options={options} />
+            <Station key={index} gameTurn={gameTurn} station={station} options={options} setTraversal={setTraversal} />
           ))}
         </g>
         <g>
@@ -307,9 +318,6 @@ export const Graph = ({ gameTurn, traversal, options }: { gameTurn: GameTurnResp
             <Train key={index} gameTurn={gameTurn} train={train} options={options} />
           ))}
         </g>
-        {/* <g>
-          {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} /> : null}
-        </g> */}
       </svg>
     </div>
   );

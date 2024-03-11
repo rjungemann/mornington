@@ -10,10 +10,10 @@ function findRandomPath(game: GameTurnResponse, sourceName: string, destinationN
       if (!current) {
         break
       }
+      stationNames.push(current.name)
       if (current.id === destination.id) {
         return stationNames
       }
-      stationNames.push(current.name)
       const hops = game.hops.filter((hop) => hop.headId === current?.id)
       const hop = hops[Math.floor(Math.random() * hops.length)]
       current = game.stations

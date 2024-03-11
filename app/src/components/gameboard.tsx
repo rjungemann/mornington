@@ -22,24 +22,6 @@ export function Gameboard({ name }: { name: string }) {
   const currentMessages = messages?.filter((message) => message.turnNumber === game?.turnNumber) || []
   const currentMessage = currentMessages[Math.floor(Math.random() * currentMessages.length)]
 
-  const [traversal, setTraversal] = useState<string[]>([])
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     if (!game) {
-  //       return
-  //     }
-  //     const source = game.stations.find((station) => station.start)!
-  //     const destination = game.stations.find((station) => station.end)!
-  //     const path = findRandomPath(game, source.name, destination.name)
-  //     if (path) {
-  //       setTraversal(path)
-  //     }
-  //     else {
-  //       setTraversal([])
-  //     }
-  //   }, 2000)
-  // }, [game])
-
   // TODO: Better loading indicator
   if (!gameTurn || !game || !messages) {
     return <></>
@@ -60,7 +42,7 @@ export function Gameboard({ name }: { name: string }) {
           <div className="sm:col-span-1 lg:col-span-2">
             {
               graphOptions
-              ? <Graph gameTurn={gameTurn} options={graphOptions} traversal={traversal} />
+              ? <Graph gameTurn={gameTurn} options={graphOptions} />
               : null
             }
             {
