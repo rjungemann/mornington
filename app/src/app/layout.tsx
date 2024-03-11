@@ -5,7 +5,7 @@ import "./globals.css";
 const font = Noto_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mornington",
+  title: "Minstowe Circle",
   description: "The subway travel simulation game",
 };
 

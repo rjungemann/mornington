@@ -1,3 +1,22 @@
+const HazardInfo = ({ hazard, game, gameTurn }: { hazard: HazardResponse, game: GameResponse, gameTurn: GameTurnResponse }) => {
+  const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)
+  const headStation = hop ? gameTurn.stations.find((station) => station.id === hop.headId) : null
+  const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
+  return (
+    <>
+      <span className="font-semibold">{hazard.label}</span>
+      {' '}
+      between
+      {' '}
+      <span className="font-semibold">{headStation!.title}</span>
+      {' '}
+      and
+      {' '}
+      <span className="font-semibold">{tailStation!.title}</span>
+    </>
+  )
+}
+
 const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
@@ -7,20 +26,9 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
           gameTurn?.hazards?.length
           ? (
             gameTurn?.hazards.map((hazard, index) => {
-              const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)
-              const headStation = hop ? gameTurn.stations.find((station) => station.id === hop.headId) : null
-              const tailStation = hop ? gameTurn.stations.find((station) => station.id === hop.tailId) : null
               return (
                 <li key={index} className="mb-2 text-xs">
-                  <span className="font-semibold">{hazard.label}</span>
-                  {' '}
-                  between
-                  {' '}
-                  <span className="font-semibold">{headStation!.title}</span>
-                  {' '}
-                  and
-                  {' '}
-                  <span className="font-semibold">{tailStation!.title}</span>
+                  <HazardInfo hazard={hazard} game={game} gameTurn={gameTurn} />
                 </li>
               )
             })

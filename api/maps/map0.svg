@@ -427,7 +427,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="0"
-       description="Film reviewer. Freemason. Nice clothes."
+       description="Film reviewer. Freemason."
        birthdate="1972-03-11T00:00:00.000Z" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
@@ -448,7 +448,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="0"
-       description="Animal trainer. High school graduate. Reader of Tarot cards."
+       description="Animal trainer. High school graduate. Card reader."
        birthdate="1984-01-23T00:00:00.000Z" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
@@ -564,6 +564,6 @@
        moonPhaseLabel="Waxing Gibbous"
        title="Game #1: Cowstone East"
        label="Game #1: Cowstone East"
-       description="Two lines in opposite directions sometimes leads agents astray." />
+       description="Two lines in opposite directions sometimes leads agents astray in this course." />
   </g>
 </svg>

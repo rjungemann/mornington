@@ -2,6 +2,22 @@
 
 import TimeAgo from 'react-timeago'
 
+const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn: GameTurnResponse, message: MessageResponse }) => {
+  return (
+    <>
+      <span className="text-sky-400">
+        #{message.turnNumber}
+      </span>
+      {' '}
+      <span className="opacity-80">
+        <TimeAgo date={message.currentTime} live={false} />
+      </span>
+      {' '}
+      {message.message}
+    </>
+  )
+}
+
 const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTurn: GameTurnResponse, messages: MessageResponse[] }) => {
   const groupedMessages: Record<number, MessageResponse[]> = messages?.reduce((hash: Record<number, MessageResponse[]>, message: MessageResponse) => {
     hash[message.turnNumber] ??= []
@@ -22,15 +38,7 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
             <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-3 first:pt-0">
               {messages.map((message: MessageResponse, i) => (
                 <li key={i} className="mb-1">
-                  <span className="text-sky-400">
-                    #{message.turnNumber}
-                  </span>
-                  {' '}
-                  <span className="opacity-80">
-                    <TimeAgo date={message.currentTime} live={false} />
-                  </span>
-                  {' '}
-                  {message.message}
+                  <MessageInfo message={message} game={game} gameTurn={gameTurn} />
                 </li>
               ))}
             </ul>
