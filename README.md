@@ -60,7 +60,16 @@ yarn dev
 
 ## Structure
 
-![image](https://github.com/rjungemann/mornington/assets/49277/36b45428-10f4-4695-80e1-62f082fde569)
+```mermaid
+flowchart LR
+    clock[Clock Process]
+    api[API Service]
+    db[(PostgreSQL)]
+    web[Web Client]
+    clock --- db
+    api --- db
+    web --- api
+```
 
 ### Clock
 
