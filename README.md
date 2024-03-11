@@ -119,8 +119,25 @@ A NextJS app which renders games using React and SVG. Designed to be fast and li
 
 ### Heroku
 
+Once Heroku is setup,
+
 ```sh
+# Deploy backend
 git subtree push --prefix api backend main
+
+# Sync and seed the DB
+heroku run -a mornington-backend yarn db:sync
+heroku run -a mornington-backend yarn db:seed
+
+# Get the logs for the API and clock process
+heroku logs --tail -a mornington-backend
+
+# Dump and load the DB
+heroku pg:backups:capture -a $api
+heroku pg:backups:download -a $api
+
+# Deploy frontend
+git subtree push --prefix app frontend main
 ```
 
 ## Credits
