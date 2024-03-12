@@ -352,7 +352,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A former seminary student turned butler."
+       description="A former bartender turned butler."
        birthdate="1964-06-16T00:00:00.000Z" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
@@ -373,7 +373,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A scientist who has faith in the empirical method."
+       description="A scientist uses her knowledge to giver her the upper hand."
        birthdate="1992-08-08T00:00:00.000Z" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"

@@ -157,16 +157,10 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
 const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameTurnResponse, station: StationResponse, setTraversal: Dispatch<SetStateAction<string[]>>, options: GraphOptions }) => {
   const width = 200 // Hardcoded, just big enough that text doesn't crop
   const height = 100 // Hardcoded, just big enough that text doesn't crop
-  // TODO: Move to options
-  const stationTextOffsetY = 24
-  const stationTextColor = '#e2e8f0'
-  const stationFontSize = '0.65em'
-  const stationSourceOpacity = 0.5
-  const stationDestinationOpacity = 0.5
-
+  
   const radius = station.virtual ? options.virtualStationRadius : options.stationRadius
   const textX = station.x - width * 0.5
-  const textY = station.y - height * 0.5 + stationTextOffsetY
+  const textY = station.y - height * 0.5 + options.stationTextOffsetY
 
   const mouseOver = () => {
     const destination = gameTurn.stations.find((s) => s.end)
@@ -195,18 +189,18 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
         <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
         {
           station.start
-          ? <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={stationSourceOpacity} />
+          ? <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={options.stationSourceOpacity} />
           : null
         }
         {
           station.end
-          ? <circle cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={stationDestinationOpacity} />
+          ? <circle cx={station.x} cy={station.y} r={options.destinationRadius} fill="none" stroke={options.destinationStroke} strokeWidth={options.destinationStrokeWidth} opacity={options.stationDestinationOpacity} />
           : null
         }
         <svg width={width} height={height} x={textX} y={textY}>
           <rect x="0" y="0" width={width} height={height} fill="none"/>
           {/* TODO: Options */}
-          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={stationTextColor} fontSize={stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
+          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={options.stationTextColor} fontSize={options.stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
         </svg>
         <StationBubble gameTurn={gameTurn} station={station} options={options} />
       </g>
@@ -220,11 +214,11 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
   const points = [[1, 0], [2, 2], [0, 2]]
   .map(([x, y]) => [x - 1, y - 1])
-  .map(([x, y]) => [x * trainScale, y * trainScale])
+  .map(([x, y]) => [x * options.trainScale, y * options.trainScale])
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
-      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={trainStroke} strokeWidth={trainStrokeWidth} />
+      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )

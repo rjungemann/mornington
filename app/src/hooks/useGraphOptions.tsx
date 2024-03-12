@@ -1,7 +1,7 @@
 export function useGraphOptions() {
   const graphOptions: GraphOptions = {
     fontFamily: 'Noto Sans, sans-serif',
-    hopStrokeWidth: 4,
+    hopStrokeWidth: 5,
     stationStroke: '#f5f5f4',
     stationStrokeWidth: 4,
     stationFill: '#0c0a09',
@@ -39,7 +39,7 @@ export function useGraphOptions() {
     hazardStrokeWidth: '0.25',
     hazardScale: 6.7,
 
-    trainScale: 9.0,
+    trainScale: 10,
     trainStroke: 'black',
     trainStrokeWidth: '0.25',
 
