@@ -142,9 +142,9 @@ type Position = {
 
 type GraphOptions = {
   fontFamily: string,
-  hopStrokeWidth: number,
+  hopStrokeWidth: number, // Must be a number, because we do math on it
   stationStroke: string,
-  stationStrokeWidth: number,
+  stationStrokeWidth: number | string,
   stationFill: string,
   stationRadius: number,
   virtualStationRadius: number,
@@ -153,10 +153,43 @@ type GraphOptions = {
   sourceStrokeWidth: number,
   destinationRadius: number,
   destinationStroke: string,
-  destinationStrokeWidth: number,
+  destinationStrokeWidth: number | string,
   trainRadius: number,
   offset: Position,
-  size: Position
+  size: Position,
+
+  dropShadowStyle: { filter: string }
+
+  bubbleOffsetY: number
+  bubbleOffsetX: number
+  bubbleHeight: number
+  bubbleStroke: string
+  bubbleFill: string
+  bubbleStrokeWidth: number | string
+  bubbleRadius: number
+  bubbleAgentRadius: number
+  bubbleAgentPadding: number
+  bubbleTipWidth: number
+  bubbleTipHeight: number
+
+  traversalStroke: string
+  traversalStrokeWidth: number | string
+  traversalOpacity: number
+  traversalMagnitude: number
+
+  hazardStroke: string
+  hazardStrokeWidth: number | string
+  hazardScale: number
+
+  trainScale: number
+  trainStroke: string
+  trainStrokeWidth: number | string
+
+  stationTextOffsetY: number
+  stationTextColor: string
+  stationFontSize: string
+  stationSourceOpacity: number
+  stationDestinationOpacity: number
 }
 
 type GameContextData = {

@@ -42,7 +42,12 @@ export function Gameboard({ name }: { name: string }) {
           <div className="sm:col-span-1 lg:col-span-2">
             {
               graphOptions
-              ? <Graph gameTurn={gameTurn} options={graphOptions} />
+              ? (
+
+                <div className="border-solid border-2 border-slate-600">
+                  <Graph gameTurn={gameTurn} options={graphOptions} />
+                </div>
+              )
               : null
             }
             {
