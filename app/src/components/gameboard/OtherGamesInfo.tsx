@@ -17,27 +17,11 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
         <span className="text-slate-200">Turn #{game.turnNumber}</span>
       </div>
 
-      <div className="text-xs opacity-80">
+      <div className="text-xs opacity-80 mb-2">
         {
           game.finished
           ? <>Game is <span className="text-red-400">finished</span></>
           : <>Game is <span className="text-green-400">in-progress</span></>
-        }
-      </div>
-
-      <div className="text-xs mb-2 opacity-80">
-        Featuring
-        {' '}
-        {
-          game.agents.map((agent, i) => (
-            <span key={i}>
-              <span style={{ color: agent.color }}>
-                {agent.title}
-              </span>
-              {i < game.agents.length - 1 ? ', ' : null}
-              {i === game.agents.length - 2 ? 'and ' : null}
-            </span>
-          ))
         }
       </div>
 

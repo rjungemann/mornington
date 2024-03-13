@@ -7,7 +7,12 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
 
   return (
     <>
-      <h3 className="font-semibold" style={{ color: train.color }}>{train.label}</h3>
+      <h3 className="font-semibold">
+        {train.label}
+        <svg className="inline-block align-baseline ml-0.5" width={15} height={13} x={0} y={0}>
+          <circle cx={7.5} cy={7.5} r={4} fill={train.color} />
+        </svg>
+      </h3>
       <ul className="opacity-80 text-xs">
         {station ? <li>Stopped at: <span className="font-semibold">{station.title}</span></li> : null}
         {headStation && tailStation ? <li>Traveling from <span className="font-semibold">{headStation.title}</span> to <span className="font-semibold">{tailStation.title}</span></li> : null}
@@ -19,8 +24,12 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
               {' '}
               {agents.map((a, i) => (
                 <span key={i}>
-                  <span className="font-semibold" style={{ color: a.color }}>{a.title}</span>
-                  {i < agents.length - 1 ? ', ' : null}
+                  <span className="font-semibold">{a.title}</span>
+                  {' '}
+                  <svg key={i} className="inline-block align-baseline mr-0.5" width={10} height={8} x={0} y={0}>
+                    <circle cx={5} cy={4} r={3} fill={a.color} />
+                  </svg>
+                  {i < agents.length - 1 ? ' ' : null}
                   {i === agents.length - 2 ? 'and ' : null}
                 </span>
               ))}

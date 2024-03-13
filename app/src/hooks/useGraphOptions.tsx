@@ -16,14 +16,14 @@ export function useGraphOptions() {
     destinationStrokeWidth: 2,
     offset: { x: 0, y: 0 },
     size: { x: 500, y: 500 },
-    dropShadowStyle: { filter: 'drop-shadow(0px 2px 1px rgb(0 0 0 / 0.6))' },
+    dropShadowStyle: { filter: 'drop-shadow(0px 1px 1px rgb(0 0 0 / 1.0))' },
 
     bubbleOffsetY: 24,
     bubbleOffsetX: 12,
     bubbleHeight: 20,
     bubbleStroke: 'black',
     bubbleFill: 'white',
-    bubbleStrokeWidth: '0.25',
+    bubbleStrokeWidth: '0.125',
     bubbleRadius: 5,
     bubbleAgentRadius: 4,
     bubbleAgentPadding: 1,
@@ -32,7 +32,7 @@ export function useGraphOptions() {
 
     traversalStroke: 'yellow',
     traversalStrokeWidth: 4,
-    traversalOpacity: 0.8,
+    traversalOpacity: 1.0,
     traversalMagnitude: 20,
 
     hazardStroke: 'black',
@@ -46,8 +46,8 @@ export function useGraphOptions() {
     stationTextOffsetY: 24,
     stationTextColor: '#e2e8f0',
     stationFontSize: '0.65em',
-    stationSourceOpacity: 0.5,
-    stationDestinationOpacity: 0.5,
+    stationSourceOpacity: 0.6,
+    stationDestinationOpacity: 0.6,
   }
 
   return graphOptions

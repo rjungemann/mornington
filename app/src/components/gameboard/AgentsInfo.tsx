@@ -15,13 +15,14 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
   const [horoscopeName, horoscopeTitle, horoscopeSign] = dateToHoroscopeSign(new Date(agent.birthdate))
   return (
     <>
-      <h3 className="mb-2 font-semibold" style={{ color: agent.color }}>
+      <h3 className="mb-2 font-semibold">
         {agent.label}
-        {' '}
-        <span title={horoscopeTitle}>{horoscopeSign}</span>
+        <svg className="inline-block align-baseline ml-0.5" width={15} height={13} x={0} y={0}>
+          <circle cx={7.5} cy={7.5} r={4} fill={agent.color} />
+        </svg>
       </h3>
 
-      <div className="mb-4 text-xs opacity-60">
+      <div className="mb-2 text-xs opacity-60">
         {agent.description}
       </div>
 
@@ -33,6 +34,7 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
             <th className="p-1 text-center">Str.</th>
             <th className="p-1 text-center">Dex.</th>
             <th className="p-1 text-center">Wil.</th>
+            <th className="p-1 text-center">Sign</th>
           </tr>
         </thead>
         <tbody>
@@ -42,6 +44,7 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
             <td className="p-1 pt-0 text-center">{agent.strength}</td>
             <td className="p-1 pt-0 text-center">{agent.dexterity}</td>
             <td className="p-1 pt-0 text-center">{agent.willpower}</td>
+            <td className="p-1 pt-0 text-center" title={horoscopeTitle}>{horoscopeSign}</td>
           </tr>
         </tbody>
       </table>
@@ -62,18 +65,42 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
                 train
                 ? (
                   trainStation
-                  ? <li>Traveling on <span className="font-semibold">{train.title}</span> train, stopped at <span className="font-semibold">{trainStation.title}</span></li>
-                  : <li>Traveling on <span className="font-semibold">{train.title}</span> train</li>
+                  ? (
+                    <li>
+                      Traveling on
+                      {' '}
+                      <span className="font-semibold">{train.title}</span>
+                      {' '}
+                      <svg className="inline-block align-baseline" width={10} height={8} x={0} y={0}>
+                        <circle cx={5} cy={4} r={3} fill={train.color} />
+                      </svg>
+                      {' '}
+                      train, stopped at
+                      {' '}
+                      <span className="font-semibold">{trainStation.title}</span>
+                    </li>
+                  )
+                  : (
+                    <li>
+                      Traveling on
+                      {' '}
+                      <span className="font-semibold">{train.title}</span>
+                      {' '}
+                      train
+                    </li>
+                  )
                 )
                 : null
               }
               {
-                estimatedDistance
-                ? <li>An estimated <span className="font-semibold">{estimatedDistance}</span> stations away</li>
+                estimatedDistance && estimatedDistance > 1
+                ? (
+                  <li>An estimated <span className="font-semibold">{estimatedDistance - 1}</span> stations away</li>
+                )
                 : null
               }
               {
-                station && !station.start && agent.stationId && otherAgents.length > 0
+                station && !station.start && !station.end && agent.stationId && otherAgents.length > 0
                 ? <li>Currently locked in combat</li>
                 : null
               }

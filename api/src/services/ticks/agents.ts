@@ -475,12 +475,12 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
       },
       'Traveling agent is traveling on train'
     )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      currentTime,
-      message: `Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`
-    })
+    // await db.models.Message.create({
+    //   gameId,
+    //   turnNumber,
+    //   currentTime,
+    //   message: `Traveling agent ${agent.dataValues.title} is traveling on ${train.dataValues.title}.`
+    // })
     return
   }
 
@@ -521,7 +521,7 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
         trainName: train.dataValues.name,
         stationName: station.dataValues.name
       },
-        'Traveling agent will not be disembarking train to virtual station'
+        'Traveling agent will not be disembarking train to service station'
       )
       await db.models.Message.create({
         gameId,
@@ -566,12 +566,12 @@ async function tickTravelingAgent(agent: Model<Agent>, context: ClockContext) {
     },
     'Traveling agent is staying on stationed train'
   )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    currentTime,
-    message: `Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`
-  })
+  // await db.models.Message.create({
+  //   gameId,
+  //   turnNumber,
+  //   currentTime,
+  //   message: `Traveling agent ${agent.dataValues.title} is staying on ${train.dataValues.title} at station ${station.dataValues.title}.`
+  // })
 }
 
 async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
@@ -639,12 +639,12 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
       },
       'Stationed agent is waiting at station'
     )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      currentTime,
-      message: `Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`
-    })
+    // await db.models.Message.create({
+    //   gameId,
+    //   turnNumber,
+    //   currentTime,
+    //   message: `Stationed agent ${agent.dataValues.title} is waiting at ${station.dataValues.title}.`
+    // })
     return
   }
   
@@ -662,7 +662,7 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
           stationName: station.dataValues.name,
           trainName: trainToBoard.dataValues.name
         },
-        'Stationed agent attempted to board train, but is trapped in virtual station'
+        'Stationed agent attempted to board train, but is trapped in service station'
       )
       await db.models.Message.create({
         gameId,
@@ -705,12 +705,12 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
     },
     'Stationed agent is waiting at station with waiting trains'
   )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    currentTime,
-    message: `Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`
-  })
+  // await db.models.Message.create({
+  //   gameId,
+  //   turnNumber,
+  //   currentTime,
+  //   message: `Stationed agent ${agent.dataValues.title} is waiting for trains in ${station.dataValues.title}.`
+  // })
 }
 
 async function tickAgents(context: ClockContext) {

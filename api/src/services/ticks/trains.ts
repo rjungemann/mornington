@@ -179,12 +179,12 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
     },
     'Traveling train traveling normally'
   )
-  await db.models.Message.create({
-    gameId,
-    turnNumber,
-    currentTime,
-    message: `Traveling train ${train.dataValues.title} is traveling normally.`
-  })
+  // await db.models.Message.create({
+  //   gameId,
+  //   turnNumber,
+  //   currentTime,
+  //   message: `Traveling train ${train.dataValues.title} is traveling normally.`
+  // })
 }
 
 async function tickStationedTrainDepartVirtualStation(train: Model<Train>, station: Model<Station>, context: ClockContext) {

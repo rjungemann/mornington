@@ -213,7 +213,7 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   const percent = train.distance / hop.length
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
   const points = [[1, 0], [2, 2], [0, 2]]
-  .map(([x, y]) => [x - 1, y - 1])
+  .map(([x, y]) => [x - 1, y - 1.25])
   .map(([x, y]) => [x * options.trainScale, y * options.trainScale])
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
@@ -227,7 +227,7 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
 const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
   const { x, y } = gameTurn.stations.find((station) => station.id === train.stationId)!
   const points = [[1, 0], [2, 2], [0, 2]]
-  .map(([x, y]) => [x - 1, y - 1])
+  .map(([x, y]) => [x - 1, y - 1.25])
   .map(([x, y]) => [x * options.trainScale, y * options.trainScale])
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
@@ -283,18 +283,20 @@ export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, optio
 
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox} fontFamily={options.fontFamily}>
-      <g>
-        {<Hops gameTurn={gameTurn} options={options} />}
+      <g opacity={0.8}>
+        <g>
+          {<Hops gameTurn={gameTurn} options={options} />}
+        </g>
+        <g>
+          {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} options={options} /> : null}
+        </g>
+        <g>
+          {gameTurn?.stations.map((station, index) => (
+            <Station key={index} gameTurn={gameTurn} station={station} options={options} setTraversal={setTraversal} />
+          ))}
+        </g>
+        <g>
       </g>
-      <g>
-        {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} options={options} /> : null}
-      </g>
-      <g>
-        {gameTurn?.stations.map((station, index) => (
-          <Station key={index} gameTurn={gameTurn} station={station} options={options} setTraversal={setTraversal} />
-        ))}
-      </g>
-      <g>
         {gameTurn?.hazards.map((hazard, index) => (
           <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
         ))}

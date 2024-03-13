@@ -30,21 +30,38 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
       <p className="text-xs mb-4 bg-slate-800 text-slate-200 p-2 opacity-80">
-        <span className="font-bold text-sky-500">Note:</span> Events are listed most recent first.
+        <span className="font-bold text-sky-500">Note:</span> Events are listed most recent first, according to in-game time.
       </p>
-      <div className="mb-4 divide-y-2 divide-slate-600">
-        {turnNumbers.map((turnNumber, turnIndex) => {
-          return (
-            <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-3 first:pt-0">
-              {messages.map((message: MessageResponse, i) => (
-                <li key={i} className="mb-1">
-                  <MessageInfo message={message} game={game} gameTurn={gameTurn} />
-                </li>
-              ))}
-            </ul>
-          )
-        })}
-      </div>
+      {
+        turnNumbers.length > 0
+        ? (
+          <div className="mb-4 divide-y-2 divide-slate-600">
+            {turnNumbers.map((turnNumber, turnIndex) => {
+              const messages = groupedMessages[turnNumber]
+              return (
+                messages
+                ? (
+                  <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-3 first:pt-0">
+                    {messages.map((message: MessageResponse, i) => (
+                      <li key={i} className="mb-1">
+                        <MessageInfo message={message} game={game} gameTurn={gameTurn} />
+                      </li>
+                    ))}
+                  </ul>
+                )
+                : null
+              )
+            })}
+          </div>
+        )
+        : (
+          <div className="mb-4 divide-y-2 divide-slate-600">
+            <div className="opacity-80 text-xs pb-2">
+              No events to display at this time.
+            </div>
+          </div>
+        )
+      }
     </>
   )
 }

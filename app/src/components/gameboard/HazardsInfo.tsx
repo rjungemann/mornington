@@ -34,7 +34,7 @@ const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTur
             })
           )
           : (
-            <li className="mb-2 text-xs">There are no travel advisories currently.</li>
+            <li className="mb-2 text-xs opacity-80">There are no travel advisories currently.</li>
           )
         }
       </ul>
