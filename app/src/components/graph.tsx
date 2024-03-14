@@ -48,8 +48,8 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
       return (
         colors.map((color, i) => {
           const [hx2, hy2, tx2, ty2] = [
-            ...projectPoint(hx, hy, angle, magnitude * (i - colors.length * 0.5)),
-            ...projectPoint(tx, ty, angle, magnitude * (i - colors.length * 0.5))
+            ...projectPoint(hx, hy, angle, magnitude * 0.5 * colors.length * i),
+            ...projectPoint(tx, ty, angle, magnitude * 0.5 * colors.length * i)
           ]
           return (
             <path key={`${index}-${i}`} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} />

@@ -21,12 +21,12 @@ export function useGraphOptions() {
     bubbleOffsetY: 24,
     bubbleOffsetX: 12,
     bubbleHeight: 20,
-    bubbleStroke: 'black',
+    bubbleStroke: 'none',
     bubbleFill: 'white',
     bubbleStrokeWidth: '0.125',
     bubbleRadius: 5,
     bubbleAgentRadius: 4,
-    bubbleAgentPadding: 1,
+    bubbleAgentPadding: 1.5,
     bubbleTipWidth: 6,
     bubbleTipHeight: 6,
 
@@ -40,7 +40,7 @@ export function useGraphOptions() {
     hazardScale: 6.7,
 
     trainScale: 10,
-    trainStroke: 'black',
+    trainStroke: 'none',
     trainStrokeWidth: '0.25',
 
     stationTextOffsetY: 24,
