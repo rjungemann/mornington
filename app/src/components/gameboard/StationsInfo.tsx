@@ -12,7 +12,7 @@ const StationInfo = ({ game, gameTurn, station }: { game: GameResponse, gameTurn
             trains.length
             ? (
               <li>
-                Stopped trains:
+                Stopped trains
                 {' '}
                 {trains.map((t, i) => (
                   <span key={i}>
@@ -33,7 +33,7 @@ const StationInfo = ({ game, gameTurn, station }: { game: GameResponse, gameTurn
             agents.length
             ? (
               <li>
-                Waiting passengers:
+                Waiting passengers
                 {' '}
                 {agents.map((a, i) => (
                   <span key={i}>

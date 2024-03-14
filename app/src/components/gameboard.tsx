@@ -13,6 +13,7 @@ import { StationsInfo } from './gameboard/StationsInfo'
 import { MessagesInfo } from './gameboard/MessagesInfo'
 import { AboutInfo } from './gameboard/AboutInfo'
 import { OtherGamesInfo } from './gameboard/OtherGamesInfo'
+import { formatTime } from '@/helpers/formatTime'
 
 export function Gameboard({ name }: { name: string }) {
   const { gameTurn, game, messages } = useGameHook(name) || {}
@@ -87,13 +88,13 @@ export function Gameboard({ name }: { name: string }) {
                 <div className="mb-2">
                   <span className="font-semibold text-sky-500">In-Game Started</span>
                   {' '}
-                  <span><TimeAgo date={game.startTime} live={false} /></span>
+                  <span>{formatTime(new Date(game.startTime))}</span>
                 </div>
 
                 <div className="mb-2">
                   <span className="font-semibold text-sky-500">In-Game Updated</span>
                   {' '}
-                  <span><TimeAgo date={new Date(game.currentTime)} live={false} /></span>
+                  <span>{formatTime(new Date(game.currentTime))}</span>
                 </div>
 
                 <div className="mb-2">

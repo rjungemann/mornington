@@ -8,8 +8,8 @@ type GameResponse = {
   finished: boolean
   startingSeed: number
   currentSeed: number
-  startTime: Date
-  currentTime: Date
+  startTime: string
+  currentTime: string
   turnDurationSeconds: number
   weatherName: string
   weatherTitle: string
@@ -126,7 +126,7 @@ type GameTurnResponse = {
 type MessageResponse = {
   id: number
   turnNumber: number
-  currentTime: Date
+  currentTime: string
   message: string
   gameId: number
   createdAt: string

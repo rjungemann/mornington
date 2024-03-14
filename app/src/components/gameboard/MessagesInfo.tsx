@@ -1,6 +1,6 @@
 'use client'
 
-import TimeAgo from 'react-timeago'
+import { formatTime } from "@/helpers/formatTime"
 
 const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn: GameTurnResponse, message: MessageResponse }) => {
   return (
@@ -10,7 +10,7 @@ const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn
       </span>
       {' '}
       <span className="opacity-80">
-        <TimeAgo date={message.currentTime} live={false} />
+        {formatTime(new Date(message.currentTime))}
       </span>
       {' '}
       {message.message}

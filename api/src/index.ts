@@ -30,42 +30,39 @@ async function main() {
     const games = await db.models.Game.findAll({
       order: [['createdAt', 'DESC']],
       include: ['agents'],
-      // where: { finished: false },
       limit: 10
     })
     res.json({ games })
   })
 
+  // Also responds to /games/latest
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
-    const game = await db.models.Game.findOne({
-      order: [['createdAt', 'DESC']],
-      where: { name }
-    })
-    if (game) {
-      const gameTurn = await db.models.GameTurn.findOne({
-        order: [['turnNumber', 'DESC']],
-        where: { gameId: game?.dataValues.id }
-      })
-      if (gameTurn) {
-        const turnNumber = gameTurn.dataValues.turnNumber
-        const messages = await db.models.Message.findAll({
-          order: [['id', 'DESC']],
-          where: {
-            gameId: game.dataValues.id,
-            turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
-          }
-        })
-        res.json({game, gameTurn, messages })
-      }
-      else {
-        res.status(404).json({})
-      }
-    }
-    else {
+    const game = name === 'latest'
+    ? await db.models.Game.findOne({ order: [['createdAt', 'DESC']] })
+    : await db.models.Game.findOne({ order: [['createdAt', 'DESC']], where: { name } })
+    if (!game) {
       res.status(404).json({})
+      return
     }
+    const gameTurn = await db.models.GameTurn.findOne({
+      order: [['turnNumber', 'DESC']],
+      where: { gameId: game?.dataValues.id }
+    })
+    if (!gameTurn) {
+      res.status(404).json({})
+      return
+    }
+    const turnNumber = gameTurn.dataValues.turnNumber
+    const messages = await db.models.Message.findAll({
+      order: [['id', 'DESC']],
+      where: {
+        gameId: game.dataValues.id,
+        turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
+      }
+    })
+    res.json({game, gameTurn, messages })
   })
 
   app.listen(port, () => {

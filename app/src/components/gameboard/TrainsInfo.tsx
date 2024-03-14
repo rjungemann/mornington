@@ -14,13 +14,13 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
         </svg>
       </h3>
       <ul className="opacity-80 text-xs">
-        {station ? <li>Stopped at: <span className="font-semibold">{station.title}</span></li> : null}
+        {station ? <li>Stopped at <span className="font-semibold">{station.title}</span></li> : null}
         {headStation && tailStation ? <li>Traveling from <span className="font-semibold">{headStation.title}</span> to <span className="font-semibold">{tailStation.title}</span></li> : null}
         {
           agents.length
           ? (
             <li>
-              Carrying passengers:
+              Carrying passengers
               {' '}
               {agents.map((a, i) => (
                 <span key={i}>
