@@ -19,12 +19,13 @@ const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn
 }
 
 const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTurn: GameTurnResponse, messages: MessageResponse[] }) => {
-  const groupedMessages: Record<number, MessageResponse[]> = messages?.reduce((hash: Record<number, MessageResponse[]>, message: MessageResponse) => {
-    hash[message.turnNumber] ??= []
-    hash[message.turnNumber] = [...hash[message.turnNumber], message]
-    return hash
-  }, {}) || []
-  const turnNumbers: number[] = Object.keys(groupedMessages).map((n) => parseInt(n, 10)).sort().reverse()
+  const sortedMessages = messages
+  .sort((a, b) => {
+    const turnNumberDifference = a.turnNumber - b.turnNumber
+    const currentTimeDifference = new Date(a.currentTime).getTime() - new Date(b.currentTime).getTime()
+    return turnNumberDifference !== 0 ? turnNumberDifference : currentTimeDifference
+  })
+  .reverse()
 
   return (
     <>
@@ -33,32 +34,19 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
         <span className="font-bold text-sky-500">Note:</span> Events are listed most recent first, according to in-game time.
       </p>
       {
-        turnNumbers.length > 0
+        sortedMessages.length > 0
         ? (
-          <div className="mb-4 divide-y-2 divide-slate-600">
-            {turnNumbers.map((turnNumber, turnIndex) => {
-              const messages = groupedMessages[turnNumber]
-              return (
-                messages
-                ? (
-                  <ul key={turnIndex} className="opacity-80 text-xs pb-2 pt-3 first:pt-0">
-                    {messages.map((message: MessageResponse, i) => (
-                      <li key={i} className="mb-1">
-                        <MessageInfo message={message} game={game} gameTurn={gameTurn} />
-                      </li>
-                    ))}
-                  </ul>
-                )
-                : null
-              )
-            })}
-          </div>
+          <ul className="mb-4 opacity-80 text-xs">
+            {sortedMessages.map((message: MessageResponse, i) => (
+              <li key={i} className="mb-1">
+                <MessageInfo message={message} game={game} gameTurn={gameTurn} />
+              </li>
+            ))}
+          </ul>
         )
         : (
-          <div className="mb-4 divide-y-2 divide-slate-600">
-            <div className="opacity-80 text-xs pb-2">
-              No events to display at this time.
-            </div>
+          <div className="mb-4 opacity-80 text-xs pb-2">
+            No events to display at this time.
           </div>
         )
       }

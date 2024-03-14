@@ -37,32 +37,26 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
   }
 
   return (
-    <>
-      {
-        Object.values(keysToHops).map((hops, index) => {
-          const hop = hops[0]
-          const colors = hops.map((hop) => gameTurn.lines.find((line) => hop.lineId === line.id)?.color)
-          const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
-          const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
-          const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
-          const magnitude = options.hopStrokeWidth
-
+    Object.values(keysToHops).map((hops, index) => {
+      const hop = hops[0]
+      const colors = hops.map((hop) => gameTurn.lines.find((line) => hop.lineId === line.id)?.color)
+      const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
+      const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
+      const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
+      const magnitude = options.hopStrokeWidth
+  
+      return (
+        colors.map((color, i) => {
+          const [hx2, hy2, tx2, ty2] = [
+            ...projectPoint(hx, hy, angle, magnitude * (i - colors.length * 0.5)),
+            ...projectPoint(tx, ty, angle, magnitude * (i - colors.length * 0.5))
+          ]
           return (
-            <g key={index}>
-              {colors.map((color, i) => {
-                const [hx2, hy2, tx2, ty2] = [
-                  ...projectPoint(hx, hy, angle, magnitude * (i - colors.length * 0.5)),
-                  ...projectPoint(tx, ty, angle, magnitude * (i - colors.length * 0.5))
-                ]
-                return (
-                  <path key={i} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} />
-                )
-              })}
-            </g>
+            <path key={`${index}-${i}`} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} />
           )
         })
-      }
-    </>
+      )
+    })
   )
 }
 
@@ -175,20 +169,20 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
   const textX = station.x - width * 0.5
   const textY = station.y - height * 0.5 + options.stationTextOffsetY
 
-  const mouseOver = () => {
-    const destination = gameTurn.stations.find((s) => s.end)
-    if (!destination) {
-      return
-    }
-    const path = findRandomPath(gameTurn, station.name, destination.name)
-    if (path) {
-      // setTraversal(path)
-    }
-  }
+  // const mouseOver = () => {
+  //   const destination = gameTurn.stations.find((s) => s.end)
+  //   if (!destination) {
+  //     return
+  //   }
+  //   const path = findRandomPath(gameTurn, station.name, destination.name)
+  //   if (path) {
+  //     setTraversal(path)
+  //   }
+  // }
 
-  const mouseOut = () => {
-    // setTraversal([])
-  }
+  // const mouseOut = () => {
+  //   setTraversal([])
+  // }
 
   return (
     station.virtual
@@ -198,7 +192,7 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
       </>
     )
     : (
-      <g key={station.id} onMouseOver={mouseOver} onMouseOut={mouseOut}>
+      <>
         <circle {...tooltipMessage} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
         {
           station.start
@@ -216,7 +210,7 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
           <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={options.stationTextColor} fontSize={options.stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
         </svg>
         <StationBubble gameTurn={gameTurn} station={station} options={options} />
-      </g>
+      </>
     )
   )
 }
@@ -300,28 +294,18 @@ export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, optio
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox} fontFamily={options.fontFamily}>
       <g opacity={0.8}>
-        <g>
-          {<Hops gameTurn={gameTurn} options={options} />}
-        </g>
-        <g>
-          {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} options={options} /> : null}
-        </g>
-        <g>
-          {gameTurn?.stations.map((station, index) => (
-            <Station key={index} gameTurn={gameTurn} station={station} options={options} setTraversal={setTraversal} />
-          ))}
-        </g>
-        <g>
-      </g>
-        {gameTurn?.hazards.map((hazard, index) => (
-          <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
+        {<Hops gameTurn={gameTurn} options={options} />}
+        {traversal ? <Traversal gameTurn={gameTurn} traversal={traversal} options={options} /> : null}
+        {gameTurn?.stations.map((station, index) => (
+          <Station key={index} gameTurn={gameTurn} station={station} options={options} setTraversal={setTraversal} />
         ))}
       </g>
-      <g>
-        {gameTurn?.trains.map((train, index) => (
-          <Train key={index} gameTurn={gameTurn} train={train} options={options} />
-        ))}
-      </g>
+      {gameTurn?.hazards.map((hazard, index) => (
+        <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
+      ))}
+      {gameTurn?.trains.map((train, index) => (
+        <Train key={index} gameTurn={gameTurn} train={train} options={options} />
+      ))}
     </svg>
   );
 }

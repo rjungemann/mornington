@@ -8,8 +8,11 @@ async function createLightningStrike(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards } = context
   const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
+  // Don't target players that are in time-out, or if they're at the start or end station
+  const startAndEndStations = stations.filter((s) => s.dataValues.start || s.dataValues.end)
   const otherAgents = agents
   .filter((a) => a.dataValues.timeout === 0)
+  .filter((a) => !startAndEndStations.some((s) => a.dataValues.stationId === s.dataValues.id))
   const otherAgent = otherAgents[Math.floor(gameSeededRandom(game) * otherAgents.length)]
   if (!otherAgent) {
     return
@@ -97,6 +100,7 @@ async function tickWeather(context: ClockContext) {
       await createLightningStrike(context)
     }
   }
+  
   // Change the weather
   if (game.dataValues.weatherName === 'rainy') {
     if (gameSeededRandom(game) < 0.05) {
