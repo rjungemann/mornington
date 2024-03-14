@@ -1,7 +1,9 @@
 'use client';
 
 import { findRandomPath } from "@/helpers/findRandomPath";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useTooltip } from "@/hooks/useTooltip";
+import { useTooltipMessage } from "@/hooks/useTooltipMessage";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 const lerp = (a: number, b: number, t: number) => ((1 - t) * a + t * b);
 const getGameHopHeadAndTail = (gameTurn: GameTurnResponse, hop: HopResponse): [StationResponse, StationResponse] => {
@@ -64,6 +66,13 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
   )
 }
 
+const BubbleCircle = ({ x, y, color, options, title }: { x: number, y: number, color: string, title: string, options: GraphOptions}) => {
+  const tooltipMessage = useTooltipMessage(title)
+  return (
+    <circle {...tooltipMessage} cx={x} cy={y} r={options.bubbleAgentRadius} fill={color} stroke={options.bubbleStroke} strokeWidth={options.bubbleStrokeWidth} style={options.dropShadowStyle} />
+  )
+}
+
 // TODO: Cleanup bubbles!
 const StationBubble = ({ gameTurn, station, options }: { gameTurn: GameTurnResponse, station: StationResponse, options: GraphOptions }) => {
   const width = 200 // Hardcoded, just big enough that text doesn't crop
@@ -92,8 +101,9 @@ const StationBubble = ({ gameTurn, station, options }: { gameTurn: GameTurnRespo
       <polyline stroke="none" fill={options.bubbleFill} points={points.map((n) => n.join(',')).join(' ')} />
       <rect stroke="none" fill={options.bubbleFill} rx={options.bubbleRadius} ry={options.bubbleRadius} x={x2 + options.bubbleTipWidth} y={y2 - options.bubbleHeight * 0.5} width={(agents.length + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)} height={options.bubbleHeight}/>
       {agents.map((a, i) => {
+        const x = x2 + options.bubbleTipWidth + (i + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)
         return (
-          <circle key={i} cx={x2 + options.bubbleTipWidth + (i + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)} cy={y2} r={options.bubbleAgentRadius} fill={a.color} stroke={options.bubbleStroke} strokeWidth={options.bubbleStrokeWidth} style={options.dropShadowStyle} />
+          <BubbleCircle key={i} x={x} y={y2} color={a.color} options={options} title={a.title} />
         )
       })}
     </svg>
@@ -146,8 +156,9 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
       <polyline stroke="none" fill={options.bubbleFill} points={points.map((n) => n.join(',')).join(' ')} />
       <rect stroke="none" fill={options.bubbleFill} rx={options.bubbleRadius} ry={options.bubbleRadius} x={x2 + options.bubbleTipWidth} y={y2 - options.bubbleHeight * 0.5} width={(agents.length + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)} height={options.bubbleHeight}/>
       {agents.map((a, i) => {
+        const x = x2 + options.bubbleTipWidth + (i + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)
         return (
-          <circle key={i} cx={x2 + options.bubbleTipWidth + (i + 1) * (options.bubbleAgentRadius * 2 + options.bubbleAgentPadding * 2)} cy={y2} r={options.bubbleAgentRadius} fill={a.color} stroke={options.bubbleStroke} strokeWidth={options.bubbleStrokeWidth} style={options.dropShadowStyle} />
+          <BubbleCircle key={i} x={x} y={y2} color={a.color} options={options} title={a.title} />
         )
       })}
     </svg>
@@ -155,6 +166,8 @@ const TrainBubble = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse,
 }
 
 const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameTurnResponse, station: StationResponse, setTraversal: Dispatch<SetStateAction<string[]>>, options: GraphOptions }) => {
+  const tooltipMessage = useTooltipMessage(station.title)
+
   const width = 200 // Hardcoded, just big enough that text doesn't crop
   const height = 100 // Hardcoded, just big enough that text doesn't crop
   
@@ -181,12 +194,12 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
     station.virtual
     ? (
       <>
-        <circle key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+        <circle {...tooltipMessage} key={station.id} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
       </>
     )
     : (
       <g key={station.id} onMouseOver={mouseOver} onMouseOut={mouseOut}>
-        <circle cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
+        <circle {...tooltipMessage} cx={station.x} cy={station.y} r={radius} fill={options.stationFill} stroke={options.stationStroke} strokeWidth={options.stationStrokeWidth} />
         {
           station.start
           ? <circle cx={station.x} cy={station.y} r={options.sourceRadius} fill="none" stroke={options.sourceStroke} strokeWidth={options.sourceStrokeWidth} opacity={options.stationSourceOpacity} />
@@ -209,6 +222,7 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
 }
 
 const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
+  const tooltipMessage = useTooltipMessage(train.title)
   const hop = gameTurn.hops.find((hop) => hop.id === train.hopId)!
   const percent = train.distance / hop.length
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
@@ -218,13 +232,14 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
-      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
+      <polyline {...tooltipMessage} points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
 }
 
 const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train: TrainResponse, options: GraphOptions }) => {
+  const tooltipMessage = useTooltipMessage(train.title)
   const { x, y } = gameTurn.stations.find((station) => station.id === train.stationId)!
   const points = [[1, 0], [2, 2], [0, 2]]
   .map(([x, y]) => [x - 1, y - 1.25])
@@ -232,7 +247,7 @@ const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
     <>
-      <polyline points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
+      <polyline {...tooltipMessage} points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
       <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
@@ -280,6 +295,7 @@ export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, optio
   const viewBox = `${-options.offset.x} ${-options.offset.y} ${options.size.x} ${options.size.y}`
 
   const [traversal, setTraversal] = useState<string[]>([])
+  useTooltip()
 
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox} fontFamily={options.fontFamily}>
