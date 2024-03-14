@@ -9,7 +9,7 @@ function mulberry32(a: number) {
     var t = a += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    return ((t ^ t >>> 14) >>> 0)// / 4294967296;
   }
 }
 
@@ -18,7 +18,7 @@ const gameSeededRandom = (game: Model<Game>): number => {
   const generator = mulberry32(game.dataValues.currentSeed)
   const value = generator()
   game.set('currentSeed', value)
-  return value
+  return value / 4294967296;
 }
 
 // Skill Check Example

@@ -195,6 +195,7 @@ async function tickStationedTrainDepartVirtualStation(train: Model<Train>, stati
   //
   // Filter down to hops heading from this station
   // Filter down to hops of same line as train
+  // Filter down to active hops
   // Filter out other hops which have trains at distance 0
   const nextHops = hops
     .filter((hop) => hop.dataValues.headId === station.dataValues.id)
@@ -262,6 +263,7 @@ async function tickStationedTrainDeparting(train: Model<Train>, station: Model<S
 
   // Filter down to hops heading from this station
   // Filter down to hops of same line as train
+  // Filter down to active hops
   // Filter out other hops which have trains at distance 0
   const nextHops = hops
     .filter((hop) => hop.dataValues.headId === station.dataValues.id)
