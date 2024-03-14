@@ -165,6 +165,8 @@ type HopItem = {
     label: string
     line: string
     length: string
+    switchGroups: string
+    active: string
   }
 }
 
@@ -172,6 +174,8 @@ type HopTransformed = {
   name: string
   label: string
   length: number
+  switchGroups: string[]
+  active: boolean
   lineName: string
   headName: string
   tailName: string
@@ -338,9 +342,11 @@ const parseHops = (result: ResultItem): HopTransformed[] => {
     const name = hop.$['inkscape:label']
     const label = hop.$.label
     const length = parseInt(hop.$.length, 10)
+    const switchGroups = hop.$.switchGroups.split(/\s+/).map((s) => s.trim()).filter((s) => s.length)
+    const active = hop.$.active === 'true' ? true : false
     const [headName, tailName] = name.split(':')
     const lineName = hop.$.line
-    return { name, length, label, headName, tailName, lineName }
+    return { name, length, label, switchGroups, active, headName, tailName, lineName }
   })
   return hops
 }
@@ -421,10 +427,9 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
     const headStation = stations.find((station) => station.dataValues.name === hop.headName)!
     const tailStation = stations.find((station) => station.dataValues.name === hop.tailName)!
     const line = lines.find((line) => line.dataValues.name === hop.lineName)!
+    const { headName, tailName, ...basicHop } = hop
     return {
-      name: hop.name,
-      label: hop.label,
-      length: hop.length,
+      ...basicHop,
       headId: headStation.dataValues.id,
       tailId: tailStation.dataValues.id,
       lineId: line.dataValues.id,
@@ -436,15 +441,9 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
     const station = stations.find((station) => station.dataValues.name === train.stationName)
     const hop = hops.find((hop) => hop.dataValues.name === train.hopName)
     const line = lines.find((line) => line.dataValues.name === train.lineName)!
+    const { hopName, stationName, lineName, ...basicTrain } = train
     return {
-      name: train.name,
-      title: train.title,
-      label: train.label,
-      color: train.color,
-      distance: train.distance,
-      speed: train.speed,
-      currentWaitTime: train.currentWaitTime,
-      maxWaitTime: train.maxWaitTime,
+      ...basicTrain,
       gameId: game.dataValues.id,
       stationId: station?.dataValues.id,
       hopId: hop?.dataValues.id,
@@ -455,22 +454,9 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   .bulkCreate(agentsData.map((agent) => {
     const startingStations = stations.filter((station) => station.dataValues.start)
     const startingStation = startingStations[Math.floor(Math.random() * startingStations.length)]!
-    const { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, birthdate } = agent
+    const { stationName, trainName, ...basicAgent } = agent
     return {
-      name,
-      title,
-      label,
-      description,
-      color,
-      strength,
-      dexterity,
-      willpower,
-      currentHp,
-      maxHp,
-      initiative,
-      timeout,
-      stunTimeout,
-      birthdate,
+      ...basicAgent,
       gameId: game.dataValues.id,
       stationId: startingStation.dataValues.id,
       trainId: null
@@ -479,13 +465,9 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   const hazards = await db.models.Hazard
   .bulkCreate(hazardsData.map((hazard) => {
     const hop = hops.find((hop) => hop.dataValues.name === hazard.hopName)
+    const { hopName, ...basicHazard } = hazard
     return {
-      name: hazard.name,
-      title: hazard.title,
-      label: hazard.label,
-      color: hazard.color,
-      age: hazard.age,
-      distance: hazard.distance,
+      ...basicHazard,
       hopId: hop!.dataValues.id,
       gameId: game.dataValues.id
     }
@@ -493,12 +475,9 @@ const importGameFromSvg = (db: Sequelize) => async (path: string) => {
   const items = await db.models.Item
   .bulkCreate(itemsData.map((item) => {
     const agent = agents.find((agent) => agent.dataValues.name === item.agentName)
+    const { agentName, ...basicItem } = item
     return {
-      name: item.name,
-      title: item.title,
-      label: item.label,
-      kind: item.kind,
-      damage: item.damage,
+      ...item,
       agentId: agent?.dataValues.id,
       gameId: game.dataValues.id
     }

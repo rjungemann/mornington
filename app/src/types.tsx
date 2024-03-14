@@ -59,6 +59,8 @@ type HopResponse = {
   id: number
   label: string
   length: number
+  switchGroups: string[]
+  active: any
   headId: number
   tailId: number
   lineId: number

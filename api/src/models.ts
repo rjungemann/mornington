@@ -161,6 +161,8 @@ export class Hop extends Model<
   declare name: string;
   declare label: string;
   declare length: number;
+  declare switchGroups: string[];
+  declare active: boolean;
 
   declare gameId: ForeignKey<Game['id']>;
   declare headId: ForeignKey<Station['id']>;
@@ -437,19 +439,24 @@ Station.init(
       allowNull: false
     },
     virtual: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     start: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     end: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     x: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
     y: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
@@ -508,7 +515,16 @@ Hop.init(
       allowNull: false
     },
     length: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    switchGroups: {
+      type: new DataTypes.JSON(),
+      allowNull: false
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

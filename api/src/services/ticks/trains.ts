@@ -94,14 +94,14 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
         turnNumber,
         trainName: train.dataValues.name
       },
-      'Traveling train has no hops to hop on!',
+      'Traveling train has no hop to travel on!',
       train.dataValues.name
     )
     await db.models.Message.create({
       gameId,
       turnNumber,
       currentTime,
-      message: `Traveling train ${train.dataValues.title} has no hops to transfer to!`
+      message: `Traveling train ${train.dataValues.title} has no hop to travel on!`
     })
     return
   }
@@ -199,6 +199,7 @@ async function tickStationedTrainDepartVirtualStation(train: Model<Train>, stati
   const nextHops = hops
     .filter((hop) => hop.dataValues.headId === station.dataValues.id)
     .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+    .filter((hop) => hop.dataValues.active)
     .filter((hop) => (
       // Find all trains that *don't* match the criteria:
       // * Filter out current train
@@ -225,7 +226,7 @@ async function tickStationedTrainDepartVirtualStation(train: Model<Train>, stati
         stationName: station.dataValues.name,
         hopName: hop.dataValues.name
       },
-      'Stationed train deparating virtual station!'
+      'Stationed train departing virtual station!'
     )
     await db.models.Message.create({
       gameId,
@@ -265,6 +266,7 @@ async function tickStationedTrainDeparting(train: Model<Train>, station: Model<S
   const nextHops = hops
     .filter((hop) => hop.dataValues.headId === station.dataValues.id)
     .filter((hop) => hop.dataValues.lineId === train.dataValues.lineId)
+    .filter((hop) => hop.dataValues.active)
     .filter((hop) => (
       // Find all trains that *don't* match the criteria:
       // * Filter out current train

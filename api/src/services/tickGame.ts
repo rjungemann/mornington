@@ -6,6 +6,7 @@ import { tickTrains } from './ticks/trains';
 import { tickAgents } from './ticks/agents';
 import { tickHazards } from './ticks/hazards';
 import { tickWeather } from './ticks/weather';
+import { tickHops } from './ticks/hops';
 
 async function tickGameTurn(game: Model<Game>) {
   const gameId = game.dataValues.id
@@ -24,6 +25,9 @@ async function tickGameTurn(game: Model<Game>) {
 
   // Hazard phase
   await tickHazards(context)
+
+  // Hop phase
+  await tickHops(context)
 
   // Train phase
   await tickTrains(context)

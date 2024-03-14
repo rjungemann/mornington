@@ -35,24 +35,23 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
     keysToHops[key] ??= []
     keysToHops[key].push(hop)
   }
+  console.log(gameTurn.hops.filter((h) => h.switchGroups.length > 0))
 
   return (
     Object.values(keysToHops).map((hops, index) => {
-      const hop = hops[0]
-      const colors = hops.map((hop) => gameTurn.lines.find((line) => hop.lineId === line.id)?.color)
-      const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
-      const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
-      const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
-      const magnitude = options.hopStrokeWidth
-  
       return (
-        colors.map((color, i) => {
+        hops.map((hop, i) => {
+          const [head, tail] = getGameHopHeadAndTail(gameTurn, hop)
+          const [hx, hy, tx, ty] = [head.x, head.y, tail.x, tail.y]
+          const angle = angleBetween(hx, hy, tx, ty) - Math.PI * 0.5
+          const magnitude = options.hopStrokeWidth
+          const color = gameTurn.lines.find((line) => hop.lineId === line.id)?.color!
           const [hx2, hy2, tx2, ty2] = [
-            ...projectPoint(hx, hy, angle, magnitude * 0.5 * colors.length * i),
-            ...projectPoint(tx, ty, angle, magnitude * 0.5 * colors.length * i)
+            ...projectPoint(hx, hy, angle, magnitude * 0.5 * hops.length * i),
+            ...projectPoint(tx, ty, angle, magnitude * 0.5 * hops.length * i)
           ]
           return (
-            <path key={`${index}-${i}`} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} />
+            <path key={`${index}-${i}`} d={`M${hx2} ${hy2} L${tx2} ${ty2}`} stroke={color} strokeWidth={options.hopStrokeWidth} strokeDasharray={hop.active ? undefined : '6,6'} />
           )
         })
       )

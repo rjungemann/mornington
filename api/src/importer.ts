@@ -1,10 +1,7 @@
 import dotenv from 'dotenv'
 import db from './models'
-import { readFile } from 'fs/promises';
 import * as yargs from 'yargs'
-import xml2js from 'xml2js'
-import importGameFromSvg from './services/importGameFromSvg';
-import { Sequelize } from 'sequelize';
+import importGameFromSvg from './services/importGameFromSvg'
 
 type Args = {
   file: string

@@ -24,15 +24,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="2.1036305"
-     inkscape:cx="-109.0971"
-     inkscape:cy="619.88071"
+     inkscape:zoom="1.8445794"
+     inkscape:cx="-11.384709"
+     inkscape:cy="141.49567"
      inkscape:window-width="1120"
      inkscape:window-height="847"
      inkscape:window-x="320"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer5">
+     inkscape:current-layer="layer6">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -74,6 +74,8 @@
        line="red"
        length="3"
        label="Hop from A to B"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="a:b" />
     <path
@@ -83,6 +85,8 @@
        line="red"
        length="3"
        label="Hop from Z to D"
+       switchGroups="a"
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="z:d" />
     <path
@@ -92,8 +96,21 @@
        line="red"
        length="3"
        label="Hop from B to C"
+       switchGroups="a"
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="b:c" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 347.81374,180 -40,80"
+       id="b:c-6-6"
+       line="red"
+       length="3"
+       label="Hop from F to E"
+       switchGroups="b"
+       active="false"
+       sodipodi:nodetypes="cc"
+       inkscape:label="f:e" />
     <path
        style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="M 340,180 300,100"
@@ -101,8 +118,21 @@
        line="red"
        length="3"
        label="Hop from D to E"
+       switchGroups="a"
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="d:e" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 176.42229,266.85477 -40,-80"
+       id="b:c-2-9"
+       line="red"
+       length="3"
+       label="Hop from B to H"
+       switchGroups="b"
+       active="false"
+       sodipodi:nodetypes="cc"
+       inkscape:label="b:h" />
     <path
        style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 300,260 40,-80"
@@ -110,6 +140,8 @@
        line="blue"
        length="3"
        label="Hop from E to F"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="e:f" />
     <path
@@ -119,6 +151,8 @@
        line="blue"
        length="3"
        label="Hop from F to X"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="f:x" />
     <path
@@ -128,6 +162,8 @@
        line="blue"
        length="3"
        label="Hop from X to H"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="x:h" />
     <path
@@ -137,6 +173,8 @@
        line="blue"
        length="3"
        label="Hop from H to B"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="h:b" />
     <path
@@ -146,6 +184,8 @@
        line="blue"
        length="3"
        label="Hop from B to C"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="b:c" />
     <path
@@ -155,6 +195,8 @@
        line="red"
        length="3"
        label="Hop from J to A"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="j:a" />
     <path
@@ -164,6 +206,8 @@
        line="red"
        length="3"
        label="Hop from I to J"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="i:j" />
     <path
@@ -173,6 +217,8 @@
        line="red"
        length="3"
        label="Hop from K to I"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="k:i" />
     <path
@@ -182,6 +228,8 @@
        line="red"
        length="3"
        label="Hop from E to K"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="e:k" />
     <path
@@ -191,8 +239,32 @@
        line="red"
        length="3"
        label="Hop from C to Z"
+       switchGroups="a"
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="c:z" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="m 240.54213,265.42129 h -60"
+       id="b:c-5-8"
+       line="red"
+       length="3"
+       label="Hop from H to X"
+       switchGroups="b"
+       active="false"
+       sodipodi:nodetypes="cc"
+       inkscape:label="h:x" />
+    <path
+       style="fill:none;fill-opacity:0;stroke:#dc3545;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
+       d="M 300,265.96342 H 240"
+       id="b:c-5-0"
+       line="red"
+       length="3"
+       label="Hop from X to F"
+       switchGroups="b"
+       active="false"
+       sodipodi:nodetypes="cc"
+       inkscape:label="x:f" />
     <path
        style="fill:none;fill-opacity:0;stroke:#0084c8;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="M 240,107.61891 H 180"
@@ -200,6 +272,8 @@
        line="blue"
        length="3"
        label="Hop from C to Z"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="c:z" />
     <path
@@ -209,6 +283,8 @@
        line="blue"
        length="3"
        label="Hop from Z to D"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="z:d" />
     <path
@@ -218,6 +294,8 @@
        line="blue"
        length="3"
        label="Hop from D to E"
+       switchGroups=""
+       active="true"
        sodipodi:nodetypes="cc"
        inkscape:label="d:e" />
   </g>
@@ -551,8 +629,8 @@
        x="-60"
        y="0"
        inkscape:label="one"
-       startingSeed="100"
-       currentSeed="100"
+       startingSeed="102"
+       currentSeed="102"
        startTime="2024-03-10T16:45:22.209Z"
        currentTime="2024-03-10T16:45:22.209Z"
        turnDurationSeconds="60"
