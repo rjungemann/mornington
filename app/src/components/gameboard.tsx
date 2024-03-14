@@ -14,13 +14,129 @@ import { MessagesInfo } from './gameboard/MessagesInfo'
 import { AboutInfo } from './gameboard/AboutInfo'
 import { OtherGamesInfo } from './gameboard/OtherGamesInfo'
 import { formatTime } from '@/helpers/formatTime'
+import Link from 'next/link'
+import Image from 'next/image'
+import rewind from '../app/rewind.svg'
+import backward from '../app/backward.svg'
+import forward from '../app/forward.svg'
+import fastForward from '../app/fast-forward.svg'
 
-export function Gameboard({ name }: { name: string }) {
-  const { gameTurn, game, messages } = useGameHook(name) || {}
+const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
+  return (
+    <div className="mt-2 mb-2 text-xs flex justify-between">
+      <span>
+        {
+          gameTurn.turnNumber > 1
+          ? (
+            <>
+              <Link className="font-semibold text-lime-400 mr-2 opacity-80 hover:opacity-100" href={`/games/${gameTurn.name}/turns/1`}>
+                <Image priority src={rewind} alt="Rewind" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '2em', aspectRatio: 1, filter: 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(48deg) brightness(128%) contrast(119%)' }} />
+              </Link>
+
+              <Link className="font-semibold text-lime-400 opacity-80 hover:opacity-100" href={`/games/${gameTurn.name}/turns/${gameTurn.turnNumber - 1}`}>
+                <Image priority src={backward} alt="Back" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '1.6em', aspectRatio: 1, filter: 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(48deg) brightness(128%) contrast(119%)' }} />
+              </Link>
+            </>
+          )
+          : (
+            <>
+              <span className="font-semibold mr-2 opacity-80">
+                <Image priority src={rewind} alt="Rewind" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '2em', aspectRatio: 1, filter: 'invert(100%) brightness(90%)' }} />
+              </span>
+
+              <span className="font-semibold opacity-80">
+                <Image priority src={backward} alt="Backward" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '1.6em', aspectRatio: 1, filter: 'invert(100%) brightness(90%)' }} />
+              </span>
+            </>
+          )
+        }
+      </span>
+
+      <span>
+        {
+          gameTurn.turnNumber < game.turnNumber
+          ? (
+            <>
+              <Link className="font-semibold text-lime-400 mr-2 opacity-80 hover:opacity-100" href={`/games/${gameTurn.name}/turns/${gameTurn.turnNumber + 1}`}>
+                <Image priority src={forward} alt="Forward" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '1.6em', aspectRatio: 1, filter: 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(48deg) brightness(128%) contrast(119%)' }} />
+              </Link>
+
+              <Link className="font-semibold text-lime-400 opacity-80 hover:opacity-100" href={`/games/${gameTurn.name}`}>
+                <Image priority src={fastForward} alt="Fast-Forward" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '2em', aspectRatio: 1, filter: 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(48deg) brightness(128%) contrast(119%)' }} />
+              </Link>
+            </>
+          )
+          : (
+            <>
+              <span className="font-semibold mr-2 opacity-80">
+                <Image priority src={forward} alt="Forward" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '1.6em', aspectRatio: 1, filter: 'invert(100%) brightness(90%)' }} />
+              </span>
+
+              <span className="font-semibold opacity-80">
+                <Image priority src={fastForward} alt="Fast-Forward" className="inline-block" style={{ position: 'relative', top: '-1px', width: 'auto', height: '2em', aspectRatio: 1, filter: 'invert(100%) brightness(90%)' }} />
+              </span>
+            </>
+          )
+        }
+      </span>
+    </div>
+  )
+}
+
+const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
+  return (
+    <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-2 opacity-80 text-xs">
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">Weather</span>
+        {' '}
+        {gameTurn.weatherLabel}
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">Moon Phase</span>
+        {' '}
+        {gameTurn.moonPhaseLabel}
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">Started</span>
+        {' '}
+        <span><TimeAgo date={gameTurn.createdAt} live={false} /></span>
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">Updated</span>
+        {' '}
+        <span><TimeAgo date={new Date(gameTurn.updatedAt)} live={false} /></span>
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">In-Game Started</span>
+        {' '}
+        <span>{formatTime(new Date(gameTurn.startTime))}</span>
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">In-Game Updated</span>
+        {' '}
+        <span>{formatTime(new Date(gameTurn.currentTime))}</span>
+      </div>
+
+      <div className="col-span-1">
+        <span className="font-semibold text-sky-500">In-Game Duration</span>
+        {' '}
+        <span>{Math.round((new Date(gameTurn.currentTime).getTime() - new Date(gameTurn.startTime).getTime()) / 60.0)} minutes</span>
+      </div>
+    </div>
+  )
+}
+
+export function Gameboard({ name, turnNumber, isPolling }: { name: string, turnNumber?: number, isPolling?: boolean }) {
+  const { gameTurn, game, messages } = useGameHook({ name, turnNumber, isPolling }) || {}
   const graphOptions = useGraphOptions()
 
   // On each load, choose a message from the current turn
-  const currentMessages = messages?.filter((message) => message.turnNumber === game?.turnNumber) || []
+  const currentMessages = messages?.filter((message) => message.turnNumber === gameTurn?.turnNumber) || []
   const currentMessage = currentMessages[Math.floor(Math.random() * currentMessages.length)]
 
   // TODO: Better loading indicator
@@ -33,18 +149,18 @@ export function Gameboard({ name }: { name: string }) {
       <Navigation />
       
       <div className="p-4 m-2">
-        <h1 className="mb-4 font-semibold text-xl text-sky-400">
-          {game.title}
+        <h1 className="mb-2 font-semibold text-xl text-sky-400">
+          {gameTurn.title}
           {' '}
-          <span className="text-slate-200">Turn #{game.turnNumber}</span>
+          <span className="text-slate-200">Turn #{gameTurn.turnNumber}</span>
         </h1>
 
         <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">
           <div className="sm:col-span-1 lg:col-span-2">
+            <BackForwardButtons game={game} gameTurn={gameTurn} />
             {
               graphOptions
               ? (
-
                 <div className="border-solid border-2 border-slate-600">
                   <Graph gameTurn={gameTurn} options={graphOptions} />
                 </div>
@@ -54,65 +170,19 @@ export function Gameboard({ name }: { name: string }) {
             {
               currentMessage
               ? (
-                <>
-                  <div className="p-4 bg-slate-600">
-                    <div className="font-semibold text-sm">
-                      {currentMessage.message}
-                    </div>
-                  </div>
-                </>
+                <div className="p-4 bg-slate-600 font-semibold text-sm">
+                  {currentMessage.message}
+                </div>
               )
               : null
             }
 
             <div className="p-4 bg-slate-800">
-              <div className="opacity-80 text-xs">
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">Weather</span>
-                  {' '}
-                  {game.weatherLabel}
-                </div>
-
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">Moon Phase</span>
-                  {' '}
-                  {game.moonPhaseLabel}
-                </div>
-
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">In-Game Duration</span>
-                  {' '}
-                  <span>{new Date(game.currentTime).getTime() - new Date(game.startTime).getTime()} seconds</span>
-                </div>
-
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">In-Game Started</span>
-                  {' '}
-                  <span>{formatTime(new Date(game.startTime))}</span>
-                </div>
-
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">In-Game Updated</span>
-                  {' '}
-                  <span>{formatTime(new Date(game.currentTime))}</span>
-                </div>
-
-                <div className="mb-2">
-                  <span className="font-semibold text-sky-500">Started</span>
-                  {' '}
-                  <span><TimeAgo date={game.createdAt} live={false} /></span>
-                </div>
-
-                <div>
-                  <span className="font-semibold text-sky-500">Updated</span>
-                  {' '}
-                  <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
-                </div>
-              </div>
+              <BasicInfo game={game} gameTurn={gameTurn} />
             </div>
 
             <div className="mt-4 mb-4">
-              <OtherGamesInfo />
+              <OtherGamesInfo isPolling={isPolling} />
             </div>
           </div>
 

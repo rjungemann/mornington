@@ -1,9 +1,9 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
-export function useGameHook(name: string) {
+export function useGameHook({ name, turnNumber, isPolling }: { name: string, turnNumber?: number, isPolling?: boolean }) {
   const updateInterval = parseInt(process.env.TICK_INTERVAL || '5000', 10)
   const host = (process.env.API_URL || 'http://localhost:3001').replace(/\/$/, '')
-  const url = `${host}/games/${name}` || `${host}/games/${name}`
+  const url = turnNumber ? `${host}/games/${name}/turns/${turnNumber}` : `${host}/games/${name}`
   const [gameContext, setGameContext] = useState<GameContextData | null>(null)
 
   useEffect(() => {
@@ -24,12 +24,14 @@ export function useGameHook(name: string) {
         })
       });
     }
-    const interval = setInterval(requestFn, updateInterval)
     requestFn()
-    return () => {
-      clearInterval(interval)
+    if (isPolling) {
+      const interval = setInterval(requestFn, updateInterval)
+      return () => {
+        clearInterval(interval)
+      }
     }
-  }, [updateInterval, url]);
+  }, [isPolling, updateInterval, url]);
 
   return gameContext;
 }

@@ -7,6 +7,34 @@ import { logger } from './logging'
 
 dotenv.config();
 
+const getGameStateByNameAndTurnNumber = (db: Sequelize) => async (name?: string, turnNumber?: number) => {
+  const game = name
+  ? await db.models.Game.findOne({ order: [['createdAt', 'DESC']], where: { name } })
+  : await db.models.Game.findOne({ order: [['createdAt', 'DESC']] })
+  if (!game) {
+    return
+  }
+  const gameTurn = await db.models.GameTurn.findOne({
+    order: [['turnNumber', 'DESC']],
+    where: {
+      gameId: game.dataValues.id,
+      ...(turnNumber ? { turnNumber } : {})
+    }
+  })
+  if (!gameTurn) {
+    return
+  }
+  const tn = turnNumber ?? gameTurn.dataValues.turnNumber
+  const messages = await db.models.Message.findAll({
+    order: [['id', 'DESC']],
+    where: {
+      gameId: game.dataValues.id,
+      turnNumber: [tn, tn - 1, tn - 2]
+    }
+  })
+  return { game, gameTurn, messages }
+}
+
 async function main() {
   // Initialize DB
   await db.sync({ force: false });
@@ -35,34 +63,38 @@ async function main() {
     res.json({ games })
   })
 
-  // Also responds to /games/latest
+  app.get('/games/latest', async (req: Request, res: Response<any, { db: Sequelize }>) => {
+    const db = res.locals!.db
+    const name = req.params.name
+    const state = await getGameStateByNameAndTurnNumber(db)()
+    if (!state) {
+      res.status(404).send({})
+      return
+    }
+    res.json(state)
+  })
+
   app.get('/games/:name', async (req: Request, res: Response<any, { db: Sequelize }>) => {
     const db = res.locals!.db
     const name = req.params.name
-    const game = name === 'latest'
-    ? await db.models.Game.findOne({ order: [['createdAt', 'DESC']] })
-    : await db.models.Game.findOne({ order: [['createdAt', 'DESC']], where: { name } })
-    if (!game) {
-      res.status(404).json({})
+    const state = await getGameStateByNameAndTurnNumber(db)(name)
+    if (!state) {
+      res.status(404).send({})
       return
     }
-    const gameTurn = await db.models.GameTurn.findOne({
-      order: [['turnNumber', 'DESC']],
-      where: { gameId: game?.dataValues.id }
-    })
-    if (!gameTurn) {
-      res.status(404).json({})
+    res.json(state)
+  })
+
+  app.get('/games/:name/turns/:turn', async (req: Request, res: Response<any, { db: Sequelize }>) => {
+    const db = res.locals!.db
+    const name = req.params.name
+    const turn = req.params.turn ? parseInt(req.params.turn, 10) : undefined
+    const state = await getGameStateByNameAndTurnNumber(db)(name, turn)
+    if (!state) {
+      res.status(404).send({})
       return
     }
-    const turnNumber = gameTurn.dataValues.turnNumber
-    const messages = await db.models.Message.findAll({
-      order: [['id', 'DESC']],
-      where: {
-        gameId: game.dataValues.id,
-        turnNumber: [turnNumber, turnNumber - 1, turnNumber - 2]
-      }
-    })
-    res.json({game, gameTurn, messages })
+    res.json(state)
   })
 
   app.listen(port, () => {

@@ -42,9 +42,9 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
   )
 }
 
-export const OtherGamesInfo = () => {
+export const OtherGamesInfo = ({ isPolling }: { isPolling?: boolean }) => {
   const router = useRouter()
-  const games = useGamesHook()
+  const games = useGamesHook({ isPolling })
 
   // TODO: Better loading indicator
   if (!games) {
@@ -58,7 +58,7 @@ export const OtherGamesInfo = () => {
       <ul className="border-2 border-slate-600 divide-y-2 divide-slate-600 text-sm">
         {games.map((game, index) => {
           return (
-            <li key={index} className="cursor-pointer mb-2 opacity-80 hover:opacity-100 p-4" onClick={() => router.push(`/games/${game.name}`)}>
+            <li key={index} className="cursor-pointer mb-2 opacity-80 hover:opacity-100 p-4 pb-3" onClick={() => router.push(`/games/${game.name}`)}>
               <OtherGameInfo game={game} />
             </li>
           )

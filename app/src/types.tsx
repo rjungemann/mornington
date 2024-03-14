@@ -21,6 +21,16 @@ type GameResponse = {
   updatedAt: string
 }
 
+type GameTurnResponse = GameResponse & {
+  stations: StationResponse[]
+  lines: LineResponse[]
+  hops: HopResponse[]
+  trains: TrainResponse[]
+  agents: AgentResponse[]
+  hazards: HazardResponse[]
+  items: ItemResponse[]
+}
+
 type GameListItemResponse = GameResponse & {
   agents: AgentResponse[]
 }
@@ -109,18 +119,6 @@ type ItemResponse = {
   kind: string
   damage: string
   agentId: number
-}
-
-type GameTurnResponse = {
-  stations: StationResponse[]
-  lines: LineResponse[]
-  hops: HopResponse[]
-  trains: TrainResponse[]
-  agents: AgentResponse[]
-  hazards: HazardResponse[]
-  items: ItemResponse[]
-  createdAt: string
-  updatedAt: string
 }
 
 type MessageResponse = {

@@ -5,7 +5,7 @@ export default function Home() {
 
   return (
     <main className="m-2">
-      <Gameboard name={defaultGameName} />
+      <Gameboard name={defaultGameName} isPolling={true} />
     </main>
   )
 }

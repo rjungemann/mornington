@@ -8,10 +8,13 @@ const AboutInfo = () => {
           Minstowe Circle is a subway simulator and game inspired by a certain BBC Radio show.
         </p>
         <p className="mb-2">
-          It was created by <a className="text-lime-400" href="https://phasor.space">Phasor Space</a>.
+          <a className="text-lime-400 opacity-80 hover:opacity-100" href="https://phasor.space/Articles/Other+Articles/Introducing+Minstowe+Circle">Read the introductory blog post.</a>
         </p>
         <p className="mb-2">
-          The code can be found on <a className="text-lime-400" href="https://github.com/rjungemann/mornington">GitHub</a>.
+          It was created by <a className="text-lime-400 opacity-80 hover:opacity-100" href="https://phasor.space">Phasor Space</a>.
+        </p>
+        <p className="mb-2">
+          The code can be found on <a className="text-lime-400 opacity-80 hover:opacity-100" href="https://github.com/rjungemann/mornington">GitHub</a>.
         </p>
       </div>
     </div>
