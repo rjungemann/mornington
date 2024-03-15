@@ -13,7 +13,7 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
           <circle cx={7.5} cy={7.5} r={4} fill={train.color} />
         </svg>
       </h3>
-      <ul className="opacity-80 text-xs">
+      <ul className="opacity-80 text-sm">
         {station ? <li>Stopped at <span className="font-semibold">{station.title}</span></li> : null}
         {headStation && tailStation ? <li>Traveling from <span className="font-semibold">{headStation.title}</span> to <span className="font-semibold">{tailStation.title}</span></li> : null}
         {
@@ -45,8 +45,8 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
 const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
-      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
-      <ul className="text-sm mb-6">
+      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
+      <ul className="text-md mb-6">
         {gameTurn?.trains.map((train, index) => {
           return (
             <li key={index} className="mb-4">

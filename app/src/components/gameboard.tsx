@@ -21,7 +21,7 @@ import { useGameHook } from '@/hooks/useGameHook'
 
 const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
-    <div className="mt-2 mb-2 text-xs flex justify-between">
+    <div className="mt-2 mb-2 text-sm flex justify-between">
       <span>
         {
           gameTurn.turnNumber > 1
@@ -83,7 +83,7 @@ const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: 
 
 const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
-    <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-2 opacity-80 text-xs">
+    <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-2 opacity-80 text-sm">
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">Weather</span>
         {' '}
@@ -147,13 +147,13 @@ export function Gameboard({ context, isPolling }: { context: GameContextData, is
       <Navigation />
       
       <div className="p-4 m-2">
-        <h1 className="mb-2 font-semibold text-xl text-sky-400">
+        <h1 className="mb-2 font-semibold text-2xl text-sky-400">
           {gameTurn.title}
           {' '}
           <span className="text-slate-200">Turn #{gameTurn.turnNumber}</span>
         </h1>
 
-        <div className="grid sm:grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-1 lg:grid-cols-4 sm:gap-0 lg:gap-4">
           <div className="sm:col-span-1 lg:col-span-2">
             <BackForwardButtons game={game} gameTurn={gameTurn} />
             {
@@ -168,14 +168,14 @@ export function Gameboard({ context, isPolling }: { context: GameContextData, is
             {
               currentMessage
               ? (
-                <div className="p-4 bg-slate-600 font-semibold text-sm">
+                <div className="p-4 bg-slate-600 font-semibold text-md">
                   {currentMessage.message}
                 </div>
               )
               : null
             }
 
-            <div className="p-4 bg-slate-800">
+            <div className="p-4 bg-slate-800 mb-6">
               <BasicInfo game={game} gameTurn={gameTurn} />
             </div>
 

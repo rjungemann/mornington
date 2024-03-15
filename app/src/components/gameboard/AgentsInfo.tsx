@@ -22,11 +22,11 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
         </svg>
       </h3>
 
-      <div className="mb-2 text-xs opacity-60">
+      <div className="mb-2 text-sm opacity-60">
         {agent.description}
       </div>
 
-      <table className="table-fixed mb-2 text-xs opacity-80 bg-slate-800 sm:w-auto lg:w-full">
+      <table className="table-fixed mb-2 text-sm opacity-80 bg-slate-800 sm:w-auto lg:w-full">
         <thead>
           <tr>
             <th className="p-1 text-center">Init.</th>
@@ -49,7 +49,7 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
         </tbody>
       </table>
 
-      <ul className="opacity-80 text-xs">
+      <ul className="opacity-80 text-sm mb-2">
         {
           agent.timeout > 0
           ? <li>Agent is in time-out for {agent.timeout} more turns</li>
@@ -115,8 +115,8 @@ const AgentInfo = ({ agent, game, gameTurn }: { agent: AgentResponse, game: Game
 const AgentsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
-      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
-      <ul className="text-sm mb-6">
+      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Agents</h2>
+      <ul className="text-md mb-6">
         {gameTurn?.agents.map((agent, index) => (
           <li key={index} className="mb-4">
             <AgentInfo agent={agent} game={game} gameTurn={gameTurn} />

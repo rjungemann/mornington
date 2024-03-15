@@ -3,7 +3,7 @@ import { useEffect } from "react"
 export const useTooltip = () => {
   useEffect(() => {
     const element = document.createElement('div')
-    element.classList.add('bg-slate-800', 'text-slate-200', 'p-2', 'text-xs')
+    element.classList.add('bg-slate-800', 'text-slate-200', 'p-2', 'text-sm')
     element.id = 'tooltip'
     element.style.pointerEvents = 'none'
     element.style.position = 'absolute'

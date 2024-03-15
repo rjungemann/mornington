@@ -20,21 +20,21 @@ const HazardInfo = ({ hazard, game, gameTurn }: { hazard: HazardResponse, game: 
 const HazardsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
-      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Hazards</h2>
-      <ul className="text-sm mb-6">
+      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Hazards</h2>
+      <ul className="text-md mb-6">
         {
           gameTurn?.hazards?.length
           ? (
             gameTurn?.hazards.map((hazard, index) => {
               return (
-                <li key={index} className="mb-2 text-xs">
+                <li key={index} className="mb-2 text-sm">
                   <HazardInfo hazard={hazard} game={game} gameTurn={gameTurn} />
                 </li>
               )
             })
           )
           : (
-            <li className="mb-2 text-xs opacity-80">There are no travel advisories currently.</li>
+            <li className="mb-2 text-sm opacity-80">There are no travel advisories currently.</li>
           )
         }
       </ul>

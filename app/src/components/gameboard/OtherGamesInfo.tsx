@@ -10,11 +10,11 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
         {game.title}
       </h3>
 
-      <div className="text-xs opacity-80">
+      <div className="text-sm opacity-80">
         <span className="text-slate-200">Turn #{game.turnNumber}</span>
       </div>
 
-      <div className="text-xs opacity-80 mb-2">
+      <div className="text-sm opacity-80 mb-2">
         {
           game.finished
           ? <>Game is <span className="text-red-400">finished</span></>
@@ -22,11 +22,11 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
         }
       </div>
 
-      <div className="text-xs mb-2 opacity-60">
+      <div className="text-sm mb-2 opacity-60">
         {game.description}
       </div>
 
-      <div className="text-xs">
+      <div className="text-sm">
         <span className="font-semibold text-sky-400">Started</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(game.createdAt))}</span>
@@ -48,13 +48,13 @@ export const OtherGamesInfo = ({ games }: { games: GameListItemResponse[] }) => 
   }
   return (
     <>
-      <h2 className="mb-4 font-semibold text-xl text-sky-400">
+      <h2 className="mb-4 font-semibold text-2xl text-sky-400">
         Other Matches
       </h2>
-      <ul className="border-2 border-slate-600 divide-y-2 divide-slate-600 text-sm">
+      <ul className="text-md">
         {games.map((game, index) => {
           return (
-            <li key={index} className="cursor-pointer mb-2 opacity-80 hover:opacity-100 p-4 pb-3" onClick={() => router.push(`/games/${game.name}`)}>
+            <li key={index} className="bg-slate-800 cursor-pointer mb-4 opacity-80 hover:opacity-100 p-4" onClick={() => router.push(`/games/${game.name}`)}>
               <OtherGameInfo game={game} />
             </li>
           )

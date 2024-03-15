@@ -7,7 +7,7 @@ const StationInfo = ({ game, gameTurn, station }: { game: GameResponse, gameTurn
     ? (
       <>
         <h3 className="font-semibold">{station.label}</h3>
-        <ul className="opacity-80 text-xs">
+        <ul className="opacity-80 text-sm">
           {
             trains.length
             ? (
@@ -68,8 +68,8 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
   })
   return (
     <>
-      <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
-      <ul className="text-sm mb-6">
+      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
+      <ul className="text-md mb-2">
         {
           stations.length
           ? (
@@ -83,7 +83,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
           )
           : (
             <li className="mb-2">
-              <div className="opacity-80 text-xs">
+              <div className="opacity-80 text-sm">
                 No activity at stations currently.
               </div>
             </li>
