@@ -35,7 +35,6 @@ const Hops = ({ gameTurn, options }: { gameTurn: GameTurnResponse, options: Grap
     keysToHops[key] ??= []
     keysToHops[key].push(hop)
   }
-  console.log(gameTurn.hops.filter((h) => h.switchGroups.length > 0))
 
   return (
     Object.values(keysToHops).map((hops, index) => {
