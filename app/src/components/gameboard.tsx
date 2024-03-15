@@ -143,7 +143,7 @@ export function Gameboard({ context, isPolling }: { context: GameContextData, is
   }
 
   return (
-    <div className="m-2">
+    <div className="sm:m-0 lg:m-2">
       <Navigation />
       
       <div className="p-4 m-2">

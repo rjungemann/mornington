@@ -2,7 +2,7 @@ import { Gameboard } from '@/components/gameboard'
 
 export default function Home({ context }: { context: GameContextData }) {
   return (
-    <main className="m-2">
+    <main className="sm:m-0 lg:m-2">
       <Gameboard context={context} isPolling={true} />
     </main>
   )
