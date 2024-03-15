@@ -35,14 +35,6 @@ body {
   }
 }
 
-.react-grid-layout {
-  border: 1px solid #333;
-}
-
-.react-grid-item {
-  border: 1px solid #333;
-}
-
 #tooltip {
   box-shadow: 0px 2px 1px black;
 }
