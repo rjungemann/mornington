@@ -1,10 +1,7 @@
 'use client'
 
 import { Graph } from '@/components/graph'
-import { useGameHook } from '@/hooks/useGameHook'
 import { useGraphOptions } from '@/hooks/useGraphOptions'
-import { useState } from 'react'
-import TimeAgo from 'react-timeago'
 import { Navigation } from './navigation'
 import { AgentsInfo } from './gameboard/AgentsInfo'
 import { HazardsInfo } from './gameboard/HazardsInfo'
@@ -20,6 +17,7 @@ import rewind from '../app/rewind.svg'
 import backward from '../app/backward.svg'
 import forward from '../app/forward.svg'
 import fastForward from '../app/fast-forward.svg'
+import { useGameHook } from '@/hooks/useGameHook'
 
 const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
@@ -101,13 +99,13 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">Started</span>
         {' '}
-        <span><TimeAgo date={gameTurn.createdAt} live={false} /></span>
+        <span>{formatTime(new Date(gameTurn.createdAt))}</span>
       </div>
 
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">Updated</span>
         {' '}
-        <span><TimeAgo date={new Date(gameTurn.updatedAt)} live={false} /></span>
+        <span>{formatTime(new Date(gameTurn.updatedAt))}</span>
       </div>
 
       <div className="col-span-1">
@@ -131,13 +129,13 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
   )
 }
 
-export function Gameboard({ name, turnNumber, isPolling }: { name: string, turnNumber?: number, isPolling?: boolean }) {
-  const { gameTurn, game, messages } = useGameHook({ name, turnNumber, isPolling }) || {}
+export function Gameboard({ context, isPolling }: { context: GameContextData, isPolling: boolean }) {
+  const { gameTurn, game, games, messages } = useGameHook({ context, isPolling })
   const graphOptions = useGraphOptions()
 
   // On each load, choose a message from the current turn
   const currentMessages = messages?.filter((message) => message.turnNumber === gameTurn?.turnNumber) || []
-  const currentMessage = currentMessages[Math.floor(Math.random() * currentMessages.length)]
+  const currentMessage = currentMessages[0]
 
   // TODO: Better loading indicator
   if (!gameTurn || !game || !messages) {
@@ -182,7 +180,7 @@ export function Gameboard({ name, turnNumber, isPolling }: { name: string, turnN
             </div>
 
             <div className="mt-4 mb-4">
-              <OtherGamesInfo isPolling={isPolling} />
+              <OtherGamesInfo games={games} />
             </div>
           </div>
 

@@ -45,8 +45,7 @@ export const rollDice = (
     if (multiplier) {
       const dice = num || defaultFaces
       for (let i = 0; i < multiplier; i++) {
-        const randomValue = randomFn()
-        const result = Math.ceil(Math.random() * dice)
+        const result = Math.ceil(randomFn() * dice)
         sum += result
 
         diceArray.push({

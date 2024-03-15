@@ -194,5 +194,6 @@ type GraphOptions = {
 type GameContextData = {
   game: GameResponse
   gameTurn: GameTurnResponse
+  games: GameListItemResponse[]
   messages: MessageResponse[]
 }

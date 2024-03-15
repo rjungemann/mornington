@@ -19,14 +19,6 @@ const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn
 }
 
 const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTurn: GameTurnResponse, messages: MessageResponse[] }) => {
-  const sortedMessages = messages
-  .sort((a, b) => {
-    const turnNumberDifference = a.turnNumber - b.turnNumber
-    const currentTimeDifference = new Date(a.currentTime).getTime() - new Date(b.currentTime).getTime()
-    return turnNumberDifference !== 0 ? turnNumberDifference : currentTimeDifference
-  })
-  .reverse()
-
   return (
     <>
       <h2 className="text-xl text-sky-500 font-semibold mt-4 mb-4">Play-By-Play</h2>
@@ -34,10 +26,10 @@ const MessagesInfo = ({ game, gameTurn, messages }: { game: GameResponse, gameTu
         <span className="font-bold text-sky-500">Note:</span> Events are listed most recent first, according to in-game time.
       </p>
       {
-        sortedMessages.length > 0
+        messages.length > 0
         ? (
           <ul className="mb-4 opacity-80 text-xs">
-            {sortedMessages.map((message: MessageResponse, i) => (
+            {messages.map((message: MessageResponse, i) => (
               <li key={i} className="mb-1">
                 <MessageInfo message={message} game={game} gameTurn={gameTurn} />
               </li>

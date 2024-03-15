@@ -1,10 +1,7 @@
 'use client'
 
-import { Navigation } from "@/components/navigation";
-import { useGamesHook } from "@/hooks/useGamesHook";
-import Link from "next/link";
+import { formatTime } from "@/helpers/formatTime";
 import { useRouter } from "next/navigation";
-import TimeAgo from 'react-timeago'
 
 export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
   return (
@@ -32,19 +29,18 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
       <div className="text-xs">
         <span className="font-semibold text-sky-400">Started</span>
         {' '}
-        <span><TimeAgo date={game.createdAt} live={false} /></span>
+        <span>{formatTime(new Date(game.createdAt))}</span>
         {' '}
         <span className="font-semibold text-sky-400">Updated</span>
         {' '}
-        <span><TimeAgo date={new Date(game.updatedAt)} live={false} /></span>
+        <span>{formatTime(new Date(game.updatedAt))}</span>
       </div>
     </>
   )
 }
 
-export const OtherGamesInfo = ({ isPolling }: { isPolling?: boolean }) => {
+export const OtherGamesInfo = ({ games }: { games: GameListItemResponse[] }) => {
   const router = useRouter()
-  const games = useGamesHook({ isPolling })
 
   // TODO: Better loading indicator
   if (!games) {

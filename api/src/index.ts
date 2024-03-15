@@ -24,6 +24,11 @@ const getGameStateByNameAndTurnNumber = (db: Sequelize) => async (name?: string,
   if (!gameTurn) {
     return
   }
+  const games = await db.models.Game.findAll({
+    order: [['createdAt', 'DESC']],
+    include: ['agents'],
+    limit: 10
+  })
   const tn = turnNumber ?? gameTurn.dataValues.turnNumber
   const messages = await db.models.Message.findAll({
     order: [['id', 'DESC']],
@@ -32,7 +37,7 @@ const getGameStateByNameAndTurnNumber = (db: Sequelize) => async (name?: string,
       turnNumber: [tn, tn - 1, tn - 2]
     }
   })
-  return { game, gameTurn, messages }
+  return { game, gameTurn, games, messages }
 }
 
 async function main() {

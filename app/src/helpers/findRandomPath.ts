@@ -17,7 +17,7 @@ function findRandomPath(game: GameTurnResponse, sourceName: string, destinationN
       const hops = game.hops
       .filter((hop) => hop.active)
       .filter((hop) => hop.headId === current?.id)
-      const hop = hops[Math.floor(Math.random() * hops.length)]
+      const hop = hops[0]
       current = game.stations
       .filter((station) => !stationNames.some((name) => name === station.name))
       .find((station) => station.id === hop.tailId)
