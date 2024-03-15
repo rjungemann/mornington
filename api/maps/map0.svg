@@ -547,7 +547,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="0"
-       description="A quick-witted grad student by day, burglar by night."
+       description="Quick-witted grad student by day, burglar by night."
        birthdate="1991-07-12T00:00:00.000Z" />
   </g>
   <g
@@ -598,11 +598,11 @@
        cx="-101.00251"
        cy="621.34985"
        r="20"
-       inkscape:label="tonfa"
-       title="Tonfa"
-       label="Tonfa"
+       inkscape:label="brass-knuckles"
+       title="Brass Knuckles"
+       label="Brass Knuckles"
        kind="weapon"
-       damage="1d6"
+       damage="1d4+2"
        agentName="elias" />
     <circle
        style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
@@ -610,11 +610,11 @@
        cx="-161.32256"
        cy="620.95074"
        r="20"
-       inkscape:label="tonfa"
-       title="Tonfa"
-       label="Tonfa"
+       inkscape:label="eskrima"
+       title="Eskrima"
+       label="Eskrima"
        kind="weapon"
-       damage="1d6"
+       damage="2d4"
        agentName="patience" />
   </g>
   <g
@@ -640,8 +640,8 @@
        moonPhaseName="waxing-gibbous"
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
-       title="Game #1: Cowstone East"
-       label="Game #1: Cowstone East"
+       title="Match #1: Cowstone East"
+       label="Match #1: Cowstone East"
        description="Two lines in opposite directions sometimes leads agents astray in this course." />
   </g>
 </svg>

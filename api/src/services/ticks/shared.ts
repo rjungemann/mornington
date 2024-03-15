@@ -51,7 +51,9 @@ async function findRandomPath(source: Model<Station>, destination: Model<Station
       if (current.dataValues.id === destination.dataValues.id) {
         return path
       }
-      const nextHops = hops.filter((hop) => hop.dataValues.headId === current!.dataValues.id)
+      const nextHops = hops
+      .filter((hop) => hop.dataValues.active)
+      .filter((hop) => hop.dataValues.headId === current!.dataValues.id)
       const nextHop = nextHops[Math.floor(gameSeededRandom(game) * nextHops.length)]
       if (!nextHop) {
         break

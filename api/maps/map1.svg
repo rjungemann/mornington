@@ -234,7 +234,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="0"
-       description="A bootlegger and partier. Enterprising."
+       description="A bootlegger of rare spirits."
        birthdate="1982-04-21T00:00:00.000Z" />
   </g>
   <g
@@ -263,9 +263,9 @@
        cx="-40.861538"
        cy="619.08069"
        r="20"
-       inkscape:label="tonfa"
-       title="Tonfa"
-       label="Tonfa"
+       inkscape:label="concealable-baton"
+       title="Concelable Baton"
+       label="Concelable Baton"
        kind="weapon"
        damage="1d6"
        agentName="wilmot" />
@@ -293,8 +293,8 @@
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
        inkscape:label="two"
-       title="Game #2: Leyton"
-       label="Game #2: Leyton"
+       title="Match #2: Leyton"
+       label="Match #2: Leyton"
        description="A simple course with one line and one agent." />
   </g>
 </svg>

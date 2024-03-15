@@ -53,7 +53,7 @@ export const OtherGamesInfo = ({ isPolling }: { isPolling?: boolean }) => {
   return (
     <>
       <h2 className="mb-4 font-semibold text-xl text-sky-400">
-        Other Games
+        Other Matches
       </h2>
       <ul className="border-2 border-slate-600 divide-y-2 divide-slate-600 text-sm">
         {games.map((game, index) => {

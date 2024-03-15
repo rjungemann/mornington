@@ -86,7 +86,9 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
   const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
-  const hop = hops.find((hop) => hop.dataValues.id === train.dataValues.hopId)
+  const hop = hops
+  .filter((hop) => hop.dataValues.active)
+  .find((hop) => hop.dataValues.id === train.dataValues.hopId)
   if (!hop) {
     logger.warn(
       {
@@ -94,14 +96,14 @@ async function tickTravelingTrain(train: Model<Train>, context: ClockContext) {
         turnNumber,
         trainName: train.dataValues.name
       },
-      'Traveling train has no hop to travel on!',
+      'Traveling train has no active track to travel on!',
       train.dataValues.name
     )
     await db.models.Message.create({
       gameId,
       turnNumber,
       currentTime,
-      message: `Traveling train ${train.dataValues.title} has no hop to travel on!`
+      message: `Traveling train ${train.dataValues.title} has no active track to travel on!`
     })
     return
   }

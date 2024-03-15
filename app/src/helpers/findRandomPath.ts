@@ -14,11 +14,13 @@ function findRandomPath(game: GameTurnResponse, sourceName: string, destinationN
       if (current.id === destination.id) {
         return stationNames
       }
-      const hops = game.hops.filter((hop) => hop.headId === current?.id)
+      const hops = game.hops
+      .filter((hop) => hop.active)
+      .filter((hop) => hop.headId === current?.id)
       const hop = hops[Math.floor(Math.random() * hops.length)]
       current = game.stations
-        .filter((station) => !stationNames.some((name) => name === station.name))
-        .find((station) => station.id === hop.tailId)
+      .filter((station) => !stationNames.some((name) => name === station.name))
+      .find((station) => station.id === hop.tailId)
     }
   }
   return

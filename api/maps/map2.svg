@@ -376,7 +376,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A former bartender turned butler."
+       description="A former bartender, now works as a butler."
        birthdate="1964-06-16T00:00:00.000Z" />
     <circle
        style="fill:#ba00ff;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
@@ -397,7 +397,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="A scientist uses her knowledge to giver her the upper hand."
+       description="A scientist who uses knowledge to give her the upper hand."
        birthdate="1992-08-08T00:00:00.000Z" />
     <circle
        style="fill:#ffff3e;stroke:#721c24;stroke-width:0;stroke-dasharray:none"
@@ -418,7 +418,7 @@
        initiative="10"
        timeout="0"
        stunTimeout="10"
-       description="An ambitious lawyer with connections from all walks of society."
+       description="An ambitious lawyer with some questionable connections."
        birthdate="1988-05-30T00:00:00.000Z" />
   </g>
   <g
@@ -467,11 +467,11 @@
        cx="-41.512444"
        cy="619.26984"
        r="20"
-       inkscape:label="tonfa"
-       title="Tonfa"
-       label="Tonfa"
+       inkscape:label="brass-knuckles"
+       title="Brass Knuckles"
+       label="Brass Knuckles"
        kind="weapon"
-       damage="1d6"
+       damage="1d4+2"
        agentName="barnaby" />
     <circle
        style="fill:#b3b3b3;stroke:#808080;stroke-width:2;stroke-dasharray:none"
@@ -491,13 +491,12 @@
        cx="-162.38109"
        cy="620.10938"
        r="20"
-       inkscape:label="tonfa"
-       title="Tonfa"
-       label="Tonfa"
+       inkscape:label="concealable-baton"
+       title="Concelable Baton"
+       label="Concelable Baton"
        kind="weapon"
        damage="1d6"
-       agentName="lettice"
-       description="An ambitious lawyer with connections from all walks of society." />
+       agentName="lettice" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -522,8 +521,8 @@
        moonPhaseTitle="Waxing Gibbous"
        moonPhaseLabel="Waxing Gibbous"
        inkscape:label="three"
-       title="Game #3: Capchester Town"
-       label="Game #3: Capchester Town"
+       title="Match #3: Capchester Town"
+       label="Match #3: Capchester Town"
        description="A chain of connected rail lines raises the stakes on the trek to Capchester Town, in this perilous course." />
   </g>
 </svg>
