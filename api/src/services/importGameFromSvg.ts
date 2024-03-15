@@ -76,9 +76,11 @@ type AgentItem = {
     willpower: string
     currentHp: string
     maxHp: string
+    armor: string
     initiative: string
     timeout: string
     stunTimeout: string
+    inventorySize: string
     birthdate: string
     stationName: string
     trainName: string
@@ -97,9 +99,11 @@ type AgentTransformed = {
   willpower: number
   currentHp: number
   maxHp: number
+  armor: number
   initiative: number
   timeout: number
   stunTimeout: number
+  inventorySize: number
   birthdate: Date
   stationName: string | null
   trainName: string | null
@@ -162,7 +166,6 @@ type StationTransformed = {
 type HopItem = {
   ['$']: {
     ['inkscape:label']: string
-    label: string
     line: string
     length: string
     switchGroups: string
@@ -172,7 +175,6 @@ type HopItem = {
 
 type HopTransformed = {
   name: string
-  label: string
   length: number
   switchGroups: string[]
   active: boolean
@@ -290,13 +292,15 @@ const parseAgents = (result: ResultItem): AgentTransformed[] => {
     const willpower = parseInt(agent.$.willpower, 10)
     const currentHp = parseInt(agent.$.currentHp, 10)
     const maxHp = parseInt(agent.$.maxHp, 10)
+    const armor = parseInt(agent.$.armor, 10)
     const initiative = parseInt(agent.$.initiative, 10)
     const timeout = parseInt(agent.$.timeout, 10)
     const stunTimeout = parseInt(agent.$.stunTimeout, 10)
+    const inventorySize = parseInt(agent.$.inventorySize, 10)
     const birthdate = new Date(agent.$.birthdate)
     const stationName = agent.$.stationName === 'null' ? null : agent.$.stationName
     const trainName = agent.$.trainName === 'null' ? null : agent.$.trainName
-    return { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, initiative, timeout, stunTimeout, birthdate, stationName, trainName }
+    return { name, title, label, description, color, strength, dexterity, willpower, currentHp, maxHp, armor, initiative, timeout, stunTimeout, inventorySize, birthdate, stationName, trainName }
   })
   return agents
 }
@@ -340,13 +344,12 @@ const parseHops = (result: ResultItem): HopTransformed[] => {
   const layer = getLayer(result, 'Hops')
   const hops = layer.path.map((hop: HopItem) => {
     const name = hop.$['inkscape:label']
-    const label = hop.$.label
     const length = parseInt(hop.$.length, 10)
     const switchGroups = hop.$.switchGroups.split(/\s+/).map((s) => s.trim()).filter((s) => s.length)
     const active = hop.$.active === 'true' ? true : false
     const [headName, tailName] = name.split(':')
     const lineName = hop.$.line
-    return { name, length, label, switchGroups, active, headName, tailName, lineName }
+    return { name, length, switchGroups, active, headName, tailName, lineName }
   })
   return hops
 }

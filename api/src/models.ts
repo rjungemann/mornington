@@ -159,7 +159,6 @@ export class Hop extends Model<
   declare id: CreationOptional<number>;
 
   declare name: string;
-  declare label: string;
   declare length: number;
   declare switchGroups: string[];
   declare active: boolean;
@@ -222,9 +221,11 @@ export class Agent extends Model<
   declare willpower: number;
   declare currentHp: number;
   declare maxHp: number;
+  declare armor: number;
   declare initiative: number;
   declare timeout: number;
   declare stunTimeout: number;
+  declare inventorySize: number;
   declare birthdate: Date;
 
   declare gameId: ForeignKey<Game['id']>;
@@ -510,10 +511,6 @@ Hop.init(
       type: new DataTypes.STRING(128),
       allowNull: false
     },
-    label: {
-      type: new DataTypes.STRING(128),
-      allowNull: false
-    },
     length: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -630,6 +627,10 @@ Agent.init(
       type: new DataTypes.INTEGER,
       allowNull: false
     },
+    armor: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
     initiative: {
       type: new DataTypes.INTEGER,
       allowNull: false
@@ -639,6 +640,10 @@ Agent.init(
       allowNull: false
     },
     stunTimeout: {
+      type: new DataTypes.INTEGER,
+      allowNull: false
+    },
+    inventorySize: {
       type: new DataTypes.INTEGER,
       allowNull: false
     },

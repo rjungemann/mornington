@@ -14,6 +14,11 @@ async function tickHops(context: ClockContext) {
     for (let hop of selectedHops) {
       hop.set('active', !hop.dataValues.active)
       const result = await hop.save()
+      const headStation = stations.find((s) => hop.dataValues.headId === s.dataValues.id)!
+      const headTitle = headStation.dataValues.title
+      const tailStation = stations.find((s) => hop.dataValues.tailId === s.dataValues.id)!
+      const tailTitle = tailStation.dataValues.title
+      const state = hop.dataValues.active ? 'active' : 'inactive'
 
       logger.warn(
         {
@@ -21,13 +26,13 @@ async function tickHops(context: ClockContext) {
           turnNumber,
           hopName: hop.dataValues.name,
         },
-        `The hop ${hop.dataValues.label} flipped to ${hop.dataValues.active ? 'active' : 'inactive'}!`
+        `The hop between ${headTitle} and ${tailTitle} flipped to ${state}!`
       )
       await db.models.Message.create({
         gameId,
         turnNumber,
         currentTime,
-        message: `The hop ${hop.dataValues.label} flipped to ${hop.dataValues.active ? 'active' : 'inactive'}!`
+        message: `The hop between ${headTitle} and ${tailTitle} flipped to ${state}!`
       })
     }
   }

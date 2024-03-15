@@ -75,8 +75,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from E to F" />
+       active="true" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 183.2,337.6 h 120"
@@ -85,8 +84,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from D to E" />
+       active="true" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 123.2,257.6 60,80"
@@ -95,8 +93,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from A to D" />
+       active="true" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 303.2,177.6 60,80"
@@ -105,8 +102,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from C to F" />
+       active="true" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 183.2,177.6 h 120"
@@ -115,8 +111,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from B to C" />
+       active="true" />
     <path
        style="fill:#ffffff;stroke:#666666;stroke-width:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 123.2,257.6 60,-80"
@@ -125,8 +120,7 @@
        line="red"
        length="3"
        switchGroups=""
-       active="true"
-       label="Hop from A to B" />
+       active="true" />
   </g>
   <g
      inkscape:label="Stations"
@@ -231,9 +225,11 @@
        willpower="12"
        currentHp="4"
        maxHp="4"
+       armor="1"
        initiative="10"
        timeout="0"
        stunTimeout="0"
+       inventorySize="6"
        description="A bootlegger of rare spirits."
        birthdate="1982-04-21T00:00:00.000Z" />
   </g>
