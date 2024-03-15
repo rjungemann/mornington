@@ -9,7 +9,7 @@ const MessageInfo = ({ game, gameTurn, message }: { game: GameResponse, gameTurn
         #{message.turnNumber}
       </span>
       {' '}
-      <span className="opacity-80">
+      <span suppressHydrationWarning={true} className="opacity-80">
         {formatTime(new Date(message.currentTime))}
       </span>
       {' '}

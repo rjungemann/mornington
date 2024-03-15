@@ -50,22 +50,12 @@ async function main() {
   app.use(cors())
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    res.locals.db = db;
-    next();
+    res.locals.db = db
+    next()
   })
 
   app.get('/', (req: Request, res: Response) => {
-    res.send('OK');
-  });
-
-  app.get('/games', async (req: Request, res: Response<any, { db: Sequelize }>) => {
-    const db = res.locals!.db
-    const games = await db.models.Game.findAll({
-      order: [['createdAt', 'DESC']],
-      include: ['agents'],
-      limit: 10
-    })
-    res.json({ games })
+    res.send('OK')
   })
 
   app.get('/games/latest', async (req: Request, res: Response<any, { db: Sequelize }>) => {

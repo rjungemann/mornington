@@ -99,25 +99,25 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">Started</span>
         {' '}
-        <span>{formatTime(new Date(gameTurn.createdAt))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.createdAt))}</span>
       </div>
 
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">Updated</span>
         {' '}
-        <span>{formatTime(new Date(gameTurn.updatedAt))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.updatedAt))}</span>
       </div>
 
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">In-Game Started</span>
         {' '}
-        <span>{formatTime(new Date(gameTurn.startTime))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.startTime))}</span>
       </div>
 
       <div className="col-span-1">
         <span className="font-semibold text-sky-500">In-Game Updated</span>
         {' '}
-        <span>{formatTime(new Date(gameTurn.currentTime))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.currentTime))}</span>
       </div>
 
       <div className="col-span-1">

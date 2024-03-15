@@ -29,11 +29,11 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
       <div className="text-xs">
         <span className="font-semibold text-sky-400">Started</span>
         {' '}
-        <span>{formatTime(new Date(game.createdAt))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(game.createdAt))}</span>
         {' '}
         <span className="font-semibold text-sky-400">Updated</span>
         {' '}
-        <span>{formatTime(new Date(game.updatedAt))}</span>
+        <span suppressHydrationWarning={true}>{formatTime(new Date(game.updatedAt))}</span>
       </div>
     </>
   )
