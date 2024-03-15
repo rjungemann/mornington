@@ -42,6 +42,11 @@ async function createRandomHazard(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards } = context
   const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
+  // Only five hazards in play at a time
+  if (hazards.length > 5) {
+    return
+  }
+
   const hop = hops[Math.floor(gameSeededRandom(game) * hops.length)]
   if (!hop) {
     logger.error(

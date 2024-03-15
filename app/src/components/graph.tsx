@@ -207,7 +207,6 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
           {/* TODO: Options */}
           <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={options.stationTextColor} fontSize={options.stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
         </svg>
-        <StationBubble gameTurn={gameTurn} station={station} options={options} />
       </>
     )
   )
@@ -225,7 +224,6 @@ const HopTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, tr
   return (
     <>
       <polyline {...tooltipMessage} points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
-      <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
 }
@@ -240,7 +238,6 @@ const StationTrain = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse
   return (
     <>
       <polyline {...tooltipMessage} points={points.map((n) => n.join(',')).join(' ')} fill={train.color} style={options.dropShadowStyle} stroke={options.trainStroke} strokeWidth={options.trainStrokeWidth} />
-      <TrainBubble gameTurn={gameTurn} train={train} options={options} />
     </>
   )
 }
@@ -300,6 +297,12 @@ export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, optio
       </g>
       {gameTurn?.hazards.map((hazard, index) => (
         <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
+      ))}
+      {gameTurn?.stations.map((s, i) => (
+        <StationBubble key={i} gameTurn={gameTurn} station={s} options={options} />
+      ))}
+      {gameTurn?.trains.map((t, i) => (
+        <TrainBubble key={i} gameTurn={gameTurn} train={t} options={options} />
       ))}
       {gameTurn?.trains.map((train, index) => (
         <Train key={index} gameTurn={gameTurn} train={train} options={options} />
