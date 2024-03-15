@@ -27,6 +27,7 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
         })
       });
     }
+    requestFn()
     if (isPolling) {
       const interval = setInterval(requestFn, updateInterval)
       return () => {
