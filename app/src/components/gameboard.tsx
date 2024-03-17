@@ -130,7 +130,9 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
 }
 
 export function Gameboard({ context, isPolling }: { context: GameContextData, isPolling: boolean }) {
+  console.log('GameBoard context.gameTurn.turnNumber before', context.gameTurn.turnNumber)
   const { gameTurn, game, games, messages } = useGameHook({ context, isPolling })
+  console.log('GameBoard context.gameTurn.turnNumber after', context.gameTurn.turnNumber)
   const graphOptions = useGraphOptions()
 
   // On each load, choose a message from the current turn

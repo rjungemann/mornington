@@ -1,6 +1,6 @@
 import { Gameboard } from '@/components/gameboard'
 
-export default function Home({ context }: { context: GameContextData }) {
+export default function Page({ context }: { context: GameContextData }) {
   return (
     <main className="sm:m-0 lg:m-2">
       <Gameboard context={context} isPolling={false} />

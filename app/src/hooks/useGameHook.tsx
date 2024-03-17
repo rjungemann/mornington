@@ -8,30 +8,34 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
   const [gameContext, setGameContext] = useState<GameContextData>(context)
 
   useEffect(() => {
+    setGameContext(context)
+  }, [context] )
+
+  useEffect(() => {
     // Periodically check for game updates
     const requestFn = () => {
-      console.info('Fetching updated game data...')
-      fetch(url)
-      .then((response) => response.json())
-      .then((data): void => {
-        if (!data.game) {
-          console.error('Could not load game data, will retry...')
-          return
-        }
-        setGameContext({
-          game: data.game,
-          gameTurn: data.gameTurn.data,
-          games: data.games,
-          messages: data.messages
+      if (isPolling) {
+        console.info('Fetching updated game data...')
+        fetch(url)
+        .then((response) => response.json())
+        .then((data): void => {
+          if (!data.game) {
+            console.error('Could not load game data, will retry...')
+            return
+          }
+          setGameContext({
+            game: data.game,
+            gameTurn: data.gameTurn.data,
+            games: data.games,
+            messages: data.messages
+          })
         })
-      });
+      }
     }
     requestFn()
-    if (isPolling) {
-      const interval = setInterval(requestFn, updateInterval)
-      return () => {
-        clearInterval(interval)
-      }
+    const interval = setInterval(requestFn, updateInterval)
+    return () => {
+      clearInterval(interval)
     }
   }, [isPolling, updateInterval, url]);
 
