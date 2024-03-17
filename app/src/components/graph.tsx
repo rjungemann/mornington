@@ -299,14 +299,14 @@ export const Graph = ({ gameTurn, options }: { gameTurn: GameTurnResponse, optio
       {gameTurn?.hazards.map((hazard, index) => (
         <Hazard key={index} gameTurn={gameTurn} hazard={hazard} options={options} />
       ))}
+      {gameTurn?.trains.map((train, index) => (
+        <Train key={index} gameTurn={gameTurn} train={train} options={options} />
+      ))}
       {gameTurn?.stations.map((s, i) => (
         <StationBubble key={i} gameTurn={gameTurn} station={s} options={options} />
       ))}
       {gameTurn?.trains.map((t, i) => (
         <TrainBubble key={i} gameTurn={gameTurn} train={t} options={options} />
-      ))}
-      {gameTurn?.trains.map((train, index) => (
-        <Train key={index} gameTurn={gameTurn} train={train} options={options} />
       ))}
     </svg>
   );

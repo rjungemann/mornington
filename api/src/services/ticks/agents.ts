@@ -326,57 +326,6 @@ async function tickStationedAgentFightingMelee(agent: Model<Agent>, station: Mod
 
   const { sum, dice } = rollDice(damage, { randomFn: () => gameSeededRandom(game) })
   otherAgent.dataValues.currentHp = otherAgent.dataValues.currentHp - Math.max(sum - otherAgent.dataValues.armor, 0)
-  if (otherAgent.dataValues.currentHp <= 0) {
-    const startingStations = stations.filter((s) => s.dataValues.start)
-    const startingStation = startingStations[Math.floor(gameSeededRandom(game) * startingStations.length)]
-    if (!startingStation) {
-      logger.error(
-        {
-          gameName,
-          turnNumber,
-          agentName: agent.dataValues.name,
-          otherAgentName: otherAgent.dataValues.name,
-          damage: sum,
-          dice
-        },
-        'Stationed agent in combat knocked someone out, and they could not be reincarnated!'
-      )
-      await db.models.Message.create({
-        gameId,
-        turnNumber,
-        currentTime,
-        message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they could not be reincarnated!`
-      })
-      return
-    }
-
-    logger.warn(
-      {
-        gameName,
-        turnNumber,
-        agentName: agent.dataValues.name,
-        otherAgentName: otherAgent.dataValues.name,
-        stationName: station.dataValues.name,
-        damage: sum,
-        dice
-      },
-      'Stationed agent in combat knocked someone out, and they are being reincarnated!'
-    )
-    await db.models.Message.create({
-      gameId,
-      turnNumber,
-      currentTime,
-      message: `Stationed agent ${agent.dataValues.title} in combat knocked ${otherAgent.dataValues.title} out, and they are being reincarnated at ${startingStation.dataValues.title}!`
-    })
-
-    otherAgent.set('currentHp', otherAgent.dataValues.maxHp)
-    // TODO: Make this dynamic
-    otherAgent.set('timeout', 5)
-    otherAgent.set('stationId', startingStation.dataValues.id)
-    otherAgent.set('trainId', null)
-    await otherAgent.save()
-    return
-  }
 
   logger.warn(
     {
@@ -713,23 +662,84 @@ async function tickStationedAgent(agent: Model<Agent>, context: ClockContext) {
   // })
 }
 
+async function tickAgentKnockedOut(agent: Model<Agent>, context: ClockContext) {
+  const { game, lines, trains, hops, stations, agents, hazards, items } = context
+  const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
+
+  if (agent.dataValues.currentHp > 0) {
+    return
+  }
+
+  const startingStations = stations.filter((s) => s.dataValues.start)
+  const startingStation = startingStations[Math.floor(gameSeededRandom(game) * startingStations.length)]
+  if (!startingStation) {
+    logger.error(
+      {
+        gameName,
+        turnNumber,
+        agentName: agent.dataValues.name
+      },
+      'Agent got knocked out, and they could not be reincarnated!'
+    )
+    await db.models.Message.create({
+      gameId,
+      turnNumber,
+      currentTime,
+      message: `Agent ${agent.dataValues.title} got knocked out, and they could not be reincarnated!`
+    })
+    return
+  }
+
+  logger.warn(
+    {
+      gameName,
+      turnNumber,
+      agentName: agent.dataValues.name,
+      stationName: startingStation.dataValues.name,
+    },
+    'Stationed agent in combat knocked someone out, and they are being reincarnated!'
+  )
+  await db.models.Message.create({
+    gameId,
+    turnNumber,
+    currentTime,
+    message: `Agent ${agent.dataValues.title} got knocked out, and they are being reincarnated at ${startingStation.dataValues.title}!`
+  })
+
+  agent.set('currentHp', agent.dataValues.maxHp)
+  // TODO: Make this dynamic
+  agent.set('timeout', 5)
+  agent.set('stationId', startingStation.dataValues.id)
+  agent.set('trainId', null)
+  await agent.save()
+  return
+}
+
 async function tickAgents(context: ClockContext) {
   const { game, lines, trains, hops, stations, agents, hazards, items } = context
   const { id: gameId, name: gameName, turnNumber, currentTime } = game.dataValues
 
   // Agent phase
   for (let agent of agents) {
+    // Agent in timeout
     if (agent.dataValues.timeout > 0) {
       agent.set('timeout', agent.dataValues.timeout - 1)
       await agent.save()
       continue
     }
+    // Stunned agent
     if (agent.dataValues.stunTimeout > 0) {
       agent.set('stunTimeout', agent.dataValues.stunTimeout - 1)
       await agent.save()
       continue
     }
-    
+    // Unconscious agent 
+    if (agent.dataValues.currentHp <= 0) {
+      await tickAgentKnockedOut(agent, context)
+      await agent.save()
+      continue
+    }
+
     // Traveling agent
     if (agent.dataValues.trainId) {
       await tickTravelingAgent(agent, context)

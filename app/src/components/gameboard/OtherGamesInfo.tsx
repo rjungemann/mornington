@@ -54,7 +54,7 @@ export const OtherGamesInfo = ({ games }: { games: GameListItemResponse[] }) => 
       <ul className="text-md">
         {games.map((game, index) => {
           return (
-            <li key={index} className="bg-slate-800 cursor-pointer mb-4 last:mb-0 opacity-80 hover:opacity-100 p-4" onClick={() => router.push(`/games/${game.name}`)}>
+            <li key={index} className="bg-lime-950 cursor-pointer mb-4 last:mb-0 opacity-80 hover:opacity-100 p-4" onClick={() => router.push(`/games/${game.name}`)}>
               <OtherGameInfo game={game} />
             </li>
           )
