@@ -249,6 +249,7 @@ const Train = ({ gameTurn, train, options }: { gameTurn: GameTurnResponse, train
 )
 
 const Hazard = ({ gameTurn, hazard, options }: { gameTurn: GameTurnResponse, hazard: HazardResponse, options: GraphOptions }) => {
+  const tooltipMessage = useTooltipMessage(hazard.title)
   const hop = gameTurn.hops.find((hop) => hop.id === hazard.hopId)!
   const percent = hazard.distance / hop.length
   const { x, y } = getGameHopRelativePosition(gameTurn, hop, percent)
@@ -257,7 +258,7 @@ const Hazard = ({ gameTurn, hazard, options }: { gameTurn: GameTurnResponse, haz
   .map(([x, y]) => [x * options.hazardScale, y * options.hazardScale])
   .map(([x2, y2]) => [x + x2, y + y2])
   return (
-    <polyline points={points.map((n) => n.join(',')).join(' ')} fill={hazard.color} style={options.dropShadowStyle} stroke={options.hazardStroke} strokeWidth={options.hazardStrokeWidth} />
+    <polyline {...tooltipMessage} points={points.map((n) => n.join(',')).join(' ')} fill={hazard.color} style={options.dropShadowStyle} stroke={options.hazardStroke} strokeWidth={options.hazardStrokeWidth} />
   )
 }
 
