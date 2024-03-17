@@ -8,6 +8,10 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
   const [gameContext, setGameContext] = useState<GameContextData>(context)
 
   useEffect(() => {
+    setGameContext(context)
+  }, [context])
+
+  useEffect(() => {
     if (!isPolling) {
       return
     }
@@ -27,7 +31,7 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
           games: data.games,
           messages: data.messages
         })
-      });
+      })
     }
     requestFn()
     const interval = setInterval(requestFn, updateInterval)

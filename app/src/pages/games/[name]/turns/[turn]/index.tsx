@@ -1,6 +1,6 @@
 import { Gameboard } from '@/components/gameboard'
 
-export default function Home({ context }: { context: GameContextData }) {
+export default function Page({ context }: { context: GameContextData }) {
   return (
     <main className="sm:m-0 lg:m-2">
       <Gameboard context={context} isPolling={false} />
@@ -17,7 +17,6 @@ export async function getServerSideProps({ params }: { params: any }) {
   const data = await fetch(url, { 'headers': { 'Accept': 'application/json' } }).then((response) => response.json())
   const game: GameResponse = data.game
   const gameTurn: GameTurnResponse = data.gameTurn.data
-  console.log('gameTurn.turnNumber', gameTurn.turnNumber)
   const games: GameListItemResponse[] = data.games
   const messages: MessagesResponse = data.messages
   const context = { game, gameTurn, games, messages }
