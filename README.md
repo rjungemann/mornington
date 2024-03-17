@@ -124,6 +124,8 @@ Once Heroku is setup,
 ```sh
 # Deploy backend
 git subtree push --prefix api backend main
+# Or, to force-push (preferred for CI)
+git push backend `git subtree split --prefix api main`:main --force
 
 # Sync and seed the DB
 heroku run -a mornington-backend yarn db:sync
@@ -138,6 +140,8 @@ heroku pg:backups:download -a $api
 
 # Deploy frontend
 git subtree push --prefix app frontend main
+# Or, to force-push (preferred for CI)
+git push frontend `git subtree split --prefix app main`:main --force
 ```
 
 ## Credits
