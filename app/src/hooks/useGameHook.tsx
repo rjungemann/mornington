@@ -8,9 +8,12 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
   const [gameContext, setGameContext] = useState<GameContextData>(context)
 
   useEffect(() => {
+    if (!isPolling) {
+      return
+    }
     // Periodically check for game updates
     const requestFn = () => {
-      console.info('Fetching updated game data...')
+      console.info('Fetching updated game data...', url)
       fetch(url)
       .then((response) => response.json())
       .then((data): void => {
@@ -27,11 +30,9 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
       });
     }
     requestFn()
-    if (isPolling) {
-      const interval = setInterval(requestFn, updateInterval)
-      return () => {
-        clearInterval(interval)
-      }
+    const interval = setInterval(requestFn, updateInterval)
+    return () => {
+      clearInterval(interval)
     }
   }, [isPolling, updateInterval, url]);
 

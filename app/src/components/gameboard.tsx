@@ -20,6 +20,9 @@ import fastForward from '../app/fast-forward.svg'
 import { useGameHook } from '@/hooks/useGameHook'
 
 const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
+  console.log('firstLink', `/games/${gameTurn.name}/turns/1`)
+  console.log('turnNumber', gameTurn.turnNumber)
+  console.log('backLink', `/games/${gameTurn.name}/turns/${gameTurn.turnNumber - 1}`)
   return (
     <div className="mt-2 mb-2 text-sm flex justify-between">
       <span>

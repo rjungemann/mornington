@@ -1,11 +1,13 @@
-import express, { Express, NextFunction, Request, Response } from 'express';
-import dotenv from 'dotenv';
+import express, { Express, NextFunction, Request, Response } from 'express'
+import dotenv from 'dotenv'
 import db, { Game } from './models'
 import { Model, Sequelize } from 'sequelize'
-import cors from 'cors';
+import cors from 'cors'
 import { logger } from './logging'
+import { initCache } from './cache'
+import memjs from 'memjs'
 
-dotenv.config();
+dotenv.config()
 
 const getGameStateByNameAndTurnNumber = (db: Sequelize) => async (name?: string, turnNumber?: number) => {
   const game = name
@@ -49,6 +51,15 @@ async function main() {
 
   app.use(cors())
 
+
+
+  const cache = initCache()
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.locals.cache = cache
+    next()
+  })
+
+
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.locals.db = db
     next()
@@ -80,16 +91,27 @@ async function main() {
     res.json(state)
   })
 
-  app.get('/games/:name/turns/:turn', async (req: Request, res: Response<any, { db: Sequelize }>) => {
+  app.get('/games/:name/turns/:turn', async (req: Request, res: Response<any, { db: Sequelize, memcachedClient: memjs.Client }>) => {
     const db = res.locals!.db
     const name = req.params.name
     const turn = req.params.turn ? parseInt(req.params.turn, 10) : undefined
+
+    // const existingResult = await cache?.get(`mornington:games:${name}:turns:${turn}`)
+    // if (existingResult?.value?.length) {
+    //   res.send(existingResult.value.toString())
+    //   return
+    // }
+
     const state = await getGameStateByNameAndTurnNumber(db)(name, turn)
     if (!state) {
       res.status(404).send({})
       return
     }
-    res.json(state)
+
+    const json = JSON.stringify(state)
+    cache?.set(`mornington:games:${name}:turns:${turn}`, json)
+
+    res.send(json)
   })
 
   app.listen(port, () => {

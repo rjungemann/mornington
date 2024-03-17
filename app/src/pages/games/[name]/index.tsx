@@ -13,7 +13,7 @@ export async function getServerSideProps({ params }: { params: any }) {
   const url = `${host}/games/${params.name}`
 
   // Fetch data from external API
-  console.info('Fetching initial game data...')
+  console.info('Fetching initial game data...', url)
   const data = await fetch(url).then((response) => response.json())
   const game: GameResponse = data.game
   const gameTurn: GameTurnResponse = data.gameTurn.data
