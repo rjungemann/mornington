@@ -20,9 +20,6 @@ import fastForward from '../app/fast-forward.svg'
 import { useGameHook } from '@/hooks/useGameHook'
 
 const BackForwardButtons = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
-  console.log('firstLink', `/games/${gameTurn.name}/turns/1`)
-  console.log('turnNumber', gameTurn.turnNumber)
-  console.log('backLink', `/games/${gameTurn.name}/turns/${gameTurn.turnNumber - 1}`)
   return (
     <div className="mt-2 mb-2 text-sm flex justify-between">
       <span>
@@ -133,9 +130,7 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
 }
 
 export function Gameboard({ context, isPolling }: { context: GameContextData, isPolling: boolean }) {
-  console.log('GameBoard context.gameTurn.turnNumber before', context.gameTurn.turnNumber)
   const { gameTurn, game, games, messages } = useGameHook({ context, isPolling })
-  console.log('GameBoard context.gameTurn.turnNumber after', context.gameTurn.turnNumber)
   const graphOptions = useGraphOptions()
 
   // On each load, choose a message from the current turn
