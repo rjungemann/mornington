@@ -1,8 +1,9 @@
-import db from '../../models';
+import db, { Game } from '../../models';
 import { logger } from '../../logging'
 import { ClockContext } from '../../types';
 import { gameSeededRandom } from '../ticks/shared';
 import { rollDice } from '../../diceparser';
+import { Model } from 'sequelize';
 
 type BaseHazard = {
   name: string
@@ -12,29 +13,77 @@ type BaseHazard = {
   kind: string
 }
 
+const animals = [
+  {
+    title: 'Raccoon',
+    label: 'A stray raccoon is running loose'
+  },
+  {
+    title: 'Dog',
+    label: 'A stray dog is running loose'
+  },
+  {
+    title: 'Javelina',
+    label: 'A stray javelina is running loose'
+  },
+  {
+    title: 'Deer',
+    label: 'A stray deer is running loose'
+  },
+  {
+    title: 'Shadowy Form',
+    label: 'A shadowy form looms ominously'
+  },
+]
+
+const debris = [
+  {
+    title: 'Rubble',
+    label: 'A bunch of rubble'
+  },
+  {
+    title: 'Debris on Track',
+    label: 'Some sort of debris on the track'
+  },
+  {
+    title: 'Damaged Track',
+    label: 'A damaged track'
+  },
+  {
+    title: 'Exposed Electrical Cables',
+    label: 'Some exposed electrical cables'
+  },
+]
+
 // TODO: Move somewhere else
 // TODO: Add more random hazards
-const baseHazards: Record<string, BaseHazard> = {
-  'mystery-slime': {
-    name: 'mystery-slime',
-    title: 'Mystery Slime',
-    label: 'Some sort of mystery slime',
-    color: '#d76cff',
-    kind: 'stop',
+const baseHazards: Record<string, (game: Model<Game>) => BaseHazard> = {
+  'mystery-slime': (game) => {
+    return {
+      name: 'mystery-slime',
+      title: 'Mystery Slime',
+      label: 'Some sort of mystery slime',
+      color: '#d76cff',
+      kind: 'stop',
+    }
   },
-  'debris': {
-    name: 'debris',
-    title: 'Debris on Track',
-    label: 'Some sort of debris on the track',
-    color: '#cc0000',
-    kind: 'stop',
+  'debris': (game) => {
+    const item = debris[Math.floor(gameSeededRandom(game) * debris.length)]
+    return {
+      name: 'debris',
+      ...item,
+      color: '#cc0000',
+      kind: 'stop',
+    }
   },
-  'stray-raccoon': {
-    name: 'stray-raccoon',
-    title: 'Stray Raccoon',
-    label: 'A stray raccoon is running loose',
-    color: '#404040',
-    kind: 'stop',
+  'stray-animal': (game) => {
+    const animal = animals[Math.floor(gameSeededRandom(game) * animals.length)]
+    return {
+      name: 'stray-animal',
+      ...animal,
+      color: '#404040',
+      kind: 'stop',
+    }
   }
 }
 
@@ -68,7 +117,7 @@ async function createRandomHazard(context: ClockContext) {
   const distance = Math.floor(gameSeededRandom(game) * hop.dataValues.length)
   const baseHazardNames = Object.keys(baseHazards)
   const baseHazardName = baseHazardNames[Math.floor(gameSeededRandom(game) * baseHazardNames.length)]
-  const baseHazard = baseHazards[baseHazardName]
+  const baseHazard = baseHazards[baseHazardName](game)
   if (!baseHazard) {
     logger.error(
       {
