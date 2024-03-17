@@ -85,43 +85,43 @@ const BasicInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnR
   return (
     <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-2 opacity-80 text-sm">
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">Weather</span>
+        <span className="font-semibold text-blue-400">Weather</span>
         {' '}
         {gameTurn.weatherLabel}
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">Moon Phase</span>
+        <span className="font-semibold text-blue-400">Moon Phase</span>
         {' '}
         {gameTurn.moonPhaseLabel}
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">Started</span>
+        <span className="font-semibold text-blue-400">Started</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.createdAt))}</span>
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">Updated</span>
+        <span className="font-semibold text-blue-400">Updated</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.updatedAt))}</span>
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">In-Game Started</span>
+        <span className="font-semibold text-blue-400">In-Game Started</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.startTime))}</span>
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">In-Game Updated</span>
+        <span className="font-semibold text-blue-400">In-Game Updated</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(gameTurn.currentTime))}</span>
       </div>
 
       <div className="col-span-1">
-        <span className="font-semibold text-sky-500">In-Game Duration</span>
+        <span className="font-semibold text-blue-400">In-Game Duration</span>
         {' '}
         <span>{Math.round((new Date(gameTurn.currentTime).getTime() - new Date(gameTurn.startTime).getTime()) / 60.0)} minutes</span>
       </div>
@@ -147,7 +147,7 @@ export function Gameboard({ context, isPolling }: { context: GameContextData, is
       <Navigation />
       
       <div className="p-4 m-2">
-        <h1 className="mb-2 font-semibold text-2xl text-sky-400">
+        <h1 className="mb-2 font-semibold text-2xl text-blue-500">
           {gameTurn.title}
           {' '}
           <span className="text-slate-200">Turn #{gameTurn.turnNumber}</span>

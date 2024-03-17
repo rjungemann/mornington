@@ -45,7 +45,7 @@ const TrainInfo = ({ game, gameTurn, train }: { game: GameResponse, gameTurn: Ga
 const TrainsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTurnResponse }) => {
   return (
     <>
-      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Trains</h2>
+      <h2 className="text-2xl text-blue-500 font-semibold mt-4 mb-4">Trains</h2>
       <ul className="text-md mb-6">
         {gameTurn?.trains.map((train, index) => {
           return (

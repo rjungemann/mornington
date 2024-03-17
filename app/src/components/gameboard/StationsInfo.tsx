@@ -68,7 +68,7 @@ const StationsInfo = ({ game, gameTurn }: { game: GameResponse, gameTurn: GameTu
   })
   return (
     <>
-      <h2 className="text-2xl text-sky-500 font-semibold mt-4 mb-4">Stations</h2>
+      <h2 className="text-2xl text-blue-500 font-semibold mt-4 mb-4">Stations</h2>
       <ul className="text-md mb-2">
         {
           stations.length

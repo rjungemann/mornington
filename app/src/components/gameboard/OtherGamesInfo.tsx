@@ -27,11 +27,11 @@ export const OtherGameInfo = ({ game }: { game: GameListItemResponse }) => {
       </div>
 
       <div className="text-sm">
-        <span className="font-semibold text-sky-400">Started</span>
+        <span className="font-semibold text-blue-400">Started</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(game.createdAt))}</span>
         {' '}
-        <span className="font-semibold text-sky-400">Updated</span>
+        <span className="font-semibold text-blue-400">Updated</span>
         {' '}
         <span suppressHydrationWarning={true}>{formatTime(new Date(game.updatedAt))}</span>
       </div>
@@ -48,7 +48,7 @@ export const OtherGamesInfo = ({ games }: { games: GameListItemResponse[] }) => 
   }
   return (
     <>
-      <h2 className="mb-4 font-semibold text-2xl text-sky-400">
+      <h2 className="mb-4 font-semibold text-2xl text-blue-500">
         Other Matches
       </h2>
       <ul className="text-md">
