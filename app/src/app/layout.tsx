@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { Noto_Sans } from "next/font/google";
-import "./globals.css";
+import "./global.css";
 
 const font = Noto_Sans({ subsets: ["latin"] });
 
@@ -14,9 +15,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.GA_ID
   return (
     <html lang="en">
       <body className={font.className}>{children}</body>
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>
   );
 }
