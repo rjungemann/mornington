@@ -32,6 +32,9 @@ export function useGameHook({ context, isPolling }: { context: GameContextData, 
           messages: data.messages
         })
       })
+      .catch((error: Error) => {
+        console.error('Could not fetch game data, will retry...', error)
+      })
     }
     requestFn()
     const interval = setInterval(requestFn, updateInterval)

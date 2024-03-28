@@ -205,7 +205,7 @@ const Station = ({ gameTurn, station, setTraversal, options }: { gameTurn: GameT
         <svg width={width} height={height} x={textX} y={textY}>
           <rect x="0" y="0" width={width} height={height} fill="none"/>
           {/* TODO: Options */}
-          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={options.stationTextColor} fontSize={options.stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
+          <text x="50%" y="50%" cursor="default" dominantBaseline="middle" textAnchor="middle" fill={options.stationTextColor} fontSize={options.stationFontSize} style={options.dropShadowStyle}>{station.title}</text>
         </svg>
       </>
     )
